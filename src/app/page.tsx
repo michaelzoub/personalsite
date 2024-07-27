@@ -7,14 +7,14 @@ import { posts } from "./blogs"
 export default function Home() {
   const [click, setClick] = useState(false);
   const [button, setButton] = useState(false);
-  const audioRef = useRef(null)
-  const canvasRef = useRef(null)
-  const animationRef = useRef(null)
+  const audioRef: any = useRef(null)
+  const canvasRef: any = useRef(null)
+  const animationRef: any = useRef(null)
 
 
 
   useEffect(()=> {
-    const canvas: any = canvasRef.current;
+    const canvas: any= canvasRef.current;
     canvas.width = 500;
     canvas.height = 500;
   }, [])
@@ -34,7 +34,7 @@ export default function Home() {
 
 
   function draw() {
-    const canvas = canvasRef.current;
+    const canvas: any = canvasRef.current;
     const context = canvas.getContext('2d')
     context.clearRect(0, 0, canvas.width, canvas.height)
     const frequency = 0.05;
