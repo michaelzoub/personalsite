@@ -14,7 +14,7 @@ export default function Home() {
 
 
   useEffect(()=> {
-    const canvas = canvasRef.current;
+    const canvas: any = canvasRef.current;
     canvas.width = 500;
     canvas.height = 500;
   }, [])
