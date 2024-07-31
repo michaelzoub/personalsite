@@ -12,6 +12,7 @@
     "@shikijs/rehype": "^1.12.0",
     "gray-matter": "^4.0.3",
     "next": "14.2.5",
+    "nodemailer": "^6.9.14",
     "react": "^18",
     "react-dom": "^18",
     "rehype-stringify": "^10.0.0",
