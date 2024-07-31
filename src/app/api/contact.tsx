@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-export default async function handler(req, res) {
+export default async function handler(req:string, res:string) {
     if (req.method == 'POST') {
 
         const { name, email, message } = req.body;
@@ -19,8 +19,8 @@ export default async function handler(req, res) {
         try {
           // Send email
           let info = await transporter.sendMail({
-            from: '"Your Name" <your-email@example.com>',
-            to: "recipient@example.com",
+            from: email,
+            to: process.env.EMAIL_USER,
             subject: "New Contact Form Submission",
             text: `
               Name: ${name}
