@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef, useEffect } from 'react'
 import { posts } from "./blogs"
+import { Suspense } from 'react'
 
 export default function Home() {
   const [click, setClick] = useState(false);
@@ -92,8 +93,10 @@ export default function Home() {
       <div className="absolute end-0 ">
         <div className="max-h-fit max-w-fit text-sm mx-auto mr-2"></div>
         <audio ref={audioRef} src="demo.mp3" className="w-56"></audio>
+        <Suspense>
         <div className={button?`hidden`:'absolute mt-4 ml-[23px] cursor-default'} onClick={togglePlay}>▶</div>
-        <canvas ref={canvasRef} className="rounded-full border-gray border-2 mr-6 w-14" onClick={togglePlay}></canvas>
+        </Suspense>
+        <canvas ref={canvasRef} className="rounded-full border-gray border-2 mr-6 w-14 h-14" onClick={togglePlay}></canvas>
       </div>
       <div className="text-xl my-16 mx-6 w-[300px] md:w-[500px]">I'm Kafka (Michael Zoubkkoff), a computer engineering student & part time software developer focused on helping humanity progress by ameliorating current technology & building new products.</div>
       <div className="mx-auto">
