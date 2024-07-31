@@ -26,7 +26,7 @@ export default function Home() {
     canvas.height = 500;
   }, [])
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e:any) {
     e.preventDefault()
     const response = await fetch('', {
       method: 'POST',
@@ -46,7 +46,7 @@ export default function Home() {
   }
 
 
-  function handleInput(e) {
+  function handleInput(e:any) {
     setForm({... form, [e.target.name] : e.target.value})
   }
 
