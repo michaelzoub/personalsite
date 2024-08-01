@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef, useEffect } from 'react'
 import { posts } from "./blogs"
-import { Suspense } from 'react'
 
 export default function Home() {
   const [click, setClick] = useState(false);
@@ -93,12 +92,10 @@ export default function Home() {
       <div className="absolute end-0 ">
         <div className="max-h-fit max-w-fit text-sm mx-auto mr-2"></div>
         <audio ref={audioRef} src="demo.mp3" className="w-56"></audio>
-        <Suspense>
         <div className={button?`hidden`:'absolute mt-4 ml-[23px] cursor-default'} onClick={togglePlay}>▶</div>
-        </Suspense>
         <canvas ref={canvasRef} className="rounded-full border-gray border-2 mr-6 w-14 h-14" onClick={togglePlay}></canvas>
       </div>
-      <div className="text-xl my-16 mx-6 w-[300px] md:w-[500px]">I'm Kafka (Michael Zoubkkoff), a computer engineering student & part time software developer focused on helping humanity progress by ameliorating current technology & building new products.</div>
+      <div className="text-xl mt-14 mb-2 mx-6 w-[300px] md:w-[500px]">I'm Kafka (Michael Zoubkkoff), a computer engineering student & part time software developer focused on helping humanity progress by ameliorating current technology & building new products.</div>
       <div className="mx-auto">
         <div className="text-lg my-6 mx-auto max-w-fit">Software:</div>
         <div className="bg-gray-200 p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]"> 
@@ -115,15 +112,15 @@ export default function Home() {
         </div>
       </div>
       <div>
-        <div>Contact</div>
+        <div className="text-center">Contact</div>
         <form className="" onSubmit={handleSubmit}>
           <input className="rounded-lg border-2 border-black p-1" placeholder="Name" name="name" value={form.name} onChange={handleInput} required></input>
-          <input className="rounded-lg border-2 border-black p-1 m-2" placeholder="E-mail" name="email" value={form.email} onChange={handleInput} required></input>
+          <input className="rounded-lg border-2 border-black p-1 m-0 md:m-2" placeholder="E-mail" name="email" value={form.email} onChange={handleInput} required></input>
           <input className="rounded-lg border-2 border-black p-1" placeholder="Subject" name="subject"  value={form.subject} onChange={handleInput} required></input>
           <button className="m-2 items-center bg-orange-500 p-[5px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400"></button>
         </form>
-        </div>
-      <div>© 2024 MIT Licensed</div>
+      </div>
+      <div className="m-2">© 2024 MIT Licensed</div>
     </main>
   )
 }
