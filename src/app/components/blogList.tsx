@@ -1,6 +1,8 @@
 import { posts } from "../blog/blogs"
 import Link from "next/link"
 
+//not used for now
+
 export function BlogList() {
     return (
     <main className="flex h-screen overflow-hidden flex-col items-center p-4 bg-white cursor-default text-black">

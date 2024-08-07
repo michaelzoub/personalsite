@@ -3,7 +3,6 @@ import path from 'path'
 
 
 export async function updateFile(param: any) {
-    /*const data2 = await readFile()*/
     console.log('updateFile hit')
     try {
     console.log('trying update')
@@ -11,6 +10,6 @@ export async function updateFile(param: any) {
     fs.writeFile(filePath, param.toString())
     console.log('update')
     } catch(error) {
-        console.log('updateFile wrong')
+        console.log('updateFile error')
     }
 }

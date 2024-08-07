@@ -18,8 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={ubuntu.className}>
-      <Navbar></Navbar>
-        {children}</body>
+        <Navbar></Navbar>
+        {children}
+        </body>
     </html>
   );
 }
