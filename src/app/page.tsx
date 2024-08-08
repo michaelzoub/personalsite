@@ -24,7 +24,7 @@ export default function Home() {
           {posts.map(e=> <div key={e.id} className="flex flex-row space-x-14 md:space-x-60 transition delay-50 duration-300 ease-in-out hover:text-orange-400"><Link href={{pathname: e.name, query: {id: e.id}}} className="flex p-3 cursor-default ">{e.name}</Link><div className="flex place-content-end p-3 max-w-fit">{e.date}</div></div>)}
         </div>
       </div>
-      <div className="absolute m-2 bottom-0">© 2024 MIT Licensed</div>
+      <div className="m-14 md:absolute bottom-0 m-2">© 2024 MIT Licensed</div>
     </main>
   )
 }

@@ -55,7 +55,7 @@ export function Navbar() {
     }
   
     return (
-        <div className="absolute flex flex-row bg-white p-4 w-full">
+        <div className="absolute flex flex-row bg-white p-4 w-full text-black">
             <div className="absolute end-0 ">
                 <div className="max-h-fit max-w-fit text-sm mx-auto mr-2"></div>
                 <audio ref={audioRef} src="demo.mp3" className="w-56"></audio>
