@@ -21,7 +21,7 @@ export default function Page({ params }: { params: { name: string } }) {
         console.log(res.status)
         const data = await res.json()
         console.log(data)
-        const number = Number(data.data)
+        const number = Number(data.number)
         console.log(number)
         setUpvote(number)
     } catch(error) {

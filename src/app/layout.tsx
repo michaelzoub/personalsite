@@ -6,7 +6,7 @@ import { Navbar } from "./components/navbar";
 const ubuntu = Ubuntu_Mono({weight: "400", subsets : ["latin"], display: 'swap',});
 
 export const metadata: Metadata = {
-  title: "Michael Zoubkoff",
+  title: "Michael Zoubkoff's portfolio.",
   description: "Resume/portfolio site showcasing projects, skills as well as goals.",
 };
 
