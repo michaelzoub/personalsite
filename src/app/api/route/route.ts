@@ -18,8 +18,8 @@ export async function POST(request: Request) {
   console.log('POST try')
   const client1 = await client;
   console.log('POST connected')
-  const db = client1.db("upvotes")
-  const collection = db.collection("amount")
+  const db1 = client1.db("upvotes")
+  const collection = db1.collection("amount")
   const body = await request.json()
   console.log(body)
   const num = new Int32(body)
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   //delete after
   const result = await collection.updateOne(
     {name: "upvote"},
-    {$set: {name: "upvote", number: num}},
+    { $inc: { number: 1 } },
     { upsert: true }
   )
   console.log(result)
