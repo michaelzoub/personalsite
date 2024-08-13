@@ -64,7 +64,7 @@ export function Navbar() {
             </div>
             <div className="mx-auto w-[300px] md:w-[500px] my-auto">
             <Link href="/" className="transition delay-50 duration-300 ease-in-out hover:text-orange-400">Home</Link>
-            <Link href="/" className="mx-4 transition delay-50 duration-300 ease-in-out hover:text-orange-400">Blogs</Link>
+            <Link href="/components/blogs" className="mx-4 transition delay-50 duration-300 ease-in-out hover:text-orange-400">Blogs</Link>
             </div>
         </div>
     )
