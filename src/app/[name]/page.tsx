@@ -2,7 +2,7 @@
 import { Suspense } from 'react'
 import Link from "next/link";
 import { posts } from "../blog/blogs"
-import { notFound,  } from "next/navigation";
+import { notFound, useSearchParams  } from "next/navigation";
 import { useState, useEffect } from 'react';
 import { error } from 'console';
 
@@ -11,13 +11,23 @@ export default function Page({ params }: { params: { name: string } }) {
 
   const [upvote, setUpvote] = useState(0);
   const [clicked, setClicked] = useState(false)
+  
+  const searchParams = useSearchParams()
+  const query = searchParams.get('id')
 
   //fetch data from API (that got data from read)
   useEffect(()=> {
     async function fetchData() {
       try {
-        console.log('Fetching data from:', '/api/route');
-        const res = await fetch('/api/route/');
+        console.log('Fetching data from:', '/api/initial');
+        const response = await fetch('/api/initial/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain'
+          },
+          body: JSON.stringify(query) //remember to transport data in a JSON (JSON.stringify)
+        });
+        const res = await fetch('/api/initial/')
         console.log(res.status)
         const data = await res.json()
         console.log(data)
@@ -35,6 +45,7 @@ export default function Page({ params }: { params: { name: string } }) {
   //send data to API
   async function sendToApi() {
     if (clicked == false){
+    console.log(query)
     const newUpvoteCount = upvote + 1;
     setUpvote(newUpvoteCount)
     setClicked(true)
@@ -44,7 +55,7 @@ export default function Page({ params }: { params: { name: string } }) {
       headers: {
         'Content-Type': 'text/plain'
       },
-      body: JSON.stringify(newUpvoteCount) //remember to transport data in a JSON (JSON.stringify)
+      body: JSON.stringify(query) //remember to transport data in a JSON (JSON.stringify)
     })
     console.log(`sent ${response.json()}`)
   } catch (error) {

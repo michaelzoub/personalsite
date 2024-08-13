@@ -32,20 +32,3 @@ export async function POST(request: Request) {
   return NextResponse.json({error: 'Internal error'})
 }
 }
-
-export async function GET(request: Request) {
-  console.log('GET hit')
-  try {
-  console.log('GET try')
-  const { db } = await connectToDatabase()
-  console.log('connected to MongoDB and got database')
-  const collection = await db.collection("amount");
-  console.log('accessed collection')
-  const doc:any = await collection.findOne({name: "upvote"})
-  console.log('found query')
-  return NextResponse.json({ number: doc.number })
-  } catch(error) {
-    console.log('GET error')
-    return NextResponse.json({error: 'Internal error'})
-  }
-}
