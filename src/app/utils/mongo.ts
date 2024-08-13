@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-const MONGODB_URI = process.env.MONGO_URI
+const MONGODB_URI:any = process.env.MONGO_URI
 const MONGODB_DB = "upvotes"
 
 let cachedClient:any = null;
