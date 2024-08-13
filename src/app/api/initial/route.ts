@@ -9,6 +9,7 @@ let body:any;
 export async function POST(request: Request) {
     console.log('POST hit')
     try {
+        await connectToDatabase()
         body = await request.json()
         console.log(body)
         return NextResponse.json(body)
