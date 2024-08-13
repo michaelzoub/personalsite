@@ -1,6 +1,7 @@
 //make sure read and write functions are here
 'use server'
 import { NextResponse } from 'next/server';
+import {connectToDatabase} from '@/app/utils/mongo';
 import client from '@/app/utils/mongo';
 import {Int32} from 'mongodb'
 
@@ -16,22 +17,16 @@ export async function POST(request: Request) {
   console.log('POST hit')
   try{
   console.log('POST try')
-  const client1 = await client;
+  const { db } = await connectToDatabase()
   console.log('POST connected')
-  const db1 = client1.db("upvotes")
-  const collection = db1.collection("amount")
-  const body = await request.json()
-  console.log(body)
-  const num = new Int32(body)
-  console.log(num)
-  //delete after
+  const collection = db.collection("amount")
   const result = await collection.updateOne(
     {name: "upvote"},
     { $inc: { number: 1 } },
     { upsert: true }
   )
   console.log(result)
-  return NextResponse.json( {number: body} );
+  return NextResponse.json( {status: 200} );
 } catch(error) {
   console.log('POST error')
   return NextResponse.json({error: 'Internal error'})
@@ -42,13 +37,11 @@ export async function GET(request: Request) {
   console.log('GET hit')
   try {
   console.log('GET try')
-  const client1 = await client;
-  console.log('got client')
-  const db1 = client1.db("upvotes");
-  console.log('accessed database')
-  const collection = db1.collection("amount");
+  const { db } = await connectToDatabase()
+  console.log('connected to MongoDB and got database')
+  const collection = await db.collection("amount");
   console.log('accessed collection')
-  const doc:any = await collection.findOne({name: "upvote"});
+  const doc:any = await collection.findOne({name: "upvote"})
   console.log('found query')
   return NextResponse.json({ number: doc.number })
   } catch(error) {

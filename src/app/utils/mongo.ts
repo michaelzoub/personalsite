@@ -1,27 +1,30 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient } from 'mongodb';
 
-const uri:any = process.env.MONGO_URI
+const MONGODB_URI = process.env.MONGO_URI
+const MONGODB_DB = "upvotes"
 
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
+let cachedClient:any = null;
+let cachedDb:any = null;
+let client:any;
+let db:any;
+
+export async function connectToDatabase() {
+  if (cachedClient && cachedDb) {
+    return { client: cachedClient, db: cachedDb };
   }
-});
-async function run() {
+
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    client = await MongoClient.connect(MONGODB_URI);
+    db = client.db(MONGODB_DB);
+
+    cachedClient = client;
+    cachedDb = db;
+
+    return { client, db };
+  } catch (error) {
+    console.error('Failed to connect to MongoDB:', error);
+    throw error;
   }
 }
-run().catch(console.dir);
 
-export default client;
-
+export default client
