@@ -59,7 +59,7 @@ export function Navbar() {
             <div className="absolute end-0 ">
                 <div className="max-h-fit max-w-fit text-sm mx-auto mr-2"></div>
                 <audio ref={audioRef} src="demo.mp3" className="w-56"></audio>
-                <div className={button?`hidden`:'absolute text-xs mt-[12.6px] ml-[16.2px] cursor-default'} onClick={togglePlay}>▶</div>
+                <div className={button?`hidden`:'absolute text-xs mt-[12.6px] ml-[16.8px] cursor-default'} onClick={togglePlay}>▶</div>
                 <canvas ref={canvasRef} className="rounded-full border-gray border-2 mr-6 w-10 h-10" onClick={togglePlay}></canvas>
             </div>
             <div className="mx-auto w-[300px] md:w-[500px] my-auto">
