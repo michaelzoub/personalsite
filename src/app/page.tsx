@@ -7,7 +7,7 @@ import BlogList from './components/blogs/page'
 export default function Home() {
 
   return (
-    <main className="flex h-screen flex-col items-center p-4 bg-white text-black">
+    <main className="flex h-screen flex-col overflow-hidden items-center p-4 bg-white text-black">
       <div className="text-xl mt-20 mb-2 mx-6 w-[300px] md:w-[500px]">I'm Kafka (Michael Zoubkkoff), a computer engineering student & part time software developer focused on helping humanity progress by ameliorating current technology & building new products.</div>
       <div className="mx-auto">
         <div className="text-lg my-4 mx-auto max-w-fit">Software:</div>

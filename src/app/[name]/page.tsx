@@ -36,7 +36,7 @@ export default function Page({ params }: { params: { name: string } }) {
         const data = await res.json()
         console.log(data)
         const number = Number(data.number)
-        console.log(number)
+        console.log('GET upvote num:',number)
         setUpvote(number)
     } catch(error) {
 
@@ -57,8 +57,9 @@ export default function Page({ params }: { params: { name: string } }) {
         })
         const resblogs = await fetch('api/getblogcontent')
         const blogcontent = await resblogs.json()
-        console.log('this is getblog description', blogcontent)
-        setContent(blogcontent)
+        const toString = blogcontent.toString()
+        console.log('this is getblog description', toString)
+        setContent(toString)
     }
     checker()
 },[])
