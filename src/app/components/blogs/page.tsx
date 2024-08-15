@@ -21,7 +21,7 @@ export default function BlogList() {
 
     //add form page to add new post with 3 inputs: id, date, name, description
     return (
-    <main className="flex overflow-hidden flex-col items-center p-4 w-full bg-white cursor-default text-black">
+    <main className="flex overflow-hidden flex-col items-center p-4 bg-white cursor-default text-black">
         <div className="mt-12 mx-auto rounded-lg border-2 border-gray shadow-inner w-[300px] p-4 divide-y-2 md:w-[500px]">
             {blogposts.map(e=> <Link  key={e?.id} href={{pathname: e.name, query: {id: e?.id}}} className="flex flex-row space-x-14 cursor-default md:space-x-60 transition delay-50 duration-300 ease-in-out hover:text-orange-400"><div className="flex p-3">{e?.name}</div><div className="flex place-content-end p-3 max-w-fit">{e?.date}</div></Link>)}
         </div>
