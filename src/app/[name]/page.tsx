@@ -57,7 +57,7 @@ export default function Page({ params }: { params: { name: string } }) {
         })
         const resblogs = await fetch('api/getblogcontent')
         const blogcontent = await resblogs.json()
-        const toString = await blogcontent.toString()
+        const toString = await blogcontent
         console.log('this is getblog description', toString)
         setContent(toString)
     }
