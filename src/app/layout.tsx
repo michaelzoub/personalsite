@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   description: "Resume/portfolio site showcasing projects, skills as well as goals.",
 };
 
+
 export default function RootLayout({
   children,
 }: Readonly<{
