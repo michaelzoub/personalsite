@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="cursor-default selection:text-selection">
       <body className={ubuntu.className}>
         <Navbar></Navbar>
         {children}

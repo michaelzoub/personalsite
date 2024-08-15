@@ -2,7 +2,6 @@
 'use server'
 import { NextResponse } from 'next/server';
 import {connectToDatabase} from '@/app/utils/mongo';
-import client from '@/app/utils/mongo';
 import {Int32} from 'mongodb'
 
 //receive data from front end

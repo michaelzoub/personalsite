@@ -1,7 +1,6 @@
 'use client'
 import { Suspense } from 'react'
 import Link from "next/link";
-import { posts } from "../blog/blogs"
 import { notFound, useSearchParams  } from "next/navigation";
 import { useState, useEffect } from 'react';
 import { error } from 'console';
@@ -11,9 +10,14 @@ export default function Page({ params }: { params: { name: string } }) {
 
   const [upvote, setUpvote] = useState(0);
   const [clicked, setClicked] = useState(false)
+
+  const [content, setContent] = useState('')
+  const [name, setName] = useState('')
   
   const searchParams = useSearchParams()
   const query = searchParams.get('id')
+
+  const title = params.name
 
   //fetch data from API (that got data from read)
   useEffect(()=> {
@@ -42,6 +46,23 @@ export default function Page({ params }: { params: { name: string } }) {
 
   }, [])
 
+  useEffect(()=> {
+    async function checker() {
+        const postblogs = await fetch('api/getblogcontent', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain'
+          },
+          body: query
+        })
+        const resblogs = await fetch('api/getblogcontent')
+        const blogcontent = await resblogs.json()
+        console.log('this is getblog description', blogcontent)
+        setContent(blogcontent)
+    }
+    checker()
+},[])
+
   //send data to API
   async function sendToApi() {
     if (clicked == false){
@@ -67,23 +88,12 @@ export default function Page({ params }: { params: { name: string } }) {
   }
   }
 
-  let post = params.name
-
-  let description = '';
-  let title = '';
-
-for (let i = 0; i < posts.length; i ++) {
-  if (posts[i].name == post) {
-     description = posts[i].description
-     title = posts[i].name
-  }
-} 
 
 // add edit functionality
     return <main className="flex min-h-screen flex-col items-center p-4 bg-white text-black">
       <div className="mt-20 text-2xl text-bold">{title}</div>
       <div className="my-4 mb-16 mx-auto rounded-lg border-2 border-gray shadow-inner w-[300px] p-4 divide-y-2 md:w-[500px]">
-        <div>{description}</div>
+        <div>{content}</div>
       </div>
       <div className="flex flex-row">
         <button onClick={sendToApi} className={`mx-2 ${clicked? 'text-orange-400':''}`}>▲</button>

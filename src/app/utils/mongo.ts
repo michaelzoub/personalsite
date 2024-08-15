@@ -1,3 +1,4 @@
+'use server'
 import { MongoClient } from 'mongodb';
 
 const MONGODB_URI:any = process.env.MONGO_URI
@@ -27,4 +28,3 @@ export async function connectToDatabase() {
   }
 }
 
-export default client

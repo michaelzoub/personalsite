@@ -1,7 +1,6 @@
 'use server'
 import { NextResponse } from 'next/server';
 import {connectToDatabase} from '@/app/utils/mongo';
-import client from '@/app/utils/mongo';
 import {Int32} from 'mongodb'
 
 let body:any;
