@@ -10,12 +10,6 @@ export const metadata: Metadata = {
   description: "Resume/portfolio site showcasing projects, skills as well as goals.",
 };
 
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  userScalable: false,
-}
-
 export default function RootLayout({
   children,
 }: Readonly<{
