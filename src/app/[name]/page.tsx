@@ -21,7 +21,6 @@ export default function Page({ params }: { params: { name: string } }) {
   //fetch data from API (that got data from read)
   useEffect(()=> {
     async function fetchData() {
-      setTimeout(()=> console.log('waiting for blog content first'), 300)
       try {
         console.log('Fetching data from:', '/api/initial');
         const response = await fetch('/api/initial/', {
