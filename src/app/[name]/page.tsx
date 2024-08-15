@@ -1,20 +1,22 @@
 'use client'
-import { Suspense } from 'react'
 import Link from "next/link";
 import { notFound, useSearchParams  } from "next/navigation";
 import { useState, useEffect } from 'react';
-import { error } from 'console';
+import { Suspense } from 'react';
+import Loading from "../loading";
 
 
 export default function Page({ params }: { params: { name: string } }) {
   const [upvote, setUpvote] = useState(0);
   const [clicked, setClicked] = useState(false)
 
-  const [content, setContent] = useState('')
+  const [content, setContent] = useState('...')
   const [name, setName] = useState('')
   
   const searchParams = useSearchParams()
   const query = searchParams.get('id')
+
+  const [isLoading, setIsLoading] = useState(true)
 
   const title = params.name
 
@@ -47,7 +49,7 @@ export default function Page({ params }: { params: { name: string } }) {
 
   useEffect(()=> {
     async function checker() {
-        const postblogs = await fetch('api/getblogcontent', {
+        const postquery = await fetch('api/getblogcontent', {
           method: 'POST',
           headers: {
             'Content-Type': 'text/plain'
@@ -93,7 +95,9 @@ export default function Page({ params }: { params: { name: string } }) {
     return <main className="flex min-h-screen flex-col items-center p-4 bg-white text-black">
       <div className="mt-20 text-2xl text-bold">{title}</div>
       <div className="my-4 mb-16 mx-auto rounded-lg border-2 border-gray shadow-inner w-[300px] p-4 divide-y-2 md:w-[500px]">
+        <Suspense fallback={ <Loading /> }>
         <div>{content}</div>
+        </Suspense>
       </div>
       <div className="flex flex-row">
         <button onClick={sendToApi} className={`mx-2 ${clicked? 'text-orange-400':''}`}>▲</button>
