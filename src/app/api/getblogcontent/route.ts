@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     console.log('GET getblogcontent hit')
     try {
         const {db} = await connectToDatabase()
-        const collection = db.collection('posts')
+        const collection = await db.collection('posts')
         const posts =  await collection.findOne( {id: query} )
         console.log('query found posts:',posts.description)
         return NextResponse.json(  posts.description  )
