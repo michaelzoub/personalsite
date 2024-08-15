@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport} from "next";
 import { Ubuntu_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "./components/navbar";
@@ -10,12 +10,20 @@ export const metadata: Metadata = {
   description: "Resume/portfolio site showcasing projects, skills as well as goals.",
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
+
     <html lang="en" className="cursor-default selection:text-selection">
       <body className={ubuntu.className}>
         <Navbar></Navbar>
