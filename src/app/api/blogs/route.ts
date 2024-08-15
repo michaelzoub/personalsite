@@ -18,7 +18,7 @@ export async function POST(request: Request) {
         console.log(biggestId.id)
         body.id = biggestId.id + 1
         console.log(body.id)
-        collection.insertOne(body)
+        await collection.insertOne(body)
         return NextResponse.json({status:200})
     } catch(error) {
         console.log('POST createpost error')
