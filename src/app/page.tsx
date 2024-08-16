@@ -22,7 +22,7 @@ export default function Home() {
         <div className="text-lg my-4 mx-auto max-w-fit">Blog:</div>
         <BlogList></BlogList>
       </div>
-      <div className="asbolute m-14 md:bottom-0 m-2">© 2024 MIT Licensed</div>
+      <div className="asbolute h-20 m-14 md:absolute bottom-0 m-2">© 2024 MIT Licensed</div>
     </main>
   )
 }

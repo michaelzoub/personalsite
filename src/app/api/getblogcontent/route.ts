@@ -17,6 +17,7 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     console.log('GET getblogcontent hit')
     try {
+        await query
         const {db} = await connectToDatabase()
         const collection = await db.collection('posts')
         const posts =  await collection.findOne( {id: query} )
