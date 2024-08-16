@@ -73,7 +73,7 @@ export default function Add() {
                     <input placeholder="Password" type="password" className="border-2 p-1 w-[300px] md:w-[500px]" onChange={(e)=> setPassword(e.target.value)} value={password}></input>
                     <button onClick={handleSubmitLogin} className="mx-auto m-2 border-2 shadow-inner rounded-full px-4 max-w-fit">❯</button>
                 </form>
-                <div className={`${error? 'mx-auto w-72 border-2 rounded-lg p-2 border-orange-500 shadow-inner' : ''}`}>Smh <u>{error}</u> is the wrong password, get good hehe.</div>
+                <div className={`${error? 'mx-auto w-72 border-2 rounded-lg p-2 border-orange-500 shadow-inner' : 'hidden'}`}>Smh <u>{error}</u> is the wrong password, get good hehe.</div>
             </div>
             <div className={`${access? 'flex flex-col' : 'hidden'}`}>
                 <form className={`flex flex-col w-full mt-20`} onSubmit={handleSubmit}>
