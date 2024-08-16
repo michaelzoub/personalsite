@@ -101,7 +101,9 @@ export default function Page({ params }: { params: { name: string } }) {
       </div>
       <div className="flex flex-row">
         <button onClick={sendToApi} className={`mx-2 ${clicked? 'text-orange-400':''}`}>▲</button>
+        <Suspense fallback={ <Loading /> }>
         <div>{upvote}</div>
+        </Suspense>
       </div>
     </main>
   }
