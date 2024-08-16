@@ -12,15 +12,18 @@ import {Int32} from 'mongodb'
 
 //make sure i always error handle to see what happens: try & catch
 
+let body;
+
 export async function POST(request: Request) {
   console.log('POST hit')
   try{
   console.log('POST try')
   const { db } = await connectToDatabase()
   console.log('POST connected')
+  body = await request.json()
   const collection = db.collection("amount")
   const result = await collection.updateOne(
-    {name: "upvote"},
+    {id: Number(body)},
     { $inc: { number: 1 } },
     { upsert: true }
   )

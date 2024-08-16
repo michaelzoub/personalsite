@@ -58,7 +58,7 @@ export default function Add() {
             setAccess(true)
             console.log('Access granted.')
         } else {
-            setError(`Did you really think I couldn't see your password? ${password} is obviously wrong.`)
+            setError(password)
             console.log(error)
             console.log('The hash is 0888bdde4d0f915d42d0a64f3bb74c2b3894c76e7e67015170346cef2b95e9df8947ff33a2485ac868b635745a06b0f2ee85beb4a8db7919db1078aaebc6f860 good luck cracking it hahahaha.')
         }
@@ -73,7 +73,7 @@ export default function Add() {
                     <input placeholder="Password" type="password" className="border-2 p-1 w-[300px] md:w-[500px]" onChange={(e)=> setPassword(e.target.value)} value={password}></input>
                     <button onClick={handleSubmitLogin} className="mx-auto m-2 border-2 shadow-inner rounded-full px-4 max-w-fit">❯</button>
                 </form>
-                <div className={`${error? 'mx-auto w-72 border-2 rounded-lg p-2 border-orange-500 shadow-inner' : ''}`}>{error}</div>
+                <div className={`${error? 'mx-auto w-72 border-2 rounded-lg p-2 border-orange-500 shadow-inner' : ''}`}>Smh <u>{error}</u> is the wrong password, get good hehe.</div>
             </div>
             <div className={`${access? 'flex flex-col' : 'hidden'}`}>
                 <form className={`flex flex-col w-full mt-20`} onSubmit={handleSubmit}>

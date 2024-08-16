@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     try {
         await connectToDatabase()
         body = await request.json()
-        console.log(body)
+        console.log('initial query: API',body)
         return NextResponse.json(body)
     } catch(error) {
         console.log('initial POST error')
