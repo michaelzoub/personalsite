@@ -15,7 +15,7 @@ export default function Add() {
     const postData = {
         id: 0,
         date: '',
-        title: title,
+        name: title,
         description: description
     }
 
