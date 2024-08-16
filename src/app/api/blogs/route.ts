@@ -19,6 +19,8 @@ export async function POST(request: Request) {
         body.id = biggestId.id + 1
         console.log(body.id)
         await collection.insertOne(body)
+        const amountcollection = await db.collection('amount')
+        await amountcollection.insertOne({name: "upvote", number: 0, id: body.id})
         return NextResponse.json({status:200})
     } catch(error) {
         console.log('POST createpost error')
