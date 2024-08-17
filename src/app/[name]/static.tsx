@@ -1,3 +1,7 @@
 export async function generateStaticParams() {
-  return {name: string}[]
+  const posts = await fetch('api/getblogcontent').then((res) => res.json())
+ 
+  return posts.map((post:any) => ({
+    name: post.name,
+  }))
 }
