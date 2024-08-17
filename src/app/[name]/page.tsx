@@ -4,14 +4,13 @@ import { notFound, useSearchParams  } from "next/navigation";
 import { useState, useEffect } from 'react';
 import { Suspense } from 'react';
 import Loading from "../loading";
-
+import { generateStaticParams } from "./static";
 
 export default function Page({ params }: { params: { name: string } }) {
   const [upvote, setUpvote] = useState(0);
   const [clicked, setClicked] = useState(false)
 
   const [content, setContent] = useState('...')
-  const [name, setName] = useState('')
   
   const searchParams = useSearchParams()
   const query = searchParams.get('id')
@@ -20,6 +19,11 @@ export default function Page({ params }: { params: { name: string } }) {
 
   const title = params.name
 
+  console.log('param,s',params.name)
+
+  const { name } = params
+
+ 
   //fetch data from API (that got data from read)
   useEffect(()=> {
     async function fetchData() {
