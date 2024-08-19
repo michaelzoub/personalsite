@@ -9,6 +9,7 @@ import { generateStaticParams } from "./static";
 
 
 export default function Page({ params }: { params: { name: string } }) {
+
   const [upvote, setUpvote] = useState(0);
   const [clicked, setClicked] = useState(false)
 
@@ -30,7 +31,10 @@ export default function Page({ params }: { params: { name: string } }) {
 
 
   useEffect(()=> {
+    setIsLoading(true)
+    setTimeout(() => setIsLoading(false), 1500)
     async function checker() {
+
         const response = await fetch(`api/blogs`)
         const blogcontent = await response.json()
         console.log('this is getblog description', blogcontent)
@@ -40,6 +44,7 @@ export default function Page({ params }: { params: { name: string } }) {
         setContent(desc.description)
     }
     checker()
+    
 },[query])
 
 
@@ -97,17 +102,17 @@ export default function Page({ params }: { params: { name: string } }) {
 
 // add edit functionality
     return <main className="flex min-h-screen flex-col items-center p-4 bg-white text-black">
+      {isLoading && <Loading />}
       <div className="mt-20 text-2xl text-bold">{title}</div>
+      {!isLoading && <Loading /> &&
       <div className="my-4 mb-16 mx-auto rounded-lg border-2 border-gray shadow-inner w-[300px] p-4 divide-y-2 md:w-[500px]">
         <Suspense fallback={ <Loading /> }>
         <div>{content}</div>
         </Suspense>
-      </div>
+      </div> }
       <div className="flex flex-row">
         <button onClick={sendToApi} className={`mx-2 ${clicked? 'text-orange-400':''}`}>▲</button>
-        <Suspense fallback={ <Loading /> }>
         <div>{upvote}</div>
-        </Suspense>
       </div>
     </main>
   }

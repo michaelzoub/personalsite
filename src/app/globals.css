@@ -31,3 +31,32 @@ body {
     text-wrap: balance;
   }
 }
+
+@layer components {
+  .kafka {
+    width: 550px;
+    height: 550px; 
+    background: linear-gradient(90deg, #FFFFFF 25%, #fff8f2 50%, #FFFFFF 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite ease-in-out;
+    border-radius: 8px;
+  }
+
+  .kafkasmall {
+    width: 330px;
+    height: 550px; 
+    background: linear-gradient(90deg, #FFFFFF 25%, #fff8f2 50%, #FFFFFF 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite ease-in-out;
+    border-radius: 8px;
+  }
+  
+  @keyframes loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+}
