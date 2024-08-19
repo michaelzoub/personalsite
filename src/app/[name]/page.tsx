@@ -32,7 +32,7 @@ export default function Page({ params }: { params: { name: string } }) {
 
   useEffect(()=> {
     setIsLoading(true)
-    setTimeout(() => setIsLoading(false), 1500)
+    setTimeout(() => setIsLoading(false), 1000)
     async function checker() {
 
         const response = await fetch(`api/blogs`)
