@@ -35,7 +35,7 @@ export default function Page({ params }: { params: { name: string } }) {
         const blogcontent = await response.json()
         console.log('this is getblog description', blogcontent)
         console.log('query:', query)
-        let desc = await blogcontent.find(obk => obk.id == query)
+        let desc = await blogcontent.find((obj:any) => obj.id == query)
         console.log('descr::',desc.description)
         setContent(desc.description)
     }
