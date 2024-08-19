@@ -111,7 +111,7 @@ export default function Page({ params }: { params: { name: string } }) {
         </Suspense>
       </div> }
       <div className="flex flex-row">
-        <button onClick={sendToApi} className={`mx-2 ${clicked? 'text-orange-400':''}`}>▲</button>
+        <button onClick={sendToApi} className={`mx-2 text-gray-300 ${clicked? 'text-orange-400':''}`}>▲</button>
         <div>{upvote}</div>
       </div>
     </main>
