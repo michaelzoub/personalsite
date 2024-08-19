@@ -60,7 +60,7 @@ export default function Add() {
         } else {
             setError(password)
             console.log(error)
-            console.log('The hash is 0888bdde4d0f915d42d0a64f3bb74c2b3894c76e7e67015170346cef2b95e9df8947ff33a2485ac868b635745a06b0f2ee85beb4a8db7919db1078aaebc6f860 good luck cracking it hahahaha.')
+            console.log(`The hash is ${mongopw} good luck cracking it hahahaha.`)
         }
     }
 

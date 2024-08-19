@@ -1,10 +1,12 @@
 'use client'
 import Link from "next/link";
-import { notFound, useSearchParams  } from "next/navigation";
+import { notFound, useSearchParams } from "next/navigation";
+import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react';
 import { Suspense } from 'react';
 import Loading from "../loading";
 import { generateStaticParams } from "./static";
+
 
 export default function Page({ params }: { params: { name: string } }) {
   const [upvote, setUpvote] = useState(0);
@@ -13,7 +15,7 @@ export default function Page({ params }: { params: { name: string } }) {
   const [content, setContent] = useState('...')
   
   const searchParams = useSearchParams()
-  const query = searchParams.get('id')
+  const query:any = searchParams.get('id')
 
   const [isLoading, setIsLoading] = useState(true)
 
@@ -25,6 +27,22 @@ export default function Page({ params }: { params: { name: string } }) {
 
  
   //fetch data from API (that got data from read)
+
+
+  useEffect(()=> {
+    async function checker() {
+        const response = await fetch(`api/blogs`)
+        const blogcontent = await response.json()
+        console.log('this is getblog description', blogcontent)
+        console.log('query:', query)
+        let desc = await blogcontent.find(obk => obk.id == query)
+        console.log('descr::',desc.description)
+        setContent(desc.description)
+    }
+    checker()
+},[query])
+
+
   useEffect(()=> {
     async function fetchData() {
       try {
@@ -50,24 +68,6 @@ export default function Page({ params }: { params: { name: string } }) {
     fetchData()
 
   }, [])
-
-  useEffect(()=> {
-    async function checker() {
-        const postquery = await fetch('api/getblogcontent', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain'
-          },
-          body: query
-        })
-        const resblogs = await fetch('api/getblogcontent')
-        const blogcontent = await resblogs.json()
-        const toString = await blogcontent.toString()
-        console.log('this is getblog description', toString)
-        setContent(toString)
-    }
-    checker()
-},[])
 
   //send data to API
   async function sendToApi() {
@@ -111,3 +111,4 @@ export default function Page({ params }: { params: { name: string } }) {
       </div>
     </main>
   }
+

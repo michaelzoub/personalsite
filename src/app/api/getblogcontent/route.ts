@@ -3,21 +3,11 @@ import { connectToDatabase } from "@/app/utils/mongo";
 
 let query:any;
 
-export async function POST(request: Request) {
-    console.log('GET getblogcontent hit')
-    try {
-        query = await request.json()
-        console.log('getblogcontent query:',query)
-        return NextResponse.json( { status: 200 } )
-    } catch(error) {
-        return NextResponse.json( { status: 500 } )
-    }
-}
-
 export async function GET(request: Request) {
     console.log('GET getblogcontent hit')
     try {
-        await query
+        const { searchParams } = new URL(request.url)
+        const query = searchParams.get('id')
         const {db} = await connectToDatabase()
         const collection = await db.collection('posts')
         const posts =  await collection.findOne( {id: query} )
