@@ -9,7 +9,6 @@ import Loading from '@/app/loading'
 export default function BlogList() {
     const [blogposts, setBlogposts] = useState([{id: 0, name: '...', date: '...'},])
 
-    let data:any;
     //add checker if hash(password) == value from DB then let access
     useEffect(()=> {
         async function checker() {

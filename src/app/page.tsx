@@ -12,9 +12,9 @@ export default function Home() {
       <div className="mx-auto">
         <div className="text-lg my-4 mx-auto max-w-fit">Software:</div>
         <div className="bg-gray-200 p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]"> 
-          <Image src='/wen.png' width={40} height={40} alt='' className="rounded-lg"></Image>
-          <div className=" max-w-fit right-0">Wen.market</div>
-          <div className="flex flex-col text-sm text-gray-400 my-2">A kickstarter application built on Optimism, letting users invest in startups in exchange for a share of the project's tokens.</div>
+        <Image src='/' width={40} height={40} alt='' className="hidden rounded-lg"></Image>
+          <div className=" max-w-fit right-0">Jws.onl</div>
+          <div className="flex flex-col text-sm text-gray-400 my-2">A web app that tracks job postings from select Wall Street and Big Tech companies and sends out notifications to signed up users on new listings.</div>
           <Link href='' className="bg-orange-500 p-[5px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">WIP ☗</Link>
         </div>
       </div>
