@@ -15,7 +15,7 @@ export default function Home() {
         <Image src='/' width={40} height={40} alt='' className="hidden rounded-lg"></Image>
           <div className=" max-w-fit right-0">Jws.onl</div>
           <div className="flex flex-col text-sm text-gray-400 my-2">A web app that tracks job postings from select Wall Street and Big Tech companies and sends out notifications to signed up users on new listings.</div>
-          <Link href='' className="bg-orange-500 p-[5px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">WIP ☗</Link>
+          <Link href='https://jws-pi.vercel.app/' className="bg-orange-500 p-[5px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">Explore ↗</Link>
         </div>
       </div>
       <div>
