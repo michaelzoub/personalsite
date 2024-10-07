@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react"
 import {
     PaymentElement,
     useStripe,
-    useElements
+    useElements,
   } from "@stripe/react-stripe-js";
 
   interface PayButtonProps {
@@ -12,7 +12,7 @@ import {
     value: any;
 }
 
-const paymentElementOptions = {
+const paymentElementOptions:any = {
     layout: "tabs"
   }
 

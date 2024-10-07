@@ -230,7 +230,7 @@ export default function paymentSlug({ params }: any) { //number for total amount
           }
         }
       };
-      const options = {
+      const options:any = {
         clientSecret: clientSecretState,
         appearance
       };
