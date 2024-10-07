@@ -30,156 +30,45 @@ body {
   .text-balance {
     text-wrap: balance;
   }
-  .bgblack {
-    background-color: #0F1117;
-  }
-  .tradebox {
-    background-color: #1C1F29;
-  }
-  .insidebox {
-    background-color: #232732;
-  }
-  .cartbutton {
-    background-color: #343a4b;
-  }
-  .searchbg {
-    background-color: #2B2F3C;
-  }
-  .filterbg {
-    background-color: #1C1F29;
-  }
-  .hoversearchbg {
-    background-color: #333842;
-  }
-  .redaccent {
-    background-color: #DE4646;
-  }
-  .statsbackground {
-    background: linear-gradient(to right, #1C1F29, #1C1F29);
-  }
-  .redaccenttext {
-    color: #DE4646;
-  }
-  .redhoveraccenttext {
-    color: #e96969;
-  }
-  .redhoveraccent {
-    color: #e96969;
-  }
-  .svgcolorchange {
-    filter: invert(72%) sepia(90%) saturate(3291%) hue-rotate(319deg) brightness(99%) contrast(84%);
-  }
-  .borderinsidebox {
-    border-color: #232732;
-  }
-  .animate-show {
-    transition: all 1s ease;
-    opacity: 1;
-    transform-origin: right;
-    transform: translateX(0);
-  }
-.animate-show-error {
-  transition: opacity 1s ease, transform 1s ease;
-  opacity: 1;
-  transform-origin: left;
-  transform: translateX(10%);
 }
-.animate-show-depositRight {
-  transition: all 0.5s ease;
-  opacity: 1;
-  transform-origin: right;
-  position: absolute;
-  right: 0;
-  transform: translateX(0)
-}
-.animate-show-depositLeft {
-  transition: all 1s ease;
-  opacity: 1;
-  transform-origin: left;
-  transform: translateX(0);
-}
-.hiddenError {
-  transition: opacity 2s ease, transform 1s ease;
-  opacity: 0;
-  transform-origin: left;
-  transform: translateX(0);
-}
-  .hiddenLogin {
-    transition: all 1s ease;
-    opacity: 0;
-    transform-origin: right;
-    transform: translateX(-300px);
-  }
-  .hiddenDepositRight {
-    transition: all 1s ease;
-    opacity: 0;
-    transform-origin: right;
-    transform: translateX(100%)
-  }
-  .hiddenDepositLeft {
-    transition: all 1s ease;
-    opacity: 0;
-    transform-origin: left;
-    transform: translateX(-300px);
-  }
-  .navbarblur {
-    transition: all 1.2s ease;
-    opacity: 0;
-    z-index: -1;
-  }
-  .items-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    grid-column-gap: 8px;
-    grid-row-gap: 10px;
-  }
-  .prices-grid {
-    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
-    grid-column-gap: 6px;
-    grid-row-gap: 10px;
-  }
-  .container input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-  }
-  .checkmark {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 25px;
-    width: 25px;
-    background-color: #eee;
-  }
 
-  .container:hover input ~ .checkmark {
-    background-color: #ccc;
-  }
-
-  .container input:checked ~ .checkmark {
-    background-color: #2196F3;
-  }
-  .helpping {
-  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
-  @keyframes ping {
-    75%, 100% {
-      transform: scale(1.2);
-      opacity: 0;
-    }
-  }
-  .loading {
-    position: absolute;
-    width: 96%;    
-    height: 65%; 
-    margin-left: auto;
-    margin-right: auto;
-    background: linear-gradient(90deg, #0F1117  25%, #422d2d 50%, #0F1117  75%);
+@layer components {
+  .kafka {
+    width: 550px;
+    height: 550px; 
+    background: linear-gradient(90deg, #FFFFFF 25%, #fff8f2 50%, #FFFFFF 75%);
     background-size: 200% 100%;
     animation: loading 1.5s infinite ease-in-out;
     border-radius: 8px;
   }
+
+  .kafkasmall {
+    width: 330px;
+    height: 550px; 
+    background: linear-gradient(90deg, #FFFFFF 25%, #fff8f2 50%, #FFFFFF 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite ease-in-out;
+    border-radius: 8px;
+  }
+
+  .title {
+    width: 550px;
+    height: 75px; 
+    background: linear-gradient(90deg, #FFFFFF 25%, #fff8f2 50%, #FFFFFF 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite ease-in-out;
+    border-radius: 8px;
+  }
+
+  .titlesmall {
+    width: 330px;
+    height: 75px; 
+    background: linear-gradient(90deg, #FFFFFF 25%, #fff8f2 50%, #FFFFFF 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite ease-in-out;
+    border-radius: 8px;
+  }
+  
   @keyframes loading {
     0% {
       background-position: 200% 0;
@@ -187,70 +76,5 @@ body {
     100% {
       background-position: -200% 0;
     }
-  }
-  .radius {
-    border: 6px solid #2B2F3C; /* Light grey */
-    border-top: 6px solid #DE4646; /* Blue */
-    border-radius: 100%;
-    width: 80px;
-    height: 80px;
-  }
-  .triangle-left {
-    width: 0;
-    height: 0;
-    border-top: 25px solid transparent;
-    border-right: 50px solid #555;
-    border-bottom: 25px solid transparent;
-  }
-  .fade-in-largecontainer {
-    opacity: 0;
-    /*transform: translateY(100px); */
-    animation: fadeIn 2s forwards; 
-}
-
-@keyframes fadeIn {
-    to {
-        opacity: 1; 
-        transform: translateY(0); 
-    }
-}
-
-.fade-in-rest {
-  opacity: 0;
-  /*transform: translateY(100px); */
-  animation: fadeIn 4s forwards; 
-}
-
-@keyframes fadeIn {
-  to {
-      opacity: 1; 
-      transform: translateY(0); 
-  }
-}
-
-.fade-in-navbar {
-  opacity: 0;
-  transform: translateY(-100px); 
-  animation: fadeInNavbar 2s forwards; 
-}
-
-@keyframes fadeInNavbar {
-  to {
-      opacity: 1; 
-      transform: translateY(0); 
-  }
-}
-}
-
-@layer base {
-  ::selection {
-    @apply bg-red-400;
-  }
-}
-
-@layer components {
-  select option:hover,
-  select option:hover {
-    @apply bg-red-400;
   }
 }
