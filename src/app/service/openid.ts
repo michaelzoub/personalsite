@@ -6,7 +6,7 @@ export const steamIssuer = new Issuer({
     authorization_endpoint: 'https://steamcommunity.com/openid/login'
 })
 
-const client = new steamIssuer.Client({
+const client:any = new steamIssuer.Client({
     client_id: 'your_client_id', 
     redirect_uris: ['http://localhost:3000/auth/callback'], 
     response_types: ['id_token'], 
