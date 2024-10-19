@@ -30,14 +30,10 @@ export async function POST(request: Request) {
 
 //gets blogs from MongoDB
 export async function GET(request: Request) {
-    console.log('GET blogs hit')
     try {
         const { db } = await connectToDatabase()
-        console.log('GET connected to db blogs')
         const collection = await db.collection('posts')
-        console.log('GET accessed collection blogs')
         const posts =  await collection.find( {} ).toArray()
-        console.log(posts)
         return NextResponse.json(posts)
     } catch(error) {
         return NextResponse.json({status:500})
