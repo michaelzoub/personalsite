@@ -13,7 +13,15 @@ export default function Home() {
       <div className="text-xl mt-20 mb-2 mx-6 w-[300px] md:w-[500px]">I'm Kafka (Michael Zoubkkoff), a computer engineering student & part time software developer focused on helping humanity progress by ameliorating current technology & building new products.</div>
       <div className="mx-auto">
         <div className="text-lg my-4 mx-auto max-w-fit">Software Projects:</div>
-        <div className="flex flex-col gap-2 h-64 overflow-x-scroll border-2 border-gray p-3 rounded-lg shadow-inner">
+        <div className="flex flex-col gap-2 p-3 rounded-lg">
+        <div className="bg-gray-200 p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]"> 
+          <div className="flex rounded-lg bg-zinc-900 w-[40px] h-[40px] text-white items-center">
+            <div className="text-sm font-medium mx-auto my-auto text-center">uMTL</div>
+          </div>
+          <div className=" max-w-fit right-0">uMontreal</div>
+          <div className="flex flex-col text-sm text-gray-400 my-2">Montreal's event and party destination for university/college students.</div>
+          <Link href='https://umontreal.vercel.app/?__vercel_draft=1' className="bg-orange-500 p-[5px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">Explore ↗</Link>
+        </div>
         <div className="bg-gray-200 p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]"> 
           <Image src={jws} width={40} height={40} alt='' className="rounded-lg"></Image>
           <div className=" max-w-fit right-0">Jws.onl</div>
