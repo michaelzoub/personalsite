@@ -24,7 +24,7 @@ export default function BlogList() {
         <div className="mt-6 mx-auto rounded-lg border-2 border-gray shadow-inner w-[300px] p-4 divide-y-2 md:w-[500px]">
             {blogposts.map(e=> <Link  key={e?.id} href={`/${e.name}?id=${e?.id}`} className="flex flex-col flex-wrap cursor-default md:transition delay-50 duration-300 ease-in-out hover:text-orange-400"><div className=""><div className="float-left max-w-fit p-3">{e.name}</div><div className="float-right p-3 max-w-fit">{e?.date}</div></div></Link>)}
         </div>
-        <Link href="/components/addpost" className="m-4 px-2 rounded-lg shadow-inner border-2">+</Link>
+        <Link href="/addpost" className="m-4 px-2 rounded-lg shadow-inner border-2">+</Link>
     </main>
     )
 }
