@@ -42,6 +42,7 @@ export default function Home() {
       </div>
       <div>
         <div className="text-lg mt-4 mx-auto max-w-fit">Blog:</div>
+        <div className="text-sm px-2 mt-2">Powered by <Link href="https://github.com/michaelzoub/bleeg" target="_blank" className="transition delay-150 ease-in-out duration-300 hover:text-orange-500"><span className="text-orange-500">©</span>Bleeg</Link></div>
         <BlogList></BlogList>
       </div>
       <div className="flex flex-col-reverse h-20 mt-12 md:flex bottom-0">© 2024 MIT Licensed</div>
