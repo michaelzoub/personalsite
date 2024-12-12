@@ -6,7 +6,7 @@ import BlogList from './components/blogs/page'
 import cyborg from '/public/CYBORG.svg'
 import jws from '/public/wen.png'
 import earth from '/public/earth.jpg'
-import Bleeg from "./components/bleeg/component/ui";
+//import Bleeg from "./components/bleeg/component/ui";
 
 export default function Home() {
 
