@@ -5,6 +5,8 @@ import { useState, useRef, useEffect } from 'react'
 import BlogList from './components/blogs/page'
 import cyborg from '/public/CYBORG.svg'
 import jws from '/public/wen.png'
+import earth from '/public/earth.jpg'
+import Bleeg from "./components/bleeg/component/ui";
 
 export default function Home() {
 
@@ -25,6 +27,12 @@ export default function Home() {
           <div className=" max-w-fit right-0">uMontreal</div>
           <div className="flex flex-col text-sm text-gray-400 my-2">Montreal's event and party destination for university/college students.</div>
           <Link href='https://umontreal.vercel.app/?__vercel_draft=1' className="flex bg-orange-500 w-[90px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">Explore <span className="absolute w-[80px] pl-[60px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span></Link>
+        </div>
+        <div className="bg-gray-200 p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]"> 
+          <Image src={earth} width={40} height={40} alt='' className="rounded-lg"></Image>
+          <div className=" max-w-fit right-0">CEV</div>
+          <div className="flex flex-col text-sm text-gray-400 my-2">A crypto exchange visualizer, exchanges with registered locations show up on the map, the stick height shown depends on the daily BTC volume.</div>
+          <Link href='https://cryptoexchangevisual.vercel.app/' className="flex bg-orange-500 w-[90px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">Explore <span className="absolute w-[80px] pl-[60px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span></Link>
         </div>
         <div className="bg-gray-200 p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]"> 
           <Image src={jws} width={40} height={40} alt='' className="rounded-lg"></Image>
