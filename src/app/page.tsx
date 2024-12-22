@@ -29,6 +29,12 @@ export default function Home() {
           <Link href='https://umontreal.vercel.app/?__vercel_draft=1' className="flex bg-orange-500 w-[90px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">Explore <span className="absolute w-[80px] pl-[60px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span></Link>
         </div>
         <div className="bg-gray-200 p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]"> 
+          <Image src="https://cdn.discordapp.com/attachments/976997500349186119/1320224100072820736/kafkaj_white_futuristic_spaceship_with_black_shadows_ONLY_USE_B_2d8df75b-e5e5-4aa3-a9b4-8434a7cfc9c1.png?ex=6768d202&is=67678082&hm=fe31448cd6c5ff12a5aa128a78efe9fb4e5ad5269ccc6dc1820c664987af3cab&" width={40} height={40} alt='' className="rounded-lg"></Image>
+          <div className=" max-w-fit right-0">SpaceAI</div>
+          <div className="flex flex-col text-sm text-gray-400 my-2">From futuristic space themes to personalized conversations, SpaceAI brings the universe of artificial intelligence right to your fingertips.</div>
+          <Link href='https://aiagents-ten.vercel.app/' className="flex bg-orange-500 w-[90px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">Explore <span className="absolute w-[80px] pl-[60px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span></Link>
+        </div>
+        <div className="bg-gray-200 p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]"> 
           <Image src={earth} width={40} height={40} alt='' className="rounded-lg"></Image>
           <div className=" max-w-fit right-0">CEV</div>
           <div className="flex flex-col text-sm text-gray-400 my-2">A crypto exchange visualizer, exchanges with registered locations show up on the map, the stick height shown depends on the daily BTC volume.</div>
