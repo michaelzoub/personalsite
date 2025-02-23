@@ -26,7 +26,7 @@ export default function Home() {
                       whileInView={{opacity: 1, y: 0}}
                       transition={{duration: 0.3}}
                       viewport={{once: true}}
-      >I'm (Kafka) Michael Zoubkoff, a computer science student & part time software developer focused on helping humanity progress by ameliorating current technology & building new products.</motion.div>
+      >I'm (Kafka) Michael Zoubkoff, a computer science student & part time software developer focused on helping humanity progress by improving current technology & building new products.</motion.div>
       <motion.div className="mx-auto"
               initial={{opacity: 0, y: 20}}
               whileInView={{opacity: 1, y: 0}}
