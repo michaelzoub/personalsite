@@ -2,5 +2,7 @@
   "/page": "app/page.js",
   "/addpost/page": "app/addpost/page.js",
   "/components/blogpage/page": "app/components/blogpage/page.js",
-  "/[name]/page": "app/[name]/page.js"
+  "/[name]/page": "app/[name]/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/api/blogs/route": "app/api/blogs/route.js"
 }

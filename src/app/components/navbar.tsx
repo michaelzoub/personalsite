@@ -16,12 +16,25 @@ export function Navbar() {
     const audioRef: any = useRef(null)
     const canvasRef: any = useRef(null)
     const animationRef: any = useRef(null)
+
+    const [mobile, setMobile] = useState(false);
   
     useEffect(()=> {
       const canvas: any= canvasRef.current;
       canvas.width = 500;
       canvas.height = 500;
     }, [])
+
+    //check for mobile
+    useEffect(() => {
+      function isMobile() {
+        return window.innerWidth <= 768;
+      }
+      
+      if (isMobile()) {
+        setMobile(true);
+      } 
+    },[])
   
   
     function togglePlay() {
@@ -74,7 +87,7 @@ export function Navbar() {
                 <Link href="/" className="transition delay-50 duration-300 ease-in-out hover:text-orange-400">Home</Link>
                 <Link href="/components/blogpage" prefetch={true} className="mx-4 transition delay-50 duration-300 ease-in-out hover:text-orange-400">Blogs</Link>
               </div>
-              <div className="flex flex-row gap-10">
+              <div className={`${mobile ? "hidden" : "flex flex-row gap-10"}`}>
                 <motion.div className="flex flex-row gap-4 w-fit"
                   initial={{ opacity: 0, translateX: 100, scale: 0 }}
                   animate={{ opacity: hover? 1 : 0, translateX: hover ? 0 : 100, scale: hover ? 1 : 0  }}
