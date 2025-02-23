@@ -1,0 +1,6 @@
+{
+  "/page": "app/page.js",
+  "/addpost/page": "app/addpost/page.js",
+  "/components/blogpage/page": "app/components/blogpage/page.js",
+  "/[name]/page": "app/[name]/page.js"
+}

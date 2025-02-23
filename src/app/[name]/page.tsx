@@ -6,7 +6,8 @@ import { useState, useEffect } from 'react';
 import { Suspense } from 'react';
 import Loading from "../loading";
 import { generateStaticParams } from "./static";
-
+import { darkMode } from "../atoms/darkMode";
+import { useAtom } from "jotai";
 
 export default function Page({ params }: { params: { name: string } }) {
 
@@ -19,6 +20,8 @@ export default function Page({ params }: { params: { name: string } }) {
   const query:any = searchParams.get('id')
 
   const [isLoading, setIsLoading] = useState(true)
+
+  const [dark] = useAtom(darkMode);
 
   const title = params.name
 
@@ -101,7 +104,7 @@ export default function Page({ params }: { params: { name: string } }) {
 
 
 // add edit functionality
-    return <main className="flex min-h-screen flex-col items-center p-4 bg-white text-black">
+    return <main className={`flex min-h-screen flex-col items-center p-4 ${ dark ? "text-white bg-zinc-900" : "text-black bg-white" }`}>
       {isLoading && <Loading />}
       <div className="mt-20 text-2xl text-bold">{title}</div>
       {!isLoading && <Loading /> &&

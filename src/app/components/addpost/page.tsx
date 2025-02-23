@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { hash } from "@/app/utils/cryptohash"
+import { darkMode } from '@/app/atoms/darkMode'
+import { useAtom } from 'jotai'
 
 export default function Add() {
 
@@ -11,6 +13,8 @@ export default function Add() {
     const [access, setAccess] = useState(false)
     const [mongopw, setMongopw] = useState()
     const [error, setError] = useState('')
+
+    const [dark] = useAtom(darkMode);
 
     const postData = {
         id: 0,
@@ -65,7 +69,7 @@ export default function Add() {
     }
 
     return (
-        <main className="flex h-screen overflow-hidden flex-col items-center p-4 bg-white cursor-default text-black">
+        <main className={`flex h-screen overflow-hidden flex-col items-center p-4 cursor-default ${ dark ? "text-white bg-zinc-900" : "text-black bg-white" }`}>
             <div className="mt-20 text-xl">Welcome back <i>Michael.</i></div>
             <div className={`${access? 'hidden' : 'h-screen w-full'}`}>
                 <form className="flex flex-col mx-auto max-w-fit" onSubmit={handleSubmitLogin}>
