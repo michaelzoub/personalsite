@@ -52,6 +52,9 @@ export function Navbar() {
   
   
     function togglePlay() {
+      setTimeout(() => {
+
+      console.log("Toggle click played")
       if (dragging) {
         return;
       }
@@ -64,6 +67,7 @@ export function Navbar() {
       }
       setClick(!click)
       setButton(true)
+    }, 10)
     }
   
   
@@ -92,6 +96,7 @@ export function Navbar() {
     }
 
     function handleDrag(_: MouseEvent | TouchEvent, info: PanInfo) {
+      console.log("dragging true")
       dragging = true;
       const newTime = Math.min(
         duration,
@@ -101,6 +106,7 @@ export function Navbar() {
       if (audioRef.current) {
         audioRef.current.currentTime = newTime;
       }
+      console.log("dragging false")
       dragging = false;
     }
   
