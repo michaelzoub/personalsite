@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { useState, useRef, useEffect } from 'react'
 import { motion } from "motion/react";
+import { PanInfo } from "framer-motion";
 import { useAtom } from "jotai";
 import { darkMode } from "../atoms/darkMode";
 import { hoverAtom } from "../atoms/hover";
@@ -90,7 +91,7 @@ export function Navbar() {
       animationRef.current = requestAnimationFrame(draw);
     }
 
-    function handleDrag(_:unknown, info:unknown) {
+    function handleDrag(_: MouseEvent | TouchEvent, info: PanInfo) {
       dragging = true;
       const newTime = Math.min(
         duration,
