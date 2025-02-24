@@ -18,6 +18,19 @@ export function Navbar() {
     const animationRef: any = useRef(null)
 
     const [mobile, setMobile] = useState(false);
+
+    const [progress, setProgress] = useState(0);
+    const duration = 351;
+    let dragging = false;
+
+    useEffect(() => {
+      if (!audioRef.current) return;
+      const updateProgress = () => {
+        setProgress(audioRef.current.currentTime);
+      };
+      audioRef.current.addEventListener("timeupdate", updateProgress);
+      return () => audioRef.current.removeEventListener("timeupdate", updateProgress);
+    }, []);
   
     useEffect(()=> {
       const canvas: any= canvasRef.current;
@@ -38,6 +51,9 @@ export function Navbar() {
   
   
     function togglePlay() {
+      if (dragging) {
+        return;
+      }
       if (click) {
         audioRef.current.pause();
         cancelAnimationFrame(animationRef.current)
@@ -73,15 +89,33 @@ export function Navbar() {
   
       animationRef.current = requestAnimationFrame(draw);
     }
+
+    function handleDrag(_:unknown, info:unknown) {
+      dragging = true;
+      const newTime = Math.min(
+        duration,
+        Math.max(0, (progress + info.delta.x / 5)) // Adjust scaling factor
+      );
+      setProgress(newTime);
+      if (audioRef.current) {
+        audioRef.current.currentTime = newTime;
+      }
+      dragging = false;
+    }
   
     return (
         <div className={`absolute flex flex-row p-4 w-full ${dark ? "bg-zinc-900 text-white" : "bg-white text-black"}`}>
-            <div className="absolute end-0 ">
+            <motion.div className="absolute end-0 "
+              whileTap={{ scale: 1.2 }}
+              drag="x"
+              onDrag={handleDrag}
+              dragConstraints={{ left: 0, right: 0 }}
+            >
                 <div className="max-h-fit max-w-fit text-sm mx-auto mr-2"></div>
                 <audio ref={audioRef} src="demo.mp3" className="w-56"></audio>
                 <div className={button?`hidden`:'absolute text-xs mt-[12.6px] ml-[16px] cursor-default'} onClick={togglePlay}>▶</div>
                 <canvas ref={canvasRef} className="rounded-full border-gray border-2 mr-6 w-10 h-10" onClick={togglePlay}></canvas>
-            </div>
+            </motion.div>
             <div className="flex flex-row mx-auto w-[300px] md:w-[500px] my-auto justify-between">
               <div>
                 <Link href="/" className="transition delay-50 duration-300 ease-in-out hover:text-orange-400">Home</Link>
