@@ -18,7 +18,9 @@ export default function BlogList() {
             const resblogs = await fetch('/api/blogs')
             const post = await resblogs.json()
             console.log('These are mongodb posts:', post)
-            setBlogposts(post)
+            //reorder blogs:
+            post.reverse();
+            setBlogposts(post);
         }
         checker()
     },[])

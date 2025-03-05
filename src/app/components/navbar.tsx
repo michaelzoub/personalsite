@@ -31,7 +31,7 @@ export function Navbar() {
         setProgress(audioRef.current.currentTime);
       };
       audioRef.current.addEventListener("timeupdate", updateProgress);
-      return () => audioRef.current.removeEventListener("timeupdate", updateProgress);
+      return () => audioRef.current?.removeEventListener("timeupdate", updateProgress);
     }, []);
   
     useEffect(()=> {
