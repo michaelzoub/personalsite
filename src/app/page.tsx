@@ -8,6 +8,7 @@ import BlogList from './components/blogs/page'
 import cyborg from '/public/CYBORG.svg'
 import jws from '/public/wen.png'
 import earth from '/public/earth.jpg'
+import neptume from '/public/neptune3.jpg'
 import spaceship from "/public/spaceship.png"
 import { motion } from "motion/react"
 
@@ -45,6 +46,20 @@ export default function Home() {
             <div className={`${dark ? "text-gray-400" : "text-gray-700"} flex flex-col text-sm my-2`}>Montreal's event and party destination for university/college students.</div>
             <Link href='https://umontreal.vercel.app/' className="flex bg-orange-500 w-[90px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400 text-">
               Explore <span className="absolute w-[80px] pl-[60px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
+            </Link>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className={`${dark ? "bg-zinc-800 text-white" : "bg-gray-300 text-black"} p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
+          > 
+            <Image src={neptume} width={40} height={40} alt='' className="rounded-lg" />
+            <div className="max-w-fit right-0">Neptume</div>
+            <div className={`${dark ? "text-gray-400" : "text-gray-700"} flex flex-col text-sm my-2`}>A supercharged crypto wallet that seamlessly integrates multiple chains. Trade, swap, and manage your assets effortlessly with AI-powered intelligence, enhancing your crypto experience at every step.</div>
+            <Link href='https://market-two-kappa.vercel.app/' className="flex bg-orange-500 w-[60px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">
+              WIP <span className="absolute w-[50px] pl-[30px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
             </Link>
           </motion.div>
 
@@ -89,13 +104,14 @@ export default function Home() {
               WIP <span className="absolute w-[50px] pl-[30px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
             </Link>
           </motion.div>
+          
         </div>
 
       </motion.div>
       <motion.div
                       initial={{opacity: 0, y: 25}}
                       whileInView={{opacity: 1, y: 0}}
-                      transition={{duration: 0.5}}
+                      transition={{duration: 0.4}}
                       viewport={{once: true}}
       >
         <div className="text-lg mt-4 mx-auto max-w-fit">Blog:</div>
