@@ -7,18 +7,9 @@ import { TextureLoader, SpriteMaterial, Sprite } from 'three'
 import { getTopArtists } from '@/app/utils/spotify';
 import { motion } from 'motion/react';
 import SpriteText from 'three-spritetext';
-
-import X from '../x';
-
 import { useAtom } from 'jotai';
 import { darkMode } from '@/app/atoms/darkMode';
 import { musicInfo } from '@/app/atoms/musicInfo';
-
-type Node = {
-  id: number,
-  name: string,
-  val: number
-}
 
 const exampleJson = {
   nodes: [
