@@ -58,8 +58,8 @@ export default function Home() {
             <Image src={neptume} width={40} height={40} alt='' className="rounded-lg" />
             <div className="max-w-fit right-0">Neptume</div>
             <div className={`${dark ? "text-gray-400" : "text-gray-700"} flex flex-col text-sm my-2`}>A supercharged crypto wallet that seamlessly integrates multiple chains. Trade, swap, and manage your assets effortlessly with AI-powered intelligence, enhancing your crypto experience at every step.</div>
-            <Link href='https://market-two-kappa.vercel.app/' className="flex bg-orange-500 w-[60px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">
-              WIP <span className="absolute w-[50px] pl-[30px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
+            <Link href='https://neptume.com/' className="flex bg-orange-500 w-[60px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">
+              Explore <span className="absolute w-[50px] pl-[30px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
             </Link>
           </motion.div>
 
