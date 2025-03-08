@@ -113,7 +113,7 @@ export function Navbar() {
     }
   
     return (
-        <div className={`absolute flex flex-row p-4 w-full ${dark ? "bg-zinc-900 text-white" : "bg-white text-black"}`}>
+        <div className={`absolute flex flex-row p-4 w-full z-50 ${dark ? "bg-zinc-900 text-white" : "bg-white text-black"}`}>
           <div className="absolute end-0 h-fit">
             <motion.div className="absolute end-0"
                 whileTap={{ scale: 1.2 }}
