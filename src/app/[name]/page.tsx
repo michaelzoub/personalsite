@@ -1,34 +1,33 @@
 'use client'
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useState, useEffect } from 'react';
 import { Suspense } from 'react';
 import Loading from "../loading";
 import { darkMode } from "../atoms/darkMode";
 import { useAtom } from "jotai";
+import { use } from "react";
 
-export default function Page({
-  params,
-}: {
-  params: { name: string };
-}) {
+type ParamsType = {
+  promise: Promise<{ [key: string]: unknown }>;
+  name: string;
+};
+
+export default function Page() {
 
   const [upvote, setUpvote] = useState(0);
   const [clicked, setClicked] = useState(false)
 
   const [content, setContent] = useState('...')
   
+  const title = useParams<{ name: string }>()
+  console.log(title)
+
   const searchParams = useSearchParams()
   const query:any = searchParams.get('id')
 
   const [isLoading, setIsLoading] = useState(true)
 
   const [dark] = useAtom(darkMode);
-
-  const title = params.name
-
-  console.log('param,s',params.name)
-
-  const { name } = params
 
  
   //fetch data from API (that got data from read)
@@ -107,7 +106,7 @@ export default function Page({
 // add edit functionality
     return <main className={`flex min-h-screen flex-col items-center p-4 ${ dark ? "text-white bg-zinc-900" : "text-black bg-white" }`}>
       {isLoading && <Loading />}
-      <div className="mt-20 text-2xl text-bold">{title}</div>
+      <div className="mt-20 text-2xl text-bold">{title.name}</div>
       {!isLoading && <Loading /> &&
       <div className="my-4 mb-16 mx-auto rounded-lg border-2 border-gray shadow-inner w-[300px] p-4 divide-y-2 md:w-[500px]">
         <Suspense fallback={ <Loading /> }>

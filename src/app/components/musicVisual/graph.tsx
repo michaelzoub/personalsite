@@ -182,7 +182,7 @@ const GraphViz = () => {
   const fgRef = useRef<any>();
   useFrame(() => (fgRef.current.tickFrame()));
 
-  const loader = new TextureLoader();
+  const loader = useMemo(() => new TextureLoader(), []);
 
   const [, setMusic] = useAtom(musicInfo);
   const [dark] = useAtom(darkMode);
@@ -204,13 +204,15 @@ const GraphViz = () => {
     }))
   }), []);
 
-  const nodeToThree = (image: string) => {
+
+
+  const nodeToThree = useCallback((image: string) => {
     const imgTexture = loader.load(image)
     const material = new SpriteMaterial({ map: imgTexture })
     const sprite = new Sprite(material)
     sprite.scale.set(15, 15, 0)
     return sprite
-  }
+  }, [loader])
 
   const nodeText = (name: string) => {
     const sprite = new SpriteText(name);
