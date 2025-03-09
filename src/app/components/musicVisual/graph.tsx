@@ -1,6 +1,6 @@
 "use client"
 import R3fForceGraph from 'r3f-forcegraph';
-import { useMemo, useCallback, useRef, useEffect } from 'react';
+import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { TrackballControls } from '@react-three/drei';
 import { TextureLoader, SpriteMaterial, Sprite } from 'three'
@@ -270,8 +270,13 @@ export default function Graph() {
 
   const [dark] = useAtom(darkMode);
   const [music, setMusic] = useAtom(musicInfo);
+  const [height, setHeight] = useState(800);
 
-  return <div className="bg-white" style={{ height: window.innerHeight }}>
+  useEffect(() => {
+    setHeight(window.innerHeight)
+  },[])
+
+  return <div className="bg-white" style={{ height: height }}>
       <motion.div className={`flex flex-col absolute z-[100] px-4 pb-4 pt-4 gap-6 rounded-md bg- border-[1px] border-zinc-300 bottom-0 m-16 gap-2 ${dark ? "text-white" : "text-black"} ${ music ? "visible" : "hidden" }`}
         initial={{ opacity: music ? 1 : 0 }}
         animate={{ scale: music ? 1 : 0, opacity: music ? 1 : 0, type: "damp" }}
