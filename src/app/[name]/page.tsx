@@ -6,13 +6,11 @@ import Loading from "../loading";
 import { darkMode } from "../atoms/darkMode";
 import { useAtom } from "jotai";
 
-type PageProps = {
-  params: {
-    name: string
-  }
-}
-
-export default function Page({ params }: PageProps) {
+export default function Page({
+  params,
+}: {
+  params: { name: string };
+}) {
 
   const [upvote, setUpvote] = useState(0);
   const [clicked, setClicked] = useState(false)
