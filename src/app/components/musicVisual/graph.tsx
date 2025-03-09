@@ -10,6 +10,7 @@ import SpriteText from 'three-spritetext';
 import { useAtom } from 'jotai';
 import { darkMode } from '@/app/atoms/darkMode';
 import { musicInfo } from '@/app/atoms/musicInfo';
+import MouseTooltip from '../mousetooltip';
 
 const exampleJson = {
   nodes: [
@@ -277,6 +278,7 @@ export default function Graph() {
   },[])
 
   return <div className="bg-white" style={{ height: height }}>
+      <MouseTooltip />
       <motion.div className={`flex flex-col absolute z-[100] px-4 pb-4 pt-4 gap-6 rounded-md bg- border-[1px] border-zinc-300 bottom-0 m-16 gap-2 ${dark ? "text-white" : "text-black"} ${ music ? "visible" : "hidden" }`}
         initial={{ opacity: music ? 1 : 0 }}
         animate={{ scale: music ? 1 : 0, opacity: music ? 1 : 0, type: "damp" }}
