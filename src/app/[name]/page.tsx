@@ -1,15 +1,18 @@
 'use client'
-import Link from "next/link";
-import { notFound, useSearchParams } from "next/navigation";
-import { useRouter } from 'next/router'
+import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from 'react';
 import { Suspense } from 'react';
 import Loading from "../loading";
-import { generateStaticParams } from "./static";
 import { darkMode } from "../atoms/darkMode";
 import { useAtom } from "jotai";
 
-export default function Page({ params }: { params: { name: string } }) {
+type PageProps = {
+  params: {
+    name: string
+  }
+}
+
+export default function Page({ params }: PageProps) {
 
   const [upvote, setUpvote] = useState(0);
   const [clicked, setClicked] = useState(false)

@@ -38,6 +38,14 @@ const exampleJson = {
       link: "https://open.spotify.com/track/7HwjvjGnewY4FBbWCNtCMW?si=5338aeac4f814609"
     },
     {
+      id: 13,
+      name: "Sais",
+      type: "image",
+      val: 0,
+      imgurl: "/sais.jpg",
+      link: "https://open.spotify.com/track/65c7ctSEOiYbz61XtytvOV?si=b34e21b2316b417a"
+    },
+    {
       id: 4,
       name: "Floating Points",
       type: "text",
@@ -129,6 +137,10 @@ const exampleJson = {
     {
       source: 4,
       target: 3
+    },
+    {
+      source: 4,
+      target: 13
     },
     {
       source: 8,

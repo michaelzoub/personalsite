@@ -32,17 +32,6 @@
       "layer": {
         "app/api/blogs/route": "rsc"
       }
-    },
-    "00bdc215a66c0474483c52fefc3419c5b633c4c323": {
-      "workers": {
-        "app/test/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Cmicha%5C%5CDownloads%5C%5Czoubkoffsite%5C%5Cpersonalsite%5C%5Csrc%5C%5Capp%5C%5Cutils%5C%5Cspotify.ts%22%2C%5B%7B%22id%22%3A%2200bdc215a66c0474483c52fefc3419c5b633c4c323%22%2C%22exportedName%22%3A%22getTopArtists%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        }
-      },
-      "layer": {
-        "app/test/page": "action-browser"
-      }
     }
   },
   "edge": {},

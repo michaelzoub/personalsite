@@ -592,9 +592,6 @@ video {
 .visible {
   visibility: visible;
 }
-.static {
-  position: static;
-}
 .absolute {
   position: absolute;
 }
@@ -1094,16 +1091,6 @@ body {
 }
 
 @media (min-width: 768px) {
-
-  .md\:mx-0 {
-    margin-left: 0px;
-    margin-right: 0px;
-  }
-
-  .md\:mx-auto {
-    margin-left: auto;
-    margin-right: auto;
-  }
 
   .md\:flex {
     display: flex;

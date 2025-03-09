@@ -1,7 +1,6 @@
 'use client'
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useRef, useEffect } from 'react'
 import { useAtom } from "jotai";
 import { darkMode } from "./atoms/darkMode";
 import BlogList from './components/blogs/page'
@@ -9,7 +8,6 @@ import cyborg from '/public/CYBORG.svg'
 import jws from '/public/wen.png'
 import earth from '/public/earth.jpg'
 import neptume from '/public/neptune3.jpg'
-import spaceship from "/public/spaceship.png"
 import { motion } from "motion/react"
 
 export default function Home() {
@@ -58,8 +56,8 @@ export default function Home() {
             <Image src={neptume} width={40} height={40} alt='' className="rounded-lg" />
             <div className="max-w-fit right-0">Neptume</div>
             <div className={`${dark ? "text-gray-400" : "text-gray-700"} flex flex-col text-sm my-2`}>A supercharged crypto wallet that seamlessly integrates multiple chains. Trade, swap, and manage your assets effortlessly with AI-powered intelligence, enhancing your crypto experience at every step.</div>
-            <Link href='https://neptume.com/' className="flex bg-orange-500 w-[60px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">
-              Explore <span className="absolute w-[50px] pl-[30px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
+            <Link href='https://neptume.com/' className="flex bg-orange-500 w-[90px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400 text-">
+              Explore <span className="absolute w-[80px] pl-[60px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
             </Link>
           </motion.div>
 
