@@ -28,6 +28,16 @@ export default function Home() {
               transition={{duration: 0.5}}
               viewport={{once: true}}
       >
+
+        <motion.div className="w-[300px] md:w-[500px] mx-6"
+            initial={{opacity: 0}}
+            whileInView={{opacity: 1}}
+            transition={{duration: 0.05}}
+            viewport={{once: true}}
+        >
+          <Link className="text-sm underline transition delay-50 duration-300 ease-in-out hover:text-orange-400" href="/music">My music taste ↗</Link>
+        </motion.div>
+
         <div className="text-lg mt-6 mx-auto max-w-fit">Software Projects:</div>
         
         <div className="flex flex-col gap-2 p-3 rounded-lg">
