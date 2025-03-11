@@ -40,7 +40,7 @@ export default function Home() {
 
         <div className="text-lg mt-6 mx-auto max-w-fit">Software Projects:</div>
         
-        <div className="flex flex-col gap-2 p-3 rounded-lg">
+        <div className="flex flex-col items-center justify-center gap-2 p-3 rounded-lg">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
