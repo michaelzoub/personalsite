@@ -9,6 +9,7 @@ import jws from '/public/wen.png'
 import earth from '/public/earth.jpg'
 import neptume from '/public/neptune3.jpg'
 import { motion } from "motion/react"
+import ContactForm from "./components/contactForm";
 
 export default function Home() {
 
@@ -108,8 +109,8 @@ export default function Home() {
             <Image src={cyborg} width={40} height={40} alt='' className="rounded-lg" />
             <div className="max-w-fit right-0">dlock.shop</div>
             <div className={`${dark ? "text-gray-400" : "text-gray-700"} flex flex-col text-sm my-2`}>Skins market being built for Valve's new third-person shooter Deadlock. Currently a work in progress, some functionalities are being added as you read this.</div>
-            <Link href='https://market-two-kappa.vercel.app/' className="flex bg-orange-500 w-[60px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">
-              WIP <span className="absolute w-[50px] pl-[30px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
+            <Link href='https://market-two-kappa.vercel.app/' className="flex bg-orange-500 w-[121px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400">
+              In Progress <span className="absolute w-[115px] pl-[91px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
             </Link>
           </motion.div>
           
@@ -122,8 +123,21 @@ export default function Home() {
                       transition={{duration: 0.4}}
                       viewport={{once: true}}
       >
-        <div className="text-lg mt-4 mx-auto max-w-fit">Blog:</div>
-        <div className="text-sm px-2 mt-2">Powered by <Link href="https://github.com/michaelzoub/bleeg" target="_blank" className="transition delay-150 ease-in-out duration-300 hover:text-orange-500"><span className="text-orange-500">©</span>Bleeg</Link></div>
+
+        <div className="text-lg my-2 mx-auto max-w-fit">Contact:</div>
+
+        <motion.div
+          className={`flex items-center justify-center ${dark ? "bg-zinc-800 text-zinc-500" : "bg-gray-300 text-zinc-500"} p-4 pt-6 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          whileInView={{opacity: 1, y: 0}}
+        >
+          <ContactForm dark={dark}></ContactForm>
+        </motion.div>
+
+        <div className="text-lg mt-4 my-1 mx-auto max-w-fit">Blog:</div>
+        <div className="text-sm px-2 mt-">Powered by <Link href="https://github.com/michaelzoub/bleeg" target="_blank" className="transition delay-150 ease-in-out duration-300 hover:text-orange-500"><span className="text-orange-500">©</span>Bleeg</Link></div>
         <BlogList></BlogList>
       </motion.div>
       <div className="flex flex-col-reverse h-20 mt-12 md:flex bottom-0">© {new Date().getFullYear()} MIT Licensed</div>
