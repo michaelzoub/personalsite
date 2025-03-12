@@ -42,11 +42,12 @@ export default function ContactForm({ dark }: PropsType) {
     }
 
     return (
-        <motion.main className="flex flex-col w-full gap-1">
-            <motion.div className="w-full flex flex-col place-items-end gap-2"
-                initial={{ opacity: 0, y: 25 }}
+        <motion.main className="flex flex-col w-full gap-">
+            <motion.div className="w-full flex flex-col place-items-end gap-"
+                initial={{ opacity: 0, y: 20 }}
                 transition={{ delay: 0.1 }}
                 whileInView={{opacity: 1, y: 0}}
+                viewport={{once: true}}
             >
                 <div className="hidden w-full flex flex-row justify-between">
                     <div>Autocomplete   -------------------------------------</div>
@@ -85,23 +86,25 @@ export default function ContactForm({ dark }: PropsType) {
                 >Erase</motion.button>
             </motion.div>
             <motion.div className="w-full flex flex-row gap-2"
-                initial={{ opacity: 0, y: 25 }}
+                initial={{ opacity: 0, y: 20 }}
                 transition={{ delay: 0.2 }}
                 whileInView={{opacity: 1, y: 0}}
+                viewport={{once: true}}
             >
                 <div className="w-full flex flex-col">
                     <div className="text-left">Subject</div>
-                    <input className={`shadow-inner w-full mx-4 my-1 p-2 rounded-lg mx-auto ${dark ? "bg-zinc-900 text-orange-200" : "text-orange-600 bg-white"}`} placeholder="Coffee chat?!" value={subject} onChange={(e) => setSubject(e.target.value)}></input>
+                    <input className={`shadow-inner w-full mx-4 my-1 px-2 py-1 rounded-lg mx-auto ${dark ? "bg-zinc-900 text-orange-200" : "text-orange-600 bg-white"}`} placeholder="Coffee chat?!" value={subject} onChange={(e) => setSubject(e.target.value)}></input>
                 </div>
                 <div className="flex flex-col w-full">
                     <div className="text-left">From</div>
-                    <input className={`shadow-inner w-full mx-4 my-1 p-2 rounded-lg mx-auto ${dark ? "bg-zinc-900 text-orange-200" : "text-orange-600 bg-white"}`} placeholder="bot@ai.com" value={from} onChange={(e) => setFrom(e.target.value)}></input>
+                    <input className={`shadow-inner w-full mx-4 my-1 px-2 py-1 rounded-lg mx-auto ${dark ? "bg-zinc-900 text-orange-200" : "text-orange-600 bg-white"}`} placeholder="bot@ai.com" value={from} onChange={(e) => setFrom(e.target.value)}></input>
                 </div>
             </motion.div>
             <motion.div className="flex flex-col"
-                initial={{ opacity: 0, y: 32 }}
+                initial={{ opacity: 0, y: 20 }}
                 transition={{ delay: 0.3 }}
                 whileInView={{opacity: 1, y: 0}}
+                viewport={{once: true}}
             >
                 <div className="text-left">Content</div>
                 <textarea className={`shadow-inner w-full mx-4 my-1 p-2 h-[100px] rounded-lg mx-auto ${dark ? "bg-zinc-900 text-orange-200" : "text-orange-600 bg-white"}`} placeholder="Input" value={text} onChange={(e) => setText(e.target.value)}></textarea>
