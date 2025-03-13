@@ -55,8 +55,6 @@ const exampleJson = {
       link: "https://open.spotify.com/track/75QdM3nsnAluOD19G1J4il?si=575b49f5ad1f401b",
       genres: [""]
     },
-
-
     {
       id: 5,
       name: "Yoshi City",
@@ -90,8 +88,6 @@ const exampleJson = {
       link: "https://open.spotify.com/track/75QdM3nsnAluOD19G1J4il?si=575b49f5ad1f401b",
       genres: [""]
     },
-
-
     {
       id: 9,
       name: "Cascades",
@@ -125,6 +121,66 @@ const exampleJson = {
       link: "https://open.spotify.com/track/75QdM3nsnAluOD19G1J4il?si=575b49f5ad1f401b",
       genres: [""]
     },
+    {
+      id: 16,
+      name: "Nova",
+      type: "image",
+      val: 0,
+      imgurl: "/nova.jpg",
+      link: "https://open.spotify.com/track/7dYjEwbLJ1B5reoz3lWra0?si=33c1b0be4fea42f0"
+    },
+    {
+      id: 17,
+      name: "Archangel",
+      type: "image",
+      val: 0,
+      imgurl: "/archangel.jpg",
+      link: "https://open.spotify.com/track/55gnBQAhU5rGzLsXTAx2MM?si=031aa574cb964481"
+    },
+    {
+      id: 18,
+      name: "NYC",
+      type: "image",
+      val: 0,
+      imgurl: "/tunes.jpg",
+      link: "https://open.spotify.com/track/0itLChB4g2Oavxp6oAUbVS?si=4658af55fb2e4d0c"
+    },
+    {
+      id: 19,
+      name: "Burial",
+      type: "text",
+      val: 1,
+      imgurl: "/logo512.jpg",
+      link: "https://open.spotify.com/track/75QdM3nsnAluOD19G1J4il?si=575b49f5ad1f401b",
+      genres: [""]
+    },
+    {
+      id: 20,
+      name: "Electronic",
+      type: "text",
+      val: 1,
+      imgurl: "",
+      link: "",
+      genres: [""]
+    },
+    {
+      id: 21,
+      name: "Rap",
+      type: "text",
+      val: 1,
+      imgurl: "",
+      link: "",
+      genres: [""]
+    },
+    {
+      id: 22,
+      name: "DnB",
+      type: "text",
+      val: 1,
+      imgurl: "",
+      link: "",
+      genres: [""]
+    },
   ],
   links: [
     {
@@ -156,10 +212,6 @@ const exampleJson = {
       target: 7
     },
     {
-      source: 4,
-      target: 8
-    },
-    {
       source: 12,
       target: 9
     },
@@ -172,7 +224,39 @@ const exampleJson = {
       target: 11
     },
     {
-      source: 4,
+      source: 16,
+      target: 19
+    },
+    {
+      source: 17,
+      target: 19
+    },
+    {
+      source: 18,
+      target: 19
+    },
+    {
+      source: 20,
+      target: 21
+    },
+    {
+      source: 20,
+      target: 22
+    },
+    {
+      source: 22,
+      target: 19
+    },
+    {
+      source: 21,
+      target: 8
+    },
+    {
+      source: 20,
+      target: 4
+    },
+    {
+      source: 20,
       target: 12
     }
   ]
