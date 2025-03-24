@@ -17,7 +17,9 @@ export default function Home() {
   const [dark] = useAtom(darkMode);
 
   const handleLinkClick = (e: any) => {
-    linkClickStats(e.target?.href);
+    const value = e.target.getAttribute('data-value') || e.currentTarget.getAttribute('data-value');
+    linkClickStats(value);
+    console.log(value);
   };
 
   return (
@@ -40,7 +42,7 @@ export default function Home() {
                     whileInView={{opacity: 1}}
                     transition={{duration: 0.05}}
                     viewport={{once: true}}
-                    value="/music"
+                    data-value="/music"
                     onClick={handleLinkClick}
         >
           <Link className="text-sm underline transition delay-50 duration-300 ease-in-out hover:text-orange-400" href="/music">My music taste ↗</Link>
@@ -62,7 +64,8 @@ export default function Home() {
             <div className="max-w-fit right-0">uMontreal</div>
             <div className={`${dark ? "text-gray-400" : "text-gray-700"} flex flex-col text-sm my-2`}>Montreal's event and party destination for university/college students.</div>
             <Link href='https://umontreal.vercel.app/' className="flex bg-orange-500 w-[90px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400 text-"
-                  onClick={handleLinkClick}>
+                data-value="/music"
+                onClick={(e) => handleLinkClick(e)}>
               Explore <span className="absolute w-[80px] pl-[60px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
             </Link>
           </motion.div>
@@ -78,7 +81,8 @@ export default function Home() {
             <div className="max-w-fit right-0">Neptume</div>
             <div className={`${dark ? "text-gray-400" : "text-gray-700"} flex flex-col text-sm my-2`}>A supercharged crypto wallet that seamlessly integrates multiple chains. Trade, swap, and manage your assets effortlessly with AI-powered intelligence, enhancing your crypto experience at every step.</div>
             <Link href='https://neptume.com/' className="flex bg-orange-500 w-[90px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400 text-"
-                  onClick={handleLinkClick}>
+                data-value="/music"
+                onClick={(e) => handleLinkClick(e)}>
               Explore <span className="absolute w-[80px] pl-[60px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
             </Link>
           </motion.div>
@@ -94,7 +98,8 @@ export default function Home() {
             <div className="max-w-fit right-0">CEV</div>
             <div className={`${dark ? "text-gray-400" : "text-gray-700"} flex flex-col text-sm my-2`}>A crypto exchange visualizer, exchanges with registered locations show up on the map, the stick height shown depends on the daily BTC volume.</div>
             <Link href='https://cryptoexchangevisual.vercel.app/' className="flex bg-orange-500 w-[90px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400"
-                  onClick={handleLinkClick}>
+                            data-value="/music"
+                            onClick={(e) => handleLinkClick(e)}>
               Explore <span className="absolute w-[80px] pl-[60px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
             </Link>
           </motion.div>
@@ -110,7 +115,8 @@ export default function Home() {
             <div className="max-w-fit right-0">Jws.onl</div>
             <div className={`${dark ? "text-gray-400" : "text-gray-700"} flex flex-col text-sm my-2`}>A web app that tracks job postings from select Wall Street and Big Tech companies and sends out notifications to signed up users on new listings.</div>
             <Link href='https://jws-pi.vercel.app/' className="flex bg-orange-500 w-[90px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400"
-                  onClick={handleLinkClick}>
+                                  data-value="/music"
+                                  onClick={(e) => handleLinkClick(e)}>
               Explore <span className="absolute w-[80px] pl-[60px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
             </Link>
           </motion.div>
@@ -126,7 +132,8 @@ export default function Home() {
             <div className="max-w-fit right-0">dlock.shop</div>
             <div className={`${dark ? "text-gray-400" : "text-gray-700"} flex flex-col text-sm my-2`}>Skins market being built for Valve's new third-person shooter Deadlock. Currently a work in progress, some functionalities are being added as you read this.</div>
             <Link href='https://market-two-kappa.vercel.app/' className="flex bg-orange-500 w-[121px] px-2 gap-2 py-[3px] rounded-lg shadow-inner transition delay-50 duration-300 ease-in-out hover:bg-orange-400"
-                  onClick={handleLinkClick}>
+                                  data-value="/music"
+                                  onClick={(e) => handleLinkClick(e)}>
               In Progress <span className="absolute w-[115px] pl-[91px] transition delay-50 duration-300 ease-in-out hover:translate-x-[5px] overflow-hidden">↗</span>
             </Link>
           </motion.div>
@@ -154,7 +161,8 @@ export default function Home() {
         </motion.div>
 
         <div className="text-lg mt-4 my-1 mx-auto max-w-fit">Blog:</div>
-        <div className="text-sm px-2 mt-">Powered by <Link href="https://github.com/michaelzoub/bleeg" target="_blank" className="transition delay-150 ease-in-out duration-300 hover:text-orange-500"><span className="text-orange-500">©</span>Bleeg</Link></div>
+        <div className="text-sm px-2 mt-">Powered by <Link href="https://github.com/michaelzoub/bleeg" target="_blank" className="transition delay-150 ease-in-out duration-300 hover:text-orange-500"><span className="text-orange-500" data-value="/music"
+                onClick={(e) => handleLinkClick(e)}>©</span>Bleeg</Link></div>
         <BlogList></BlogList>
       </motion.div>
       <div className="flex flex-col-reverse h-20 mt-12 md:flex bottom-0">© {new Date().getFullYear()} MIT Licensed</div>
