@@ -30,6 +30,8 @@ export async function POST(req: NextRequest) {
         });
 
         await producer.disconnect()
+
+        return NextResponse.json({ message: "Success", status: 400 });
     } catch (error) {
         return NextResponse.json({ error: error, status: 400 });
     }
