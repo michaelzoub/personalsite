@@ -1,4 +1,4 @@
-export async function linkClickStats(href: string) {
+export async function linkClickStats(href: string): Promise<void> {
     const response = await fetch("/api/kafkaproducer", {
         method: "POST",
         headers: {
@@ -9,6 +9,4 @@ export async function linkClickStats(href: string) {
             quantity: 1
         })
     })
-    const data = await response.json();
-    console.log(data);
 }

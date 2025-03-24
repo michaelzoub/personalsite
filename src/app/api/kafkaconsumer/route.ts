@@ -2,12 +2,12 @@ import { Kafka } from "kafkajs";
 import { connectToDatabase } from "@/app/utils/mongo";
 import { clickData } from "@/app/types/clickData";
 
-const kafka = new Kafka({ brokers: ["localhost:9092"] })
+const kafka = new Kafka({ brokers: ["pkc-619z3.us-east1.gcp.confluent.cloud:9092"] })
 const consumer = kafka.consumer({ groupId: "linkClicks1" });
 
 async function consumerFunc() {
     await consumer.connect();
-    await consumer.subscribe({ topic: "linkClicks", fromBeginning: true });
+    await consumer.subscribe({ topic: "topic_0", fromBeginning: true });
 
     const { db } = await connectToDatabase();
     const collection = await db.collection("clicks");

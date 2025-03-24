@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Kafka } from "kafkajs";
+import { Kafka, Partitioners } from "kafkajs";
 
 export async function POST(req: NextRequest) {
     //get request
@@ -7,15 +7,23 @@ export async function POST(req: NextRequest) {
     try {   
         //create a producer
         const kafka = new Kafka({
-            clientId: 'my-app',
-            brokers: ['localhost:9092'],
+            clientId: 'my-app', 
+            brokers: ['pkc-619z3.us-east1.gcp.confluent.cloud:9092'], 
+            sasl: {
+              mechanism: 'plain', 
+              username: process.env.KAFKA_KEY || (""),
+              password: process.env.KAFKA_SECRET || ("")
+            },
+            ssl: true, 
           });
 
-        const producer = kafka.producer();
+          const producer = kafka.producer({
+            createPartitioner: Partitioners.LegacyPartitioner, 
+          });
 
         await producer.connect();
         await producer.send({
-        topic: 'linkClicks',
+        topic: 'topic_0',
         messages: [
             { value: JSON.stringify({ href: body.href, quantity: body.quantity }) }
         ],
