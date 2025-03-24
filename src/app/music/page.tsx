@@ -1,7 +1,5 @@
 "use client"
-//import { Navbar } from "../components/navbar"
 import dynamic from "next/dynamic";
-//import MusicGraph from "../components/musicVisual/graph"
 
 const MusicPlayer = dynamic(() => import("../components/musicVisual/graph"), { ssr: false });
 

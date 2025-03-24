@@ -262,7 +262,6 @@ const exampleJson = {
   ]
 };
 
-
 const GraphViz = () => {
   const fgRef = useRef<any>();
   useFrame(() => (fgRef.current.tickFrame()));
