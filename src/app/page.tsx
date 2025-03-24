@@ -16,8 +16,8 @@ export default function Home() {
 
   const [dark] = useAtom(darkMode);
 
-  const handleLinkClick = (e) => {
-    linkClickStats(e.target.href);
+  const handleLinkClick = (e: any) => {
+    linkClickStats(e.target?.href);
   };
 
   return (

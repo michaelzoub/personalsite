@@ -9,4 +9,6 @@ export async function linkClickStats(href: string): Promise<void> {
             quantity: 1
         })
     })
+
+    console.log(response);
 }
