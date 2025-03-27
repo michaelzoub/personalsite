@@ -55,13 +55,6 @@ export default function Page() {
     async function fetchData() {
       try {
         console.log('Fetching data from:', '/api/initial');
-        const response = await fetch('/api/initial/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain'
-          },
-          body: JSON.stringify(query) //remember to transport data in a JSON (JSON.stringify)
-        });
         const res = await fetch('/api/initial/')
         console.log(res.status)
         const data = await res.json()
@@ -110,7 +103,7 @@ export default function Page() {
       {!isLoading && <Loading /> &&
       <div className="my-4 mb-16 mx-auto rounded-lg border-2 border-gray shadow-inner w-[300px] p-4 divide-y-2 md:w-[500px]">
         <Suspense fallback={ <Loading /> }>
-        <div>{content}</div>
+        <div dangerouslySetInnerHTML={{ __html: content }} />
         </Suspense>
       </div> }
       <div className="flex flex-row">

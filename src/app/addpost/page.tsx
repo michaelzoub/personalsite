@@ -80,11 +80,11 @@ export default function Add() {
                 <div className={`${error? 'mx-auto w-72 border-2 rounded-lg p-2 border-orange-500 shadow-inner' : 'hidden'}`}>Smh <u>{error}</u> is the wrong password, get good hehe.</div>
             </div>
             <div className={`${access? 'flex flex-col' : 'hidden'}`}>
-                <form className={`flex flex-col w-full mt-20`} onSubmit={handleSubmit}>
+                <form className={`flex flex-col w-full mt-20 gap-2`} onSubmit={handleSubmit}>
                     <input placeholder="Title" className="mx-auto p-1 border-2 rounded-lg border-gray-100 w-[300px] md:w-[500px]" value={title} onChange={(e)=> setTitle(e.target.value)}></input>
-                    <textarea placeholder="Description" className="mx-auto w-[350px] my-6 p-1 border-2 rounded-lg border-gray-100 h-56 resize-none md:w-[550px]" value={description} onChange={(e)=> setDescription(e.target.value)}></textarea>
+                    <textarea placeholder="Description" className="mx-auto w-[350px] p-1 border-2 rounded-lg border-gray-100 h-56 resize-none md:w-[550px]" value={description} onChange={(e)=> setDescription(e.target.value)}></textarea>
                 </form>
-                <button onClick={handleSubmit} className="bg-orange-500 p-[5px] rounded-lg shadow-inner max-w-fit mx-auto transition delay-50 duration-300 ease-in-out hover:bg-orange-400">Booom!</button>
+                <button onClick={handleSubmit} className="bg-orange-500 p-[5px] rounded-lg shadow-inner w-full mx-auto transition delay-50 duration-300 ease-in-out hover:bg-orange-400 mt-4">Post</button>
             </div>
         </main>
     )
