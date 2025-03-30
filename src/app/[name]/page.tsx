@@ -97,7 +97,7 @@ export default function Page() {
 
 
 // add edit functionality
-    return <main className={`flex min-h-screen flex-col items-center p-4 ${ dark ? "text-white bg-zinc-900" : "text-black bg-white" }`}>
+    return <main className={`flex min-h-screen flex-col items-center p-4 ${ dark ? "text-white bg-zinc-900" : "text-black bg-white" } ${isLoading ? "overflow-hidden" : ""}`}>
       {isLoading && <Loading />}
       <div className="mt-20 text-2xl text-bold">{title.name}</div>
       {!isLoading && <Loading /> &&
