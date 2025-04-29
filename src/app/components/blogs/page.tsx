@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from "next/link"
 import { useAtom } from 'jotai'
 import { darkMode } from '@/app/atoms/darkMode'
+import { getLocalStorage, setLocalStorage } from '@/app/utils/localStorage'
 
 interface BlogList {
     bg: string
@@ -15,11 +16,19 @@ export default function BlogList() {
     //add checker if hash(password) == value from DB then let access
     useEffect(()=> {
         async function checker() {
-            const resblogs = await fetch('/api/blogs')
-            const post = await resblogs.json()
-            console.log('These are mongodb posts:', post)
-            //reorder blogs:
-            post.reverse();
+            const objects = getLocalStorage();
+            const stringified = JSON.parse(objects || `{}`);
+            let post;
+            if (!objects || stringified.date !== new Date().toISOString().split('T')[0]) {
+                const resblogs = await fetch('/api/blogs')
+                post = await resblogs.json()
+                //console.log('These are mongodb posts:', post)
+                //reorder blogs:
+                post.reverse();
+                setLocalStorage(post);
+            } else {
+                post = stringified.array;
+            }
             setBlogposts(post);
         }
         checker()
