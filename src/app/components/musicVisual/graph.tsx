@@ -181,6 +181,39 @@ const exampleJson = {
       link: "",
       genres: [""]
     },
+    {
+      id: 23,
+      name: "Injury Reserve",
+      type: "text",
+      val: 1,
+      imgurl: "",
+      link: "",
+      genres: [""]
+    },
+    {
+      id: 24,
+      name: "Ttktv",
+      type: "image",
+      val: 0,
+      imgurl: "/ttktv.jpg", // Add image if desired
+      link: "https://open.spotify.com/track/6U8wLl0pMsgS1Lcql3nQjH?si=f52992c7f75b4066"
+    },
+    {
+      id: 25,
+      name: "Outside",
+      type: "image",
+      val: 0,
+      imgurl: "/outside.jpg", // Add image if desired
+      link: "https://open.spotify.com/track/5s0oWj51ttqiINWWJynNPz?si=004992a72fc84ea5"
+    },
+    {
+      id: 26,
+      name: "Best Spot in the House",
+      type: "image",
+      val: 0,
+      imgurl: "/bsith.jpg", // Add image if desired
+      link: "https://open.spotify.com/track/1NmVaOMhftw2jZaE1KTk1p?si=063b923243ce4827"
+    }
   ],
   links: [
     {
@@ -258,7 +291,12 @@ const exampleJson = {
     {
       source: 20,
       target: 12
-    }
+    },
+    { source: 23, target: 20 }, // Injury Reserve -> Electronic
+    { source: 23, target: 21 }, // Injury Reserve -> Rap
+    { source: 23, target: 24 }, // Injury Reserve -> Top Picks For You
+    { source: 23, target: 25 }, // Injury Reserve -> SS San Francisco
+    { source: 23, target: 26 }  // Injury Reserve -> Knees
   ]
 };
 
