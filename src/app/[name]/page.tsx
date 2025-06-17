@@ -7,11 +7,6 @@ import { darkMode } from "../atoms/darkMode";
 import { useAtom } from "jotai";
 import { use } from "react";
 
-type ParamsType = {
-  promise: Promise<{ [key: string]: unknown }>;
-  name: string;
-};
-
 export default function Page() {
 
   const [upvote, setUpvote] = useState(0);
@@ -55,7 +50,9 @@ export default function Page() {
     async function fetchData() {
       try {
         console.log('Fetching data from:', '/api/initial');
-        const res = await fetch('/api/initial/')
+        const res = await fetch(`/api/initial?id=${query}`, {
+          method: "GET"
+        })
         console.log(res.status)
         const data = await res.json()
         console.log(data)

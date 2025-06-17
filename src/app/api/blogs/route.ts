@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 }
 
 //gets blogs from MongoDB
-export async function GET(request: Request) {
+export async function GET() {
     try {
         const { db } = await connectToDatabase()
         const collection = await db.collection('posts')
