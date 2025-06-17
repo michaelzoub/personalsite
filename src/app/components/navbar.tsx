@@ -144,8 +144,8 @@ export function Navbar() {
               </div>
               <div className={`${mobile ? "hidden" : "flex flex-row gap-10"}`}>
                 <motion.div className="flex flex-row gap-4 w-fit"
-                  initial={{ opacity: 0, translateX: 100, scale: 0 }}
-                  animate={{ opacity: hover? 1 : 0, translateX: hover ? 0 : 100, scale: hover ? 1 : 0  }}
+                  initial={{ opacity: 0, x: 100, scale: 0 }}
+                  animate={{ opacity: hover ? 1 : 0, x: hover ? 0 : 100, scale: hover ? 1 : 0 }}
                   transition={{ duration: 0.2 }}
                 >
                   <X></X>
