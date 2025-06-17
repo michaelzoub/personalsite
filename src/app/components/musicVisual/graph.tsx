@@ -364,7 +364,7 @@ export default function Graph() {
       <MouseTooltip />
       <motion.div className={`flex flex-col absolute z-[100] px-4 pb-4 pt-4 gap-6 rounded-md bg- border-[1px] border-zinc-300 bottom-0 m-16 gap-2 ${dark ? "text-white" : "text-black"} ${ music ? "visible" : "hidden" }`}
         initial={{ opacity: music ? 1 : 0 }}
-        animate={{ scale: music ? 1 : 0, opacity: music ? 1 : 0, type: "damp" }}
+        animate={{ scale: music ? 1 : 0, opacity: music ? 1 : 0, type: "spring" }}
       >
         <div className='flex flex-row justify-between'>
           <motion.div className=""
@@ -378,7 +378,7 @@ export default function Graph() {
         </div>
         <motion.div
           initial={{ opacity: music ? 1 : 0 }}
-          animate={{ opacity: music ? 1 : 0, type: "damp" }}
+          animate={{ opacity: music ? 1 : 0, type: "spring" }}
           transition={{ delay: 0.5 }}
         >
         <iframe 
