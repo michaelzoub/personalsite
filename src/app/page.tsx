@@ -11,6 +11,7 @@ import neptume from '/public/neptune3.jpg'
 import { motion } from "motion/react"
 import ContactForm from "./components/contactForm";
 import { linkClickStats } from "./utils/linkClickStats";
+import { Suspense } from "react";
 
 export default function Home() {
 
