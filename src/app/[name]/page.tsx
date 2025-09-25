@@ -98,7 +98,7 @@ export default function Page() {
       {isLoading && <Loading />}
       <div className="mt-20 text-2xl text-bold">{title.name}</div>
       {!isLoading && <Loading /> &&
-      <div className="my-4 mb-16 mx-auto rounded-lg border-2 border-gray shadow-inner w-[300px] p-4 divide-y-2 md:w-[500px]">
+      <div className={`my-4 mb-16 mx-auto rounded-lg border-[1.5px] shadow-inner w-[300px] p-4 divide-y-2 md:w-[500px] ${dark ? "border-zinc-800" : "border-gray"}`}>
         <Suspense fallback={ <Loading /> }>
         <div dangerouslySetInnerHTML={{ __html: content }} />
         </Suspense>
