@@ -37,10 +37,10 @@ export default function BlogList() {
     //add form page to add new post with 3 inputs: id, date, name, description
     return (
     <main className={`${dark ? "flex overflow-hidden flex-col items-center bg-zinc-900 cursor-default text-white" : "flex overflow-hidden flex-col items-center bg-white cursor-default text-black"}`}>
-        <div className={`mx-auto rounded-lg border-2 ${dark ? "border-zinc-800 divide-zinc-800" : "border-gray"} shadow-inner w-[300px] p-4 divide-y-2 md:w-[500px]`}>
+        <div className={`mx-auto rounded-lg border-[1.5px] ${dark ? "border-zinc-800 divide-zinc-800" : "border-gray"} shadow-inner w-[300px] p-4 divide-y-2 md:w-[500px]`}>
             {Array.isArray(blogposts) ? blogposts.map((e) => <Link key={e?.id} href={`/${e.name}?id=${e?.id}`} className="flex flex-col flex-wrap cursor-default md:transition delay-50 duration-300 ease-in-out hover:text-orange-400"><div><div className="float-left max-w-fit p-3">{e.name}</div><div className="float-right p-3 max-w-fit">{e?.date}</div></div></Link>) : <p>Loading blog posts...</p>}
         </div>
-        <Link href="/addpost" className="m-4 px-2 rounded-lg shadow-inner border-2">+</Link>
+        <Link href="/addpost" className={`m-4 px-2 rounded-lg shadow-inner border-[1.5px] ${dark ? "border-zinc-800 divide-zinc-800" : "border-gray"}`}>+</Link>
     </main>
     )
 }
