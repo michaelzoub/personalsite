@@ -124,7 +124,7 @@ export function Navbar() {
                   <div className="max-h-fit max-w-fit text-sm mx-auto mr-2"></div>
                   <audio ref={audioRef} src="Cascades.mp3" className="w-56"></audio>
                   <div className={button?`hidden`:'absolute text-xs mt-[12.6px] ml-[16px] cursor-default'} onClick={togglePlay}>▶</div>
-                  <canvas ref={canvasRef} className="rounded-full border-gray border-2 mr-6 w-10 h-10" onClick={togglePlay}></canvas>
+                  <canvas ref={canvasRef} className={`rounded-full border-[1.5px] mr-6 w-10 h-10 ${dark ? "border-zinc-600 divide-zinc-800" : "border-gray"}`} onClick={togglePlay}></canvas>
               </motion.div>
               <motion.div className="mr-[80px] flex flex-row"
                   initial={{ scale: 0, opacity: 0 }}

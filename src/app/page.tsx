@@ -56,7 +56,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className={`${dark ? "bg-gradient-to-b from-gray-800 to-gray-900 text-white" : "bg-gradient-to-b from-gray-200 to-gray-300 border border-gray-400/50"} p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
+            className={`${dark ? "bg-gradient-to-b from-zinc-800 to-zinc-900 text-white" : "bg-gradient-to-b from-gray-200 to-gray-300 border border-gray-400/50"} p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
 
           > 
             <div className="flex rounded-lg bg-gray-900 w-[40px] h-[40px] text-white items-center">
@@ -75,7 +75,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            className={`${dark ? "bg-gradient-to-b from-gray-800 to-gray-900 text-white" : "bg-gradient-to-b from-gray-200 to-gray-300 border border-gray-400/50"} p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
+            className={`${dark ? "bg-gradient-to-b from-zinc-800 to-zinc-900 text-white" : "bg-gradient-to-b from-gray-200 to-gray-300 border border-gray-400/50"} p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
 
           > 
             <Image src={neptume} width={40} height={40} alt='' className="rounded-lg" />
@@ -92,7 +92,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
-            className={`${dark ? "bg-gradient-to-b from-gray-800 to-gray-900 text-white" : "bg-gradient-to-b from-gray-200 to-gray-300 border border-gray-400/50"} p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
+            className={`${dark ? "bg-gradient-to-b from-zinc-800 to-zinc-900 text-white" : "bg-gradient-to-b from-gray-200 to-gray-300 border border-gray-400/50"} p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
 
           > 
             <Image src={earth} width={40} height={40} alt='' className="rounded-lg" />
@@ -109,7 +109,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
-            className={`${dark ? "bg-gradient-to-b from-gray-800 to-gray-900 text-white" : "bg-gradient-to-b from-gray-200 to-gray-300 border border-gray-400/50"} p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
+            className={`${dark ? "bg-gradient-to-b from-zinc-800 to-zinc-900 text-white" : "bg-gradient-to-b from-gray-200 to-gray-300 border border-gray-400/50"} p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
 
           > 
             <Image src={jws} width={40} height={40} alt='' className="rounded-lg" />
@@ -126,7 +126,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.0 }}
-            className={`${dark ? "bg-gradient-to-b from-gray-800 to-gray-900 text-white" : "bg-gradient-to-b from-gray-200 to-gray-300 border border-gray-400/50"} p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
+            className={`${dark ? "bg-gradient-to-b from-zinc-800 to-zinc-900 text-white" : "bg-gradient-to-b from-gray-200 to-gray-300 border border-gray-400/50"} p-4 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
 
           > 
             <Image src={cyborg} width={40} height={40} alt='' className="rounded-lg" />
