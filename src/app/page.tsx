@@ -152,7 +152,7 @@ export default function Home() {
         <div className="text-lg my-2 mx-auto max-w-fit">Send me a message:</div>
 
         <motion.div
-          className={`flex items-center justify-center ${dark ? "bg-gradient-to-b from-gray-800 to-gray-900 text-zinc-500" : "bg-gradient-to-b from-gray-200 to-gray-300 text-zinc-500"} p-4 pt-6 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
+          className={`flex items-center justify-center ${dark ? "bg-gradient-to-b from-zinc-800 to-zinc-900 text-zinc-500" : "bg-gradient-to-b from-gray-200 to-gray-300 text-zinc-500"} p-4 pt-6 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
