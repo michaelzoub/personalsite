@@ -12,6 +12,13 @@ import { motion, AnimatePresence } from "motion/react"
 import ContactForm from "./components/contactForm";
 import { linkClickStats } from "./utils/linkClickStats";
 import { Suspense, useState, useEffect } from "react";
+import Head from "next/head";
+
+import cev from '/public/cev.jpg'
+import umontreal from '/public/umontreal.jpg'
+import neptumePrev from '/public/neptume.jpg'
+import dlockPrev from '/public/dlockPrev.jpg'
+import jwsPrev from '/public/jwsPrev.jpg'
 
 interface Project {
   id: string;
@@ -24,6 +31,7 @@ interface Project {
   buttonText: string;
   buttonWidth: string;
   arrowPosition: string;
+  screenshotUrl?: string;
 }
 
 interface PageProps {
@@ -43,7 +51,8 @@ const projects = [
     url: 'https://umontreal.vercel.app/',
     buttonText: 'Explore',
     buttonWidth: 'w-[90px]',
-    arrowPosition: 'pl-[60px]'
+    arrowPosition: 'pl-[60px]',
+    screenshotUrl : umontreal
   },
   {
     id: 'neptume',
@@ -54,7 +63,8 @@ const projects = [
     url: 'https://neptume.com/',
     buttonText: 'Explore',
     buttonWidth: 'w-[90px]',
-    arrowPosition: 'pl-[60px]'
+    arrowPosition: 'pl-[60px]',
+    screenshotUrl : neptumePrev
   },
   {
     id: 'cev',
@@ -65,7 +75,8 @@ const projects = [
     url: 'https://cryptoexchangevisual.vercel.app/',
     buttonText: 'Explore',
     buttonWidth: 'w-[90px]',
-    arrowPosition: 'pl-[60px]'
+    arrowPosition: 'pl-[60px]',
+    screenshotUrl : cev
   },
   {
     id: 'jws',
@@ -76,7 +87,8 @@ const projects = [
     url: 'https://jws-pi.vercel.app/',
     buttonText: 'Explore',
     buttonWidth: 'w-[90px]',
-    arrowPosition: 'pl-[60px]'
+    arrowPosition: 'pl-[60px]',
+    screenshotUrl : jwsPrev
   },
   {
     id: 'dlock',
@@ -87,7 +99,8 @@ const projects = [
     url: 'https://market-two-kappa.vercel.app/',
     buttonText: 'Explore',
     buttonWidth: 'w-[90px]',
-    arrowPosition: 'pl-[60px]'
+    arrowPosition: 'pl-[60px]',
+    screenshotUrl : dlockPrev
   }
 ];
 
@@ -131,37 +144,50 @@ function ProjectCard({ project, dark, delay, handleLinkClick }: PageProps) {
         </Link>
       </div>
 
-      <AnimatePresence>
-        {isHovered && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, x: 20 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.95, x: 20 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="absolute left-full top-0 ml-4 w-[400px] h-[300px] rounded-xl overflow-hidden shadow-2xl border-2 border-gray-300 dark:border-gray-700 z-30 hidden lg:block"
-          >
-            <div className="relative w-full h-full bg-white">
-              {!iframeLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-b-2 border-b-orange-500"></div>
-                </div>
-              )}
-              {shouldLoadIframe && (
-                <iframe
-                  src={project.url}
-                  className="w-full h-full rounded-xl"
-                  title={`Preview of ${project.name}`}
-                  sandbox="allow-scripts allow-same-origin"
-                  onLoad={() => setIframeLoaded(true)}
-                />
-              )}
-              <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-md">
-                Live Preview
-              </div>
-            </div>
-          </motion.div>
+<AnimatePresence>
+  <Head>
+    <link rel="preload" href={project.url} as="document" />
+  </Head>
+  {isHovered && (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95, x: 20 }}
+      animate={{ opacity: 1, scale: 1, x: 0 }}
+      exit={{ opacity: 0, scale: 0.95, x: 20 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className="absolute left-full top-0 ml-4 w-[400px] h-[300px] rounded-xl overflow-hidden shadow-2xl border-2 border-gray-300 dark:border-gray-700 z-30 hidden lg:block"
+    >
+      <div className="relative w-full h-full bg-white">
+        {!iframeLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+            <Image
+              src={project.screenshotUrl}
+              alt={`${project.name} preview`}
+              className="w-full h-full object-cover"
+              priority={true}
+            />
+            <div className="absolute inset-0 bg-gradient-to-tl from-blue-500/50 to-blue-400/60 animate-pulse" />
+          </div>
         )}
-      </AnimatePresence>
+
+        {shouldLoadIframe && (
+          <iframe
+            src={project.url}
+            className={`w-full h-full rounded-xl transition-opacity duration-500 ${
+              iframeLoaded ? "opacity-100" : "opacity-0"
+            }`}
+            title={`Preview of ${project.name}`}
+            sandbox="allow-scripts allow-same-origin"
+            onLoad={() => setIframeLoaded(true)}
+          />
+        )}
+
+        <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-md">
+          {!iframeLoaded ? "Loading" : "Live Preview"}
+        </div>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
     </motion.div>
   );
 }

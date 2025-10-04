@@ -82,3 +82,12 @@ body {
 .text-xxs {
   font-size: 10px;
 }
+
+@keyframes pulseBorder {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.5); /* orange glow */
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.8);
+  }
+}
