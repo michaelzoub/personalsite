@@ -13,23 +13,24 @@ import ContactForm from "./components/contactForm";
 import { linkClickStats } from "./utils/linkClickStats";
 import { Suspense, useState, useEffect } from "react";
 
-type project =  {
-  id: string,
-  name: string,
-  iconType: string,
-  iconText: string,
-  description: string,
-  url: string,
-  buttonText: string,
-  buttonWidth: 'w-[90px]',
-  arrowPosition: string
+interface Project {
+  id: string;
+  name: string;
+  iconType: 'text' | 'image';
+  iconText?: string;
+  iconSrc?: any; 
+  description: string;
+  url: string;
+  buttonText: string;
+  buttonWidth: string;
+  arrowPosition: string;
 }
 
 interface PageProps {
-  project: project,
-  dark: boolean,
-  delay: number,
-  handleLinkClick: (e: any) => void
+  project: typeof projects[0]; 
+  dark: boolean; 
+  delay: number; 
+  handleLinkClick: (e: any) => void;
 }
 
 const projects = [
@@ -96,11 +97,10 @@ function ProjectCard({ project, dark, delay, handleLinkClick }: PageProps) {
 
   const [shouldLoadIframe, setShouldLoadIframe] = useState(false);
 
-  // Preload iframe after component mounts (with slight delay)
   useEffect(() => {
     const timer = setTimeout(() => {
       setShouldLoadIframe(true);
-    }, delay * 1000 + 500); // Wait for card animation + 500ms
+    }, delay * 1000 + 500); 
     
     return () => clearTimeout(timer);
   }, [delay]);
