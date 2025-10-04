@@ -170,7 +170,7 @@ export default function Home() {
 
   const [dark] = useAtom(darkMode);
 
-  const handleLinkClick = (e) => {
+  const handleLinkClick = (e: any) => {
     const value = e.target.getAttribute('data-value') || e.currentTarget.getAttribute('data-value');
     linkClickStats(value);
     console.log(value);
