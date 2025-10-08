@@ -195,7 +195,7 @@ const exampleJson = {
       name: "Ttktv",
       type: "image",
       val: 0,
-      imgurl: "/ttktv.jpg", // Add image if desired
+      imgurl: "/ttktv.jpg",
       link: "https://open.spotify.com/track/6U8wLl0pMsgS1Lcql3nQjH?si=f52992c7f75b4066"
     },
     {
@@ -203,7 +203,7 @@ const exampleJson = {
       name: "Outside",
       type: "image",
       val: 0,
-      imgurl: "/outside.jpg", // Add image if desired
+      imgurl: "/outside.jpg",
       link: "https://open.spotify.com/track/5s0oWj51ttqiINWWJynNPz?si=004992a72fc84ea5"
     },
     {
@@ -211,7 +211,7 @@ const exampleJson = {
       name: "Best Spot in the House",
       type: "image",
       val: 0,
-      imgurl: "/bsith.jpg", // Add image if desired
+      imgurl: "/bsith.jpg", 
       link: "https://open.spotify.com/track/1NmVaOMhftw2jZaE1KTk1p?si=063b923243ce4827"
     }
   ],
