@@ -29,7 +29,7 @@ interface PageProps {
 }
 
 export default function ProjectCard({ project, dark, delay, handleLinkClick }: PageProps) {
-  const [isHovered, setIsHovered] = useState(false);
+  const [isHovered, setIsHovered] = useState("");
   const [iframeLoaded, setIframeLoaded] = useState(false);
 
   const [shouldLoadIframe, setShouldLoadIframe] = useState(false);
@@ -44,12 +44,13 @@ export default function ProjectCard({ project, dark, delay, handleLinkClick }: P
 
   return (
     <motion.div
+      onMouseEnter={() => setIsHovered(project.name)}
+  onMouseLeave={() => setIsHovered("")}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
       className="relative w-[300px] md:w-[500px]"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      
     >
       <div className={`${dark ? "bg-gradient-to-b from-zinc-800 to-zinc-900 text-white" : "bg-gradient-to-b from-gray-200 to-gray-300 border border-gray-400/50"} p-4 rounded-lg shadow-inner relative z-10`}>
         {project.iconType === 'text' ? (
@@ -72,44 +73,48 @@ export default function ProjectCard({ project, dark, delay, handleLinkClick }: P
         <Head>
             <link rel="preload" href={project.url} as="document" />
         </Head>
-        {isHovered && (
-            <motion.div
-            initial={{ opacity: 0, scale: 0.95, x: 20 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.95, x: 20 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className={`absolute left-full top-0 ml-4 w-[400px] h-[300px] rounded-xl overflow-hidden shadow-2xl border-2 z-30 hidden lg:block ${dark ? "border-gray-700" : "border-gray-300"}`}
-            >
-            <div className="relative w-full h-full bg-white">
-                {!iframeLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-                    <Image
-                    src={project.screenshotUrl}
-                    alt={`${project.name} preview`}
-                    className="w-full h-full object-cover"
-                    priority={true}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-tl from-blue-500/50 to-blue-400/60 animate-pulse" />
-                </div>
-                )}
+        {(isHovered == project.name) && (
+            <>
+              <div className="absolute left-full top-0 w-4 h-full hidden lg:block" />
+              <motion.div
+              
+              initial={{ opacity: 0, scale: 0.95, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.95, x: 20 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className={`absolute left-full top-0 ml-4 w-[400px] h-[300px] rounded-xl overflow-hidden shadow-2xl border-2 z-30 hidden lg:block ${dark ? "border-gray-700" : "border-gray-300"}`}
+              >
+              <div className="relative w-full h-full bg-white">
+                  {!iframeLoaded && (
+                  <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+                      <Image
+                      src={project.screenshotUrl}
+                      alt={`${project.name} preview`}
+                      className="w-full h-full object-cover"
+                      priority={true}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-tl from-blue-500/50 to-blue-400/60 animate-pulse" />
+                  </div>
+                  )}
 
-                {shouldLoadIframe && (
-                <iframe
-                    src={project.url}
-                    className={`w-full h-full rounded-xl transition-opacity duration-500 ${
-                    iframeLoaded ? "opacity-100" : "opacity-0"
-                    }`}
-                    title={`Preview of ${project.name}`}
-                    sandbox="allow-scripts allow-same-origin"
-                    onLoad={() => setIframeLoaded(true)}
-                />
-                )}
+                  {shouldLoadIframe && (
+                  <iframe
+                      src={project.url}
+                      className={`w-full h-full rounded-xl transition-opacity duration-500 ${
+                      iframeLoaded ? "opacity-100" : "opacity-0"
+                      }`}
+                      title={`Preview of ${project.name}`}
+                      sandbox="allow-scripts allow-same-origin"
+                      onLoad={() => setIframeLoaded(true)}
+                  />
+                  )}
 
-                <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-md">
-                {!iframeLoaded ? "Loading" : "Live Preview"}
-                </div>
-            </div>
-            </motion.div>
+                  <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-md">
+                  {!iframeLoaded ? "Loading" : "Live Preview"}
+                  </div>
+              </div>
+              </motion.div>
+            </>
         )}
         </AnimatePresence>
     </motion.div>
