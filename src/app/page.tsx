@@ -9,7 +9,7 @@ import ContactForm from "./components/contactForm";
 import { linkClickStats } from "./utils/linkClickStats";
 import { projects } from "./data/projects";
 import ProjectCard from "./components/ProjectCard";
-import AsciiSTLViewer from "./components/Statue";
+// import AsciiSTLViewer from "./components/Statue";
 
 export default function Home() {
 
