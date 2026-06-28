@@ -1,72 +1,80 @@
-import cev from '/public/cev.jpg'
-import umontreal from '/public/umontreal.jpg'
-import neptumePrev from '/public/neptume.jpg'
-import dlockPrev from '/public/dlockPrev.jpg'
-import jwsPrev from '/public/jwsPrev.jpg'
-import cyborg from '/public/CYBORG.svg'
-import jws from '/public/wen.png'
-import earth from '/public/earth.jpg'
 import neptume from '/public/neptune3.jpg'
 
-export const projects = [
+export type Project = {
+  id: string
+  name: string
+  iconType: 'text' | 'image'
+  iconText?: string
+  iconSrc?: typeof neptume
+  iconClassName?: string
+  description: string
+  hoverDetail: string
+  url: string
+  buttonText: string
+  buttonWidth: string
+  arrowPosition: string
+  screenshotUrl?: string
+  previewAccent?: string
+  category: 'Engineering'
+  year: string
+}
+
+export const projects: Project[] = [
   {
-    id: 'umontreal',
-    name: 'uMontreal',
+    id: 'caliga',
+    name: 'Caliga',
     iconType: 'text',
-    iconText: 'uMTL',
-    description: "Montreal's event and party destination for university/college students.",
-    url: 'https://umontreal.vercel.app/',
+    iconText: 'Ca',
+    iconClassName: 'bg-[#c47a30] text-white',
+    description:
+      'A research collective covering crypto, fintech, deep tech, and frontier AI — research-first, published before pitched.',
+    hoverDetail:
+      'Research on frontier technology before the market prices it in. Open methodology, adversarial review, and AI-assisted synthesis for founders who want implementation-level diligence.',
+    url: 'https://caliga.xyz/',
     buttonText: 'Explore',
     buttonWidth: 'w-[90px]',
     arrowPosition: 'pl-[60px]',
-    screenshotUrl : umontreal
+    screenshotUrl: '/caliga-preview.png',
+    previewAccent: 'from-amber-500/25 to-orange-700/20',
+    category: 'Engineering',
+    year: '2026',
   },
   {
-    id: 'neptume',
-    name: 'Neptume',
-    iconType: 'image',
-    iconSrc: neptume,
-    description: 'A supercharged crypto wallet that seamlessly integrates multiple chains. Trade, swap, and manage your assets effortlessly with AI-powered intelligence, enhancing your crypto experience at every step.',
-    url: 'https://neptume.com/',
+    id: 'coldvision',
+    name: 'coldvision',
+    iconType: 'text',
+    iconText: 'CV',
+    iconClassName: 'bg-slate-900 text-cyan-300',
+    description:
+      'A terminal for prediction markets — your compass in the storm for researching and acting on market odds.',
+    hoverDetail:
+      'coldvision pro is a prediction-market terminal built for fast research, odds tracking, and decision-making when markets move quickly.',
+    url: 'https://coldvision.xyz/',
     buttonText: 'Explore',
     buttonWidth: 'w-[90px]',
     arrowPosition: 'pl-[60px]',
-    screenshotUrl : neptumePrev
+    screenshotUrl: '/coldvision-preview.png',
+    previewAccent: 'from-cyan-400/20 to-slate-800/40',
+    category: 'Engineering',
+    year: '2026',
   },
   {
-    id: 'cev',
-    name: 'CEV',
-    iconType: 'image',
-    iconSrc: earth,
-    description: "A crypto exchange visualizer, exchanges with registered locations show up on the map, the stick height shown depends on the daily BTC volume.",
-    url: 'https://cryptoexchangevisual.vercel.app/',
-    buttonText: 'Explore',
-    buttonWidth: 'w-[90px]',
-    arrowPosition: 'pl-[60px]',
-    screenshotUrl : cev
+    id: 'rubicon',
+    name: 'Rubicon',
+    iconType: 'text',
+    iconText: 'R',
+    iconClassName: 'bg-[#24292f] text-white',
+    description:
+      'Infrastructure for publishing premium research that autonomous agents can discover, purchase, and read.',
+    hoverDetail:
+      'Rubicon gives creators a workspace for publishing paid research, tracking agent reads, managing earnings, and settling payouts through programmable payment rails.',
+    url: 'https://github.com/michaelzoub/rubicon',
+    buttonText: 'View repo',
+    buttonWidth: 'w-[100px]',
+    arrowPosition: 'pl-[70px]',
+    screenshotUrl: '/rubicon-preview.png',
+    previewAccent: 'from-violet-500/20 to-zinc-800/50',
+    category: 'Engineering',
+    year: '2026',
   },
-  {
-    id: 'jws',
-    name: 'Jws.onl',
-    iconType: 'image',
-    iconSrc: jws,
-    description: 'A web app that tracks job postings from select Wall Street and Big Tech companies and sends out notifications to signed up users on new listings.',
-    url: 'https://jws-pi.vercel.app/',
-    buttonText: 'Explore',
-    buttonWidth: 'w-[90px]',
-    arrowPosition: 'pl-[60px]',
-    screenshotUrl : jwsPrev
-  },
-  {
-    id: 'dlock',
-    name: 'dlock.shop',
-    iconType: 'image',
-    iconSrc: cyborg,
-    description: "Skins market being built for Valve's new third-person shooter Deadlock. Currently a work in progress, some functionalities are being added as you read this.",
-    url: 'https://market-two-kappa.vercel.app/',
-    buttonText: 'Explore',
-    buttonWidth: 'w-[90px]',
-    arrowPosition: 'pl-[60px]',
-    screenshotUrl : dlockPrev
-  }
-];
+]

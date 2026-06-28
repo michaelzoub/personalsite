@@ -1,450 +1,141 @@
-"use client"
-import R3fForceGraph from 'r3f-forcegraph';
-import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { TrackballControls } from '@react-three/drei';
-import { TextureLoader, SpriteMaterial, Sprite } from 'three'
-import { getTopArtists } from '@/app/utils/spotify';
-import { motion } from 'motion/react';
-import SpriteText from 'three-spritetext';
-import { useAtom } from 'jotai';
-import { darkMode } from '@/app/atoms/darkMode';
-import { musicInfo } from '@/app/atoms/musicInfo';
-import MouseTooltip from '../mousetooltip';
+'use client'
 
-const exampleJson = {
-  nodes: [
-    {
-      id: 1,
-      name: "Bias",
-      type: "image",
-      val: 0,
-      imgurl: "/logo512.jpg",
-      link: "https://open.spotify.com/track/75QdM3nsnAluOD19G1J4il?si=575b49f5ad1f401b"
-    },
-    {
-      id: 2,
-      name: "Key103",
-      type: "image",
-      val: 0,
-      imgurl: "/logo513.jpg",
-      link: "https://open.spotify.com/track/7jqyOefdf3A4zFKhTNVjVf?si=17e9cf76b02b49d6"
-    },
-    {
-      id: 3,
-      name: "Silurian Blue",
-      type: "image",
-      val: 0,
-      imgurl: "/logo514.jpg",
-      link: "https://open.spotify.com/track/7HwjvjGnewY4FBbWCNtCMW?si=5338aeac4f814609"
-    },
-    {
-      id: 13,
-      name: "Sais",
-      type: "image",
-      val: 0,
-      imgurl: "/sais.jpg",
-      link: "https://open.spotify.com/track/65c7ctSEOiYbz61XtytvOV?si=b34e21b2316b417a"
-    },
-    {
-      id: 4,
-      name: "Floating Points",
-      type: "text",
-      val: 1,
-      imgurl: "/logo512.jpg",
-      link: "https://open.spotify.com/track/75QdM3nsnAluOD19G1J4il?si=575b49f5ad1f401b",
-      genres: [""]
-    },
-    {
-      id: 5,
-      name: "Yoshi City",
-      type: "image",
-      val: 0,
-      imgurl: "/yoshi.png",
-      link: "https://open.spotify.com/track/3da3ufjRxK1Kn5oqM0wmx4?si=688932ac2c474ed4"
-    },
-    {
-      id: 6,
-      name: "Kyoto",
-      type: "image",
-      val: 0,
-      imgurl: "/kyoto.jpg",
-      link: "https://open.spotify.com/track/7vQ8hT2jlA6RhxI4ZxISVd?si=90ded3cf69c0497e"
-    },
-    {
-      id: 7,
-      name: "Miami Ultras",
-      type: "image",
-      val: 0,
-      imgurl: "/miami.jpg",
-      link: "https://open.spotify.com/track/7vb0J4M6dZNE7ZvtvMDlCK?si=876f587b1ac74d5f"
-    },
-    {
-      id: 8,
-      name: "Yung Lean",
-      type: "text",
-      val: 1,
-      imgurl: "/logo512.jpg",
-      link: "https://open.spotify.com/track/75QdM3nsnAluOD19G1J4il?si=575b49f5ad1f401b",
-      genres: [""]
-    },
-    {
-      id: 9,
-      name: "Cascades",
-      type: "image",
-      val: 0,
-      imgurl: "/cascades.jpg",
-      link: "https://open.spotify.com/track/7GIQDECN4gG0K1jjL6HmkT?si=b466cebc71304066"
-    },
-    {
-      id: 10,
-      name: "Black Trees",
-      type: "image",
-      val: 0,
-      imgurl: "/blacktrees.jpg",
-      link: "https://open.spotify.com/track/41x9pfhxDZdO6jzh7D9wOW?si=e12020f363164dcd"
-    },
-    {
-      id: 11,
-      name: "Night Arp Blues",
-      type: "image",
-      val: 0,
-      imgurl: "/night.jpg",
-      link: "https://open.spotify.com/track/2ZFs2wbwnljTAS9fSJJ6oH?si=9a2f596aca1d40cf"
-    },
-    {
-      id: 12,
-      name: "Indian Wells",
-      type: "text",
-      val: 1,
-      imgurl: "/logo512.jpg",
-      link: "https://open.spotify.com/track/75QdM3nsnAluOD19G1J4il?si=575b49f5ad1f401b",
-      genres: [""]
-    },
-    {
-      id: 16,
-      name: "Nova",
-      type: "image",
-      val: 0,
-      imgurl: "/nova.jpg",
-      link: "https://open.spotify.com/track/7dYjEwbLJ1B5reoz3lWra0?si=33c1b0be4fea42f0"
-    },
-    {
-      id: 17,
-      name: "Archangel",
-      type: "image",
-      val: 0,
-      imgurl: "/archangel.jpg",
-      link: "https://open.spotify.com/track/55gnBQAhU5rGzLsXTAx2MM?si=031aa574cb964481"
-    },
-    {
-      id: 18,
-      name: "NYC",
-      type: "image",
-      val: 0,
-      imgurl: "/tunes.jpg",
-      link: "https://open.spotify.com/track/0itLChB4g2Oavxp6oAUbVS?si=4658af55fb2e4d0c"
-    },
-    {
-      id: 19,
-      name: "Burial",
-      type: "text",
-      val: 1,
-      imgurl: "/logo512.jpg",
-      link: "https://open.spotify.com/track/75QdM3nsnAluOD19G1J4il?si=575b49f5ad1f401b",
-      genres: [""]
-    },
-    {
-      id: 20,
-      name: "Electronic",
-      type: "text",
-      val: 1,
-      imgurl: "",
-      link: "",
-      genres: [""]
-    },
-    {
-      id: 21,
-      name: "Rap",
-      type: "text",
-      val: 1,
-      imgurl: "",
-      link: "",
-      genres: [""]
-    },
-    {
-      id: 22,
-      name: "DnB",
-      type: "text",
-      val: 1,
-      imgurl: "",
-      link: "",
-      genres: [""]
-    },
-    {
-      id: 23,
-      name: "Injury Reserve",
-      type: "text",
-      val: 1,
-      imgurl: "",
-      link: "",
-      genres: [""]
-    },
-    {
-      id: 24,
-      name: "Ttktv",
-      type: "image",
-      val: 0,
-      imgurl: "/ttktv.jpg",
-      link: "https://open.spotify.com/track/6U8wLl0pMsgS1Lcql3nQjH?si=f52992c7f75b4066"
-    },
-    {
-      id: 25,
-      name: "Outside",
-      type: "image",
-      val: 0,
-      imgurl: "/outside.jpg",
-      link: "https://open.spotify.com/track/5s0oWj51ttqiINWWJynNPz?si=004992a72fc84ea5"
-    },
-    {
-      id: 26,
-      name: "Best Spot in the House",
-      type: "image",
-      val: 0,
-      imgurl: "/bsith.jpg", 
-      link: "https://open.spotify.com/track/1NmVaOMhftw2jZaE1KTk1p?si=063b923243ce4827"
+import R3fForceGraph from 'r3f-forcegraph'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { TrackballControls } from '@react-three/drei'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { BoxGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, TextureLoader } from 'three'
+import SpriteText from 'three-spritetext'
+import { AnimatePresence, motion } from 'motion/react'
+
+type Genre = 'Electronic' | 'Rap' | 'Techno' | 'Ambient' | 'Jazz'
+type Track = { id: string; title: string; artist: string; genre: Genre; cover: string; x: number; y: number; z: number }
+
+const tracks: Track[] = [
+  { id:'503CQq3Z1eR2ZzZ8FElDLe',title:'Versions',artist:'Moderat',genre:'Electronic',cover:'/music-covers/versions.jpg',x:-38,y:105,z:4 },
+  { id:'4x94qgTeMEcwj4X1APUnpb',title:'Girl',artist:'Jamie xx',genre:'Electronic',cover:'/music-covers/girl.jpg',x:-12,y:124,z:-3 },
+  { id:'53oC9lu6vxNkNpSN9J8dIT',title:'Keep You Kimi',artist:'Hird, Yukimi Nagano',genre:'Electronic',cover:'/music-covers/keep-you-kimi.jpg',x:20,y:108,z:5 },
+  { id:'1IKnkAtTKion90wF8yxSgS',title:'Bunsen Burner',artist:'CUTS',genre:'Electronic',cover:'/music-covers/bunsen-burner.jpg',x:43,y:128,z:-6 },
+  { id:'23QqbCvExT7Jwg71cDlStV',title:'CLOUDS',artist:'Selected listening',genre:'Electronic',cover:'/music-covers/clouds.jpg',x:10,y:80,z:8 },
+  { id:'1KLP2LBTFyc5kQEgpdHFGx',title:'Monolith',artist:'Benjamin Damage',genre:'Techno',cover:'/music-covers/monolith.jpg',x:-28,y:45,z:-4 },
+  { id:'6yaEXgF7LRroaqYHLOO1c4',title:'Encipher & Decipher',artist:'Barker & Baumecker',genre:'Techno',cover:'/music-covers/encipher.jpg',x:27,y:38,z:5 },
+  { id:'3JpzqRcjxif901JZKAPLn6',title:'Mos 6581',artist:'Carbon Based Lifeforms',genre:'Ambient',cover:'/music-covers/mos-6581.jpg',x:-42,y:-8,z:6 },
+  { id:'3GpsyvuiF20J0HebEEpgXy',title:'Artificial Island',artist:'Carbon Based Lifeforms',genre:'Ambient',cover:'/music-covers/artificial-island.jpg',x:-10,y:-25,z:-5 },
+  { id:'1WWWfx7SyPJEbLCJKt2mpa',title:'M',artist:'Carbon Based Lifeforms',genre:'Ambient',cover:'/music-covers/m.jpg',x:23,y:-7,z:7 },
+  { id:'1Ooxm7WoFLrzibkyRj8xin',title:'Photosynthesis',artist:'Carbon Based Lifeforms',genre:'Ambient',cover:'/music-covers/photosynthesis.jpg',x:44,y:-32,z:-4 },
+  { id:'09riz9pAPJyYYDVynE5xxY',title:'1000 Blunts',artist:'$uicideboy$',genre:'Rap',cover:'/music-covers/1000-blunts.jpg',x:-26,y:-75,z:5 },
+  { id:'4IU33qQwEkfP7rxlPc73UA',title:'Chopper',artist:'Lupe Fiasco',genre:'Rap',cover:'/music-covers/chopper.jpg',x:30,y:-82,z:-5 },
+  { id:'3nTQL2ScjeyOxjqSmDoCCr',title:'Timeless',artist:'John Abercrombie',genre:'Jazz',cover:'/music-covers/timeless.jpg',x:0,y:-137,z:4 },
+]
+
+const genrePositions: Record<Genre,{x:number;y:number;z:number}> = {
+  Electronic:{x:0,y:104,z:0}, Techno:{x:0,y:48,z:0}, Ambient:{x:0,y:-7,z:0}, Rap:{x:0,y:-78,z:0}, Jazz:{x:0,y:-120,z:0},
+}
+const genres = Object.keys(genrePositions) as Genre[]
+
+function GraphScene({ onSelect }: { onSelect:(track:Track)=>void }) {
+  const graph = useRef<any>(null)
+  const cards = useRef(new Map<string, Group>())
+  const { camera } = useThree()
+  const loader = useMemo(() => new TextureLoader(), [])
+  useFrame(() => {
+    graph.current?.tickFrame()
+    cards.current.forEach((card) => card.quaternion.copy(camera.quaternion))
+  })
+
+  const data = useMemo(() => {
+    const nodes = [
+      ...genres.map((genre) => ({ id:`genre-${genre}`, genre, kind:'genre', x:genrePositions[genre].x, y:genrePositions[genre].y, z:genrePositions[genre].z * 5 })),
+      ...tracks.map((track) => ({ id:track.id, genre:track.genre, kind:'track', x:track.x * 1.85, y:track.y, z:track.z * 5 })),
+    ]
+    const links = tracks.map((track) => ({ source:`genre-${track.genre}`, target:track.id }))
+    const cross = [
+      ['genre-Electronic','genre-Techno'],['genre-Techno','genre-Ambient'],['genre-Ambient','genre-Rap'],['genre-Rap','genre-Jazz'],
+      [tracks[0].id,tracks[5].id],[tracks[1].id,tracks[8].id],[tracks[4].id,tracks[10].id],[tracks[6].id,tracks[11].id],[tracks[9].id,tracks[13].id],
+      [tracks[2].id,tracks[7].id],[tracks[3].id,tracks[6].id],[tracks[7].id,tracks[12].id],
+      [tracks[0].id,tracks[2].id],[tracks[0].id,tracks[4].id],[tracks[1].id,tracks[3].id],[tracks[1].id,tracks[5].id],
+      [tracks[2].id,tracks[6].id],[tracks[4].id,tracks[8].id],[tracks[5].id,tracks[8].id],[tracks[5].id,tracks[9].id],
+      [tracks[6].id,tracks[10].id],[tracks[7].id,tracks[9].id],[tracks[8].id,tracks[10].id],[tracks[9].id,tracks[11].id],
+      [tracks[10].id,tracks[12].id],[tracks[11].id,tracks[12].id],[tracks[11].id,tracks[13].id],[tracks[12].id,tracks[13].id],
+    ].map(([source,target]) => ({ source,target }))
+    return { nodes, links:[...links,...cross] }
+  }, [])
+
+  const makeNode = useCallback((node:any) => {
+    if (node.kind === 'genre') {
+      const label = new SpriteText(node.genre)
+      label.color = '#111111'
+      label.textHeight = 4.2
+      label.fontWeight = '600'
+      label.material.depthWrite = false
+      return label
     }
-  ],
-  links: [
-    {
-      source: 4,
-      target: 1
-    },
-    {
-      source: 4,
-      target: 2
-    },
-    {
-      source: 4,
-      target: 3
-    },
-    {
-      source: 4,
-      target: 13
-    },
-    {
-      source: 8,
-      target: 5
-    },
-    {
-      source: 8,
-      target: 6
-    },
-    {
-      source: 8,
-      target: 7
-    },
-    {
-      source: 12,
-      target: 9
-    },
-    {
-      source: 12,
-      target: 10
-    },
-    {
-      source: 12,
-      target: 11
-    },
-    {
-      source: 16,
-      target: 19
-    },
-    {
-      source: 17,
-      target: 19
-    },
-    {
-      source: 18,
-      target: 19
-    },
-    {
-      source: 20,
-      target: 21
-    },
-    {
-      source: 20,
-      target: 22
-    },
-    {
-      source: 22,
-      target: 19
-    },
-    {
-      source: 21,
-      target: 8
-    },
-    {
-      source: 20,
-      target: 4
-    },
-    {
-      source: 20,
-      target: 12
-    },
-    { source: 23, target: 20 }, // Injury Reserve -> Electronic
-    { source: 23, target: 21 }, // Injury Reserve -> Rap
-    { source: 23, target: 24 }, // Injury Reserve -> Top Picks For You
-    { source: 23, target: 25 }, // Injury Reserve -> SS San Francisco
-    { source: 23, target: 26 }  // Injury Reserve -> Knees
-  ]
-};
-
-const GraphViz = () => {
-  const fgRef = useRef<any>();
-  useFrame(() => (fgRef.current.tickFrame()));
-
-  const loader = useMemo(() => new TextureLoader(), []);
-
-  const [, setMusic] = useAtom(musicInfo);
-  const [dark] = useAtom(darkMode);
-
-  useEffect(() => {
-    //fetch spotify:
-    async function fetchSpotify() {
-      const response = await getTopArtists();
-      console.log(response);
-    }
-    fetchSpotify();
-  }, []);
-
-  const gData = useMemo(() => ({
-    nodes: exampleJson.nodes.map(i => ({ id: i.id })),
-    links: exampleJson.links.map(link => ({
-      source: link.source,
-      target: link.target
-    }))
-  }), []);
-
-
-
-  const nodeToThree = useCallback((image: string) => {
-    const imgTexture = loader.load(image)
-    const material = new SpriteMaterial({ map: imgTexture })
-    const sprite = new Sprite(material)
-    sprite.scale.set(15, 15, 0)
-    return sprite
+    const track = tracks.find((item) => item.id === node.id)!
+    const group = new Group()
+    const texture = loader.load(track.cover)
+    texture.colorSpace = 'srgb'
+    const body = new Mesh(
+      new BoxGeometry(22,22,1.6),
+      new MeshStandardMaterial({ color:'#e7e4de', roughness:.48, metalness:.06 }),
+    )
+    group.add(body)
+    const cover = new Mesh(
+      new PlaneGeometry(20.8,20.8),
+      new MeshBasicMaterial({ map:texture, side:DoubleSide }),
+    )
+    cover.position.z = .82
+    group.add(cover)
+    cards.current.set(track.id, group)
+    const label = new SpriteText(track.title)
+    label.color = '#111111'
+    label.backgroundColor = 'rgba(250,250,250,.9)'
+    label.padding = 1.2
+    label.borderRadius = 2
+    label.textHeight = 2.7
+    label.position.set(0,-13.5,0)
+    label.material.depthWrite = false
+    group.add(label)
+    return group
   }, [loader])
 
-  const nodeText = (name: string) => {
-    const sprite = new SpriteText(name);
-    sprite.material.depthWrite = false;
-    sprite.color = dark ? "white" : "black";
-    sprite.textHeight = 4;
-    return sprite;
-  }
-
-  const handleNodeHover = useCallback((node: any | null, prevNode: any | null) => {
-    console.log(node)
-    //first find matching node id:
-    const nodeObject = exampleJson.nodes.find((e) => e.id == node.id)
-    console.log(nodeObject)
-    if (nodeObject?.type == "image") {
-      console.log('Node hovered:', node);
-      setMusic({
-        name: nodeObject.name,
-        link: nodeObject.link,
-        genres: []
-      })
-    } else if (nodeObject?.type == "text") {
-      setMusic({
-        name: nodeObject.name,
-        link: nodeObject.link,
-        genres: []
-      })
-    }
-  }, []);
-
   return <R3fForceGraph
-    nodeAutoColorBy="group"
-    ref={fgRef}
-    graphData={gData}
-    onNodeClick={handleNodeHover}
-    //onLinkClick={handleNodeHover}
-    nodeThreeObject={(node) => {
-      const found = exampleJson.nodes.find((e) => e.id == node.id);
-
-      if (found?.type == "image") {
-        return nodeToThree(found.imgurl);
-      } else if (found?.type == "text") {
-        return nodeText(found.name);
-      }
-
-      return nodeToThree("/logo512.jpg");
-    }}
-    linkWidth={0.15}
-    linkColor="#000000"
-    linkOpacity={0.9}
-  />;
+    ref={graph}
+    graphData={data}
+    numDimensions={3}
+    d3AlphaDecay={.012}
+    d3VelocityDecay={.18}
+    warmupTicks={0}
+    cooldownTime={18000}
+    nodeThreeObject={makeNode}
+    linkColor={() => '#191919'}
+    linkWidth={.22}
+    linkOpacity={.62}
+    linkDirectionalParticles={1}
+    linkDirectionalParticleWidth={.45}
+    linkDirectionalParticleSpeed={.0025}
+    onNodeClick={(node:any) => { const track = tracks.find((item) => item.id === node.id); if (track) onSelect(track) }}
+  />
 }
 
 export default function Graph() {
-
-  const [dark] = useAtom(darkMode);
-  const [music, setMusic] = useAtom(musicInfo);
-  const [height, setHeight] = useState(800);
-
-  useEffect(() => {
-    setHeight(window.innerHeight)
-  },[])
-
-  return <div className="bg-white" style={{ height: height }}>
-      <MouseTooltip />
-      <motion.div className={`flex flex-col absolute z-[100] px-4 pb-4 pt-4 gap-6 rounded-md bg- border-[1px] border-zinc-300 bottom-0 m-16 gap-2 ${dark ? "text-white" : "text-black"} ${ music ? "visible" : "hidden" }`}
-        initial={{ opacity: music ? 1 : 0 }}
-        animate={{ scale: music ? 1 : 0, opacity: music ? 1 : 0 }}
-        transition={{
-          type: "spring",
-          damping: 20,
-          stiffness: 100,
-        }}
-      >
-        <div className='flex flex-row justify-between'>
-          <motion.div className=""
-          >{music?.name}</motion.div>
-          <motion.svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" className="transition delay-50 duration-300 ease-in-out hover:text-orange-400 w-fit hover:cursor-pointer my-auto" onClick={() => setMusic(null)}
-              initial={{ rotate: 0 }}
-          >
-              <line x1="3" y1="3" x2="13" y2="13" stroke="currentColor" strokeWidth="1.5" />
-              <line x1="13" y1="3" x2="3" y2="13" stroke="currentColor" strokeWidth="1.5" />
-          </motion.svg>
-        </div>
-        <motion.div
-          initial={{ opacity: music ? 1 : 0 }}
-          animate={{ opacity: music ? 1 : 0}}
-          transition={{
-            type: "spring",
-            damping: 20,  // controls the 'dampness' of the spring
-            stiffness: 100,
-            delay: 0.5
-          }}
-        >
-        <iframe 
-          src={`https://open.spotify.com/embed/track/${music?.link.split("/track/")[1]?.split("?")[0]}`} 
-          width="300" 
-          height="80" 
-          frameBorder="0" 
-          allow="encrypted-media"
-          className="rounded-lg"
-        ></iframe>
-        </motion.div>
-      </motion.div>
-      <Canvas className='bg-white' flat camera={{ position: [0, 0, 120], far: 4000 }}>
-        <TrackballControls rotateSpeed={15} panSpeed={2} zoomSpeed={2} />
-        <color attach="background" args={dark ? [0.009, 0.009, 0.01] : [1, 1, 1]} />
-        <ambientLight color={0xcccccc} intensity={Math.PI}/>
-        <directionalLight intensity={0.6 * Math.PI}/>
-        <GraphViz />
+  const [selected,setSelected] = useState<Track|null>(null)
+  return <section className="simple-music dense-music-graph">
+    <p className="music-hint">Drag to explore · Scroll to zoom · Select artwork to listen</p>
+    <div className="simple-music-canvas">
+      <Canvas flat camera={{ position:[78,48,245], far:3000 }}>
+        <color attach="background" args={['#fafafa']} />
+        <ambientLight intensity={2.2} />
+        <directionalLight position={[90,110,160]} intensity={3.4} />
+        <directionalLight position={[-80,-40,-100]} intensity={1.1} />
+        <TrackballControls rotateSpeed={3.2} panSpeed={1.1} zoomSpeed={1.25} dynamicDampingFactor={.14} />
+        <GraphScene onSelect={setSelected} />
       </Canvas>
-    </div>;
+      <AnimatePresence mode="wait">
+        {selected && <motion.aside key={selected.id} className="track-panel simple-track-panel" initial={{opacity:0,transform:'translateY(8px) scale(.98)'}} animate={{opacity:1,transform:'translateY(0) scale(1)'}} exit={{opacity:0,transform:'translateY(5px) scale(.98)'}} transition={{duration:.18,ease:[.23,1,.32,1]}}>
+          <div className="track-meta"><img src={selected.cover} alt="" /><div><small>{selected.genre}</small><h2>{selected.title}</h2><p>{selected.artist}</p></div><button onClick={() => setSelected(null)} aria-label="Close player">×</button></div>
+          <iframe title={`Listen to ${selected.title}`} src={`https://open.spotify.com/embed/track/${selected.id}`} width="100%" height="80" allow="encrypted-media" loading="lazy" />
+        </motion.aside>}
+      </AnimatePresence>
+    </div>
+  </section>
 }

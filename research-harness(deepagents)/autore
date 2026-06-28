@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")"
+if command -v uv >/dev/null 2>&1; then
+  export UV_CACHE_DIR="${UV_CACHE_DIR:-$PWD/.uv-cache}"
+  export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-$PWD/.venv}"
+  exec uv run python -m research_deepagents.cli "$@"
+fi
+
+echo "uv is required to run this project-local command because Deep Agents needs a managed Python environment." >&2
+echo "Install uv, then rerun: ./autore" >&2
+exit 1

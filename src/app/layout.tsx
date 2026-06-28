@@ -1,9 +1,10 @@
 import type { Metadata, Viewport} from "next";
-import { Ubuntu_Mono } from "next/font/google";
+import { DM_Sans, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "./components/navbar";
 
-const ubuntu = Ubuntu_Mono({weight: "400", subsets : ["latin"], display: 'swap',});
+const sans = DM_Sans({ subsets: ["latin"], display: 'swap', variable: '--font-sans' });
+const mono = Space_Mono({ weight: ['400', '700'], subsets: ["latin"], display: 'swap', variable: '--font-mono' });
 
 export const metadata: Metadata = {
   title: "Michael Zoubkoff's portfolio.",
@@ -18,8 +19,8 @@ export default function RootLayout({
 }>) {
   return (
 
-    <html lang="en" className="cursor-default selection:text-selection">
-      <body className={ubuntu.className}>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+      <body>
         <Navbar></Navbar>
         {children}
         </body>

@@ -1,108 +1,129 @@
 'use client'
-import { useEffect } from "react";
-import Link from "next/link";
-import { useAtom } from "jotai";
-import { darkMode } from "./atoms/darkMode";
-import BlogList from './components/blogs/page'
-import { motion, AnimatePresence } from "motion/react"
-import ContactForm from "./components/contactForm";
-import { linkClickStats } from "./utils/linkClickStats";
-import { projects } from "./data/projects";
-import ProjectCard from "./components/ProjectCard";
-// import AsciiSTLViewer from "./components/Statue";
+
+import { useRef, useState } from 'react'
+import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from 'motion/react'
+import Image from 'next/image'
+import ProjectCard from './components/ProjectCard'
+import { projects } from './data/projects'
+
+const filters = ['All', 'Engineering', 'Writing'] as const
+type Filter = (typeof filters)[number]
+
+const writing = [{
+  id: 'biggest-hurdle-agi',
+  name: 'The biggest hurdle to achieving AGI',
+  category: 'Writing' as const,
+  year: '2026-06-02',
+  description: 'Why open-ended exploration and uncertainty over objectives matter more than optimizing harder against fixed targets.',
+  url: '/writing/the-biggest-hurdle-to-achieving-agi',
+  screenshotUrl: '/writing/agi/cover.jpg',
+}]
 
 export default function Home() {
+  const [filter, setFilter] = useState<Filter>('All')
+  const [activeId, setActiveId] = useState('intro')
+  const zoomStageRef = useRef<HTMLDivElement>(null)
+  const items = [...projects, ...writing]
+  const visible = items.filter((item) => filter === 'All' || item.category === filter)
+  const active = items.find((item) => item.id === activeId)
+  const firstVisible = visible[0]
+  const { scrollYProgress } = useScroll({ target: zoomStageRef, offset: ['start end', 'end start'] })
+  const focusScale = useTransform(scrollYProgress, [.1, .46, .6], [.6, 1, 1])
+  const focusOpacity = useTransform(scrollYProgress, [.08, .24, .78, .92], [0, 1, 1, 0])
 
-  const [dark] = useAtom(darkMode);
-
-  useEffect(() => {
-    setTimeout(() => {
-      window.open('https://polymarket.com?via=kafka', '_blank');
-    }, 1000);
-  }, []);
-
-
-  const handleLinkClick = (e: any) => {
-    const value = e.target.getAttribute('data-value') || e.currentTarget.getAttribute('data-value');
-    linkClickStats(value);
-    console.log(value);
-  };
+  useMotionValueEvent(scrollYProgress, 'change', (progress) => {
+    const first = visible[0]
+    if (progress >= .4 && progress < .78 && first) {
+      setActiveId((current) => current === first.id ? current : first.id)
+    }
+    if (progress <= .12) setActiveId((current) => current === 'intro' ? current : 'intro')
+  })
 
   return (
-    <motion.main className={`${dark ? "flex flex-col min-h-screen items-center p-4 bg-zinc-900 text-white overflow-visible" : "flex flex-col min-h-screen items-center p-4 bg-white text-black overflow-visible"}`}>
-      {/* <AsciiSTLViewer></AsciiSTLViewer> */}
-      <motion.div className="text-xl mt-20 mb-2 mx-6 w-[300px] md:w-[500px] flex flex-row z-10"
-                  initial={{opacity: 0, y: 20}}
-                  whileInView={{opacity: 1, y: 0}}
-                  transition={{duration: 0.3}}
-                  viewport={{once: true}}
-      >
-        <div>Welcome to my little space on this thing known as the world wide web. I study the universe by day, work as a silicon shape shifter by night and reshape my thoughts into ink during my free time.</div>
-      </motion.div>
-    
-      <motion.div className="mx-auto z-10"
-                  initial={{opacity: 0, y: 20}}
-                  whileInView={{opacity: 1, y: 0}}
-                  transition={{duration: 0.5}}
-                  viewport={{once: true}}
-      >
+    <main className="reference-shell focus-layout">
+      <aside className="focus-sidebar">
+        <div className="focus-sidebar-inner">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div key={active?.id ?? 'intro'} className="focus-copy" initial={{ opacity: 0, transform: 'translateY(10px)', filter: 'blur(2px)' }} animate={{ opacity: 1, transform: 'translateY(0)', filter: 'blur(0px)' }} exit={{ opacity: 0, transform: 'translateY(-7px)', filter: 'blur(2px)' }} transition={{ duration: .2, ease: [0.23, 1, 0.32, 1] }}>
+              {active ? <>
+                <h1>{active.name}</h1>
+                <p className="focus-description">{active.description}</p>
+                <a className="focus-link" href={active.url} target={active.url.startsWith('http') ? '_blank' : undefined} rel="noreferrer">Open project <span>↗</span></a>
+              </> : <>
+                <h1>Bridging engineering, research, product, design, and intel.</h1>
+                <p className="focus-description">I try to go deep, iterate as fast as possible, learn wide, stay curious, and keep the work fun.</p>
+              </>}
+            </motion.div>
+          </AnimatePresence>
+          <nav className="focus-socials" aria-label="Social links">
+            <a href="https://x.com/kafkaesc" target="_blank" rel="noreferrer">X</a>
+            <a href="https://github.com/michaelzoub" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="https://www.linkedin.com/in/michael-zoubkoff/" target="_blank" rel="noreferrer">LinkedIn</a>
+          </nav>
+        </div>
+      </aside>
 
-
-        <motion.div className="w-[300px] md:w-[500px] mx-6"
-                    initial={{opacity: 0}}
-                    whileInView={{opacity: 1}}
-                    transition={{duration: 0.05}}
-                    viewport={{once: true}}
-                    data-value="/music"
-                    onClick={handleLinkClick}
-        >
-          <div className="flex flex-col">
-            <Link className="text-blue-600 text-sm underline transition delay-50 duration-300 ease-in-out hover:text-blue-400" href="https://polymarket.com?via=kafka" target="_blank">My current addiction ↗</Link>
-            <Link className="text-orange-600 text-sm underline transition delay-50 duration-300 ease-in-out hover:text-orange-400" href="/music">My music taste ↗</Link>
-          </div>
-          </motion.div>
-
-        <div className="text-lg mt-6 mx-auto max-w-fit z-10">Software Projects:</div>
-        
-        <div className="flex flex-col items-center justify-center gap-2 p-3 rounded-lg z-10">
-          {projects.map((project, idx) => (
-            <ProjectCard 
-              key={project.id} 
-              project={project} 
-              dark={dark} 
-              delay={0.6 + idx * 0.1}
-              handleLinkClick={handleLinkClick}
-            />
+      <div className="focus-content">
+        <div className="reference-filter" role="group" aria-label="Filter work">
+          {filters.map((item) => (
+            <button key={item} onClick={() => { setFilter(item); setActiveId('intro') }} aria-pressed={filter === item}>
+              {filter === item && <motion.span layoutId="reference-pill" className="reference-pill" transition={{ type: 'spring', bounce: .12, duration: .35 }} />}
+              <span>{item}</span>
+            </button>
           ))}
         </div>
+        <section className="overview-grid" aria-label="Work overview">
+          {visible.slice(0, 9).map((item, index) => {
+            const external = item.url.startsWith('http')
+            return (
+              <motion.a
+                key={`overview-${item.id}`}
+                href={item.url}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener noreferrer' : undefined}
+                className="overview-card"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * .045, duration: .28, ease: [0.23, 1, 0.32, 1] }}
+              >
+                <div className="overview-image">
+                  {typeof item.screenshotUrl === 'string'
+                    ? <img src={item.screenshotUrl} alt="" />
+                    : item.screenshotUrl && <Image src={item.screenshotUrl} fill sizes="220px" alt="" />}
+                </div>
+                <div><span>{item.name}</span><time>{item.year}</time></div>
+              </motion.a>
+            )
+          })}
+          <p className="overview-scroll-cue">Scroll to focus <span>↓</span></p>
+        </section>
+        <div ref={zoomStageRef} className="overview-zoom-stage">
+          <div className="overview-stage-sticky">
+            {firstVisible && <motion.a
+              href={firstVisible.url}
+              target={firstVisible.url.startsWith('http') ? '_blank' : undefined}
+              rel={firstVisible.url.startsWith('http') ? 'noopener noreferrer' : undefined}
+              className="overview-focus-card"
+              style={{ scale: focusScale, opacity: focusOpacity }}
+            >
+              <header><span>{firstVisible.name}</span><time>{firstVisible.year}</time></header>
+              <div className="overview-focus-image">
+                {typeof firstVisible.screenshotUrl === 'string'
+                  ? <img src={firstVisible.screenshotUrl} alt="" />
+                  : firstVisible.screenshotUrl && <Image src={firstVisible.screenshotUrl} fill sizes="60vw" alt="" />}
+              </div>
+              <footer><span>{firstVisible.category}</span><span>Open ↗</span></footer>
+            </motion.a>}
+          </div>
+        </div>
+        <motion.section layout className="focus-feed" aria-label="Selected work">
+          <AnimatePresence mode="popLayout" initial={false}>
+            {visible.slice(1).map((item, index) => <ProjectCard key={item.id} project={item} index={index + 1} active={activeId === item.id} onFocus={() => setActiveId(item.id)} />)}
+          </AnimatePresence>
+        </motion.section>
+      </div>
 
-      </motion.div>
-      <motion.div
-      className="z-10"
-                      initial={{opacity: 0, y: 25}}
-                      whileInView={{opacity: 1, y: 0}}
-                      transition={{duration: 0.4}}
-                      viewport={{once: true}}
-      >
-
-        <div className="text-lg my-2 mx-auto max-w-fit z-10">Send me a message:</div>
-
-        <motion.div
-          className={`flex items-center justify-center z-10 ${dark ? "bg-gradient-to-b from-zinc-800 to-zinc-900 text-zinc-500" : "bg-gradient-to-b from-gray-200 to-gray-300 text-zinc-500"} p-4 pt-6 rounded-lg shadow-inner w-[300px] md:w-[500px]`}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          whileInView={{opacity: 1, y: 0}}
-        >
-          <ContactForm dark={dark}></ContactForm>
-        </motion.div>
-
-        <div className="text-lg mt-4 my-1 mx-auto max-w-fit z-10">Blog:</div>
-        <div className="text-sm px-2 z-10">Powered by <Link href="https://github.com/michaelzoub/bleeg" target="_blank" className="transition delay-150 ease-in-out duration-300 hover:text-orange-500"><span className="text-orange-500" data-value="/music"
-                onClick={(e) => handleLinkClick(e)}>©</span>Bleeg</Link></div>
-        <BlogList></BlogList>
-      </motion.div>
-      <div className="flex flex-col-reverse h-20 mt-12 md:flex bottom-0">© {new Date().getFullYear()} MIT Licensed</div>
-    </motion.main>
+      <footer className="reference-footer"><span>© {new Date().getFullYear()}</span><span>Montréal, Québec</span></footer>
+    </main>
   )
 }

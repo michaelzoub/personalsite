@@ -1,12 +1,9 @@
-"use client"
-import dynamic from "next/dynamic";
+'use client'
 
-const MusicPlayer = dynamic(() => import("../components/musicVisual/graph"), { ssr: false });
+import dynamic from 'next/dynamic'
 
-export default function Test() {
-    return (
-        <main className="h-screen w-full">
-            <MusicPlayer></MusicPlayer>
-        </main>
-    )
+const MusicGraph = dynamic(() => import('../components/musicVisual/graph'), { ssr: false })
+
+export default function MusicPage() {
+  return <main className="simple-music-page"><MusicGraph /></main>
 }

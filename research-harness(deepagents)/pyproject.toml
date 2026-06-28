@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "research-deepagents"
+version = "0.1.0"
+description = "Research agent scaffold that mirrors the Autore harness architecture using LangChain Deep Agents."
+requires-python = ">=3.11"
+dependencies = [
+  "deepagents>=0.0.1",
+  "langchain-openai>=0.3.0",
+  "tavily-python>=0.5.0",
+]
+
+[project.scripts]
+research-deepagents = "research_deepagents.cli:main"
+autore-deep = "research_deepagents.cli:main"
