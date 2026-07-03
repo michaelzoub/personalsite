@@ -77,7 +77,7 @@ export default function AgiArticle() {
 
         <h2>Conclusion</h2>
         <p>Current frontier labs are doing a great job at building a product that&apos;s useful to most people and yields the most profit. However, if we want to get closer towards truly intelligent systems we need to backtrack and have new labs train models which prioritize exploration and preserve uncertainty until sufficient proof exists. Agents should possess evolutionary harnesses, which should in theory lead to longer task duration and more self-reflection, which should in turn lead to better results.</p>
-        <footer><a href="https://x.com/wenkafka/status/2061899928981700676" target="_blank" rel="noreferrer">View original on X ↗</a></footer>
+        <footer><a href="https://arxiv.org/abs/2305.16291" target="_blank" rel="noreferrer">View on arXiv ↗</a></footer>
       </article>
     </main>
   )

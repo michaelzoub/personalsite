@@ -36,8 +36,9 @@ const genres = Object.keys(genrePositions) as Genre[]
 function GraphScene({ onSelect }: { onSelect:(track:Track)=>void }) {
   const graph = useRef<any>(null)
   const cards = useRef(new Map<string, Group>())
-  const { camera } = useThree()
+  const { camera, gl } = useThree()
   const loader = useMemo(() => new TextureLoader(), [])
+  const maxAnisotropy = useMemo(() => gl.capabilities.getMaxAnisotropy(), [gl])
   useFrame(() => {
     graph.current?.tickFrame()
     cards.current.forEach((card) => card.quaternion.copy(camera.quaternion))
@@ -74,6 +75,7 @@ function GraphScene({ onSelect }: { onSelect:(track:Track)=>void }) {
     const group = new Group()
     const texture = loader.load(track.cover)
     texture.colorSpace = 'srgb'
+    texture.anisotropy = maxAnisotropy
     const body = new Mesh(
       new BoxGeometry(22,22,1.6),
       new MeshStandardMaterial({ color:'#e7e4de', roughness:.48, metalness:.06 }),
@@ -83,7 +85,7 @@ function GraphScene({ onSelect }: { onSelect:(track:Track)=>void }) {
       new PlaneGeometry(20.8,20.8),
       new MeshBasicMaterial({ map:texture, side:DoubleSide }),
     )
-    cover.position.z = .82
+    cover.position.z = 1.05
     group.add(cover)
     cards.current.set(track.id, group)
     const label = new SpriteText(track.title)
@@ -96,7 +98,7 @@ function GraphScene({ onSelect }: { onSelect:(track:Track)=>void }) {
     label.material.depthWrite = false
     group.add(label)
     return group
-  }, [loader])
+  }, [loader, maxAnisotropy])
 
   return <R3fForceGraph
     ref={graph}
@@ -122,8 +124,8 @@ export default function Graph() {
   return <section className="simple-music dense-music-graph">
     <p className="music-hint">Drag to explore · Scroll to zoom · Select artwork to listen</p>
     <div className="simple-music-canvas">
-      <Canvas flat camera={{ position:[78,48,245], far:3000 }}>
-        <color attach="background" args={['#fafafa']} />
+      <Canvas flat dpr={[1, 2]} camera={{ position:[78,48,245], far:3000 }}>
+        <color attach="background" args={['#fafcff']} />
         <ambientLight intensity={2.2} />
         <directionalLight position={[90,110,160]} intensity={3.4} />
         <directionalLight position={[-80,-40,-100]} intensity={1.1} />

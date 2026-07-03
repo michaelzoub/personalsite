@@ -2,6 +2,7 @@
 
 import Image, { type StaticImageData } from 'next/image'
 import { motion } from 'motion/react'
+import { LuArrowUpRight } from 'react-icons/lu'
 
 type CardProject = {
   id: string
@@ -11,6 +12,7 @@ type CardProject = {
   description: string
   url: string
   screenshotUrl?: StaticImageData | string
+  videoUrl?: string
 }
 
 export default function ProjectCard({ project, index, active = false, onFocus }: { project: CardProject; index: number; active?: boolean; onFocus?: () => void }) {
@@ -29,13 +31,15 @@ export default function ProjectCard({ project, index, active = false, onFocus }:
       <a href={project.url} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
         <header><span>{project.name}</span><time>{project.year}</time></header>
         <div className="masonry-image">
-          {project.screenshotUrl && (typeof project.screenshotUrl === 'string'
-            ? <img src={project.screenshotUrl} alt="" loading="lazy" />
-            : <Image src={project.screenshotUrl} fill sizes="(max-width: 760px) 100vw, 34vw" alt="" />)}
+          {project.videoUrl
+            ? <video src={project.videoUrl} autoPlay muted loop playsInline />
+            : project.screenshotUrl && (typeof project.screenshotUrl === 'string'
+              ? <img src={project.screenshotUrl} alt="" loading="lazy" />
+              : <Image src={project.screenshotUrl} fill sizes="(max-width: 760px) 100vw, 34vw" alt="" />)}
           <div className="image-tint" />
-          <span className="card-arrow" aria-hidden="true">↗</span>
+          <span className="card-arrow" aria-hidden="true"><LuArrowUpRight size={16} /></span>
         </div>
-        <footer><span>{project.category}</span><p>View {project.category === 'Writing' ? 'writing' : 'project'} ↗</p></footer>
+        <footer><span>{project.category}</span><p>View {project.category === 'Writing' ? 'writing' : 'project'} <LuArrowUpRight size={11} aria-hidden /></p></footer>
       </a>
     </motion.article>
   )

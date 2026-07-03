@@ -14,6 +14,7 @@ export type Project = {
   buttonWidth: string
   arrowPosition: string
   screenshotUrl?: string
+  videoUrl?: string
   previewAccent?: string
   category: 'Engineering'
   year: string
@@ -27,7 +28,7 @@ export const projects: Project[] = [
     iconText: 'Ca',
     iconClassName: 'bg-[#c47a30] text-white',
     description:
-      'A research collective covering crypto, fintech, deep tech, and frontier AI — research-first, published before pitched.',
+      'A research collective covering crypto, fintech, deep tech, and frontier AI. Research-first, published before pitched.',
     hoverDetail:
       'Research on frontier technology before the market prices it in. Open methodology, adversarial review, and AI-assisted synthesis for founders who want implementation-level diligence.',
     url: 'https://caliga.xyz/',
@@ -46,7 +47,7 @@ export const projects: Project[] = [
     iconText: 'CV',
     iconClassName: 'bg-slate-900 text-cyan-300',
     description:
-      'A terminal for prediction markets — your compass in the storm for researching and acting on market odds.',
+      'A terminal for prediction markets. Your compass in the storm for researching and acting on market odds.',
     hoverDetail:
       'coldvision pro is a prediction-market terminal built for fast research, odds tracking, and decision-making when markets move quickly.',
     url: 'https://coldvision.xyz/',
@@ -68,11 +69,12 @@ export const projects: Project[] = [
       'Infrastructure for publishing premium research that autonomous agents can discover, purchase, and read.',
     hoverDetail:
       'Rubicon gives creators a workspace for publishing paid research, tracking agent reads, managing earnings, and settling payouts through programmable payment rails.',
-    url: 'https://github.com/michaelzoub/rubicon',
+    url: 'https://www.rubiconpay.xyz/',
     buttonText: 'View repo',
     buttonWidth: 'w-[100px]',
     arrowPosition: 'pl-[70px]',
     screenshotUrl: '/rubicon-preview.png',
+    videoUrl: '/rubicon-demo.mp4',
     previewAccent: 'from-violet-500/20 to-zinc-800/50',
     category: 'Engineering',
     year: '2026',
