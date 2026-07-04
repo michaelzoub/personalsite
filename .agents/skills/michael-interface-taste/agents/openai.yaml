@@ -1,0 +1,4 @@
+interface:
+  display_name: "Michael Interface Taste"
+  short_description: "Apply Michael’s quiet personal design language"
+  default_prompt: "Use $michael-interface-taste to shape this interface around Michael’s quiet, pale-blue editorial taste."

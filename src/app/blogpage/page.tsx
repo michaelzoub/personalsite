@@ -1,9 +1,12 @@
-import BlogList from "../components/blogs/page"
+import BlogList from '../components/blogs/page'
 
 export default function Blogpage() {
-    return (
-        <main className="flex flex-col items-center p-4 pt-20 bg-white text-black h-screen md:overflow-hidden md:h-screen">
-            <BlogList></BlogList>
-        </main>
-    )
+  return (
+    <main className="simple-writing-page">
+      <aside className="simple-writing-intro">
+        <div><p>Writing</p><h1>Notes, ideas, and things I&apos;m still figuring out.</h1><span>Software, markets, research, and the occasional beautiful detour.</span></div>
+      </aside>
+      <BlogList />
+    </main>
+  )
 }

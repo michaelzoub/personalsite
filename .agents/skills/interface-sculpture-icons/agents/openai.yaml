@@ -1,0 +1,4 @@
+interface:
+  display_name: "Interface Sculpture Icons"
+  short_description: "Build tactile miniature interface objects"
+  default_prompt: "Use $interface-sculpture-icons to design a restrained, tactile miniature UI object that fits the current product."

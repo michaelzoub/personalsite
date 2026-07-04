@@ -38,7 +38,7 @@ export const projects: Project[] = [
     screenshotUrl: '/caliga-preview.png',
     previewAccent: 'from-amber-500/25 to-orange-700/20',
     category: 'Engineering',
-    year: '2026',
+    year: '2026-02-11',
   },
   {
     id: 'coldvision',
@@ -57,7 +57,7 @@ export const projects: Project[] = [
     screenshotUrl: '/coldvision-preview.png',
     previewAccent: 'from-cyan-400/20 to-slate-800/40',
     category: 'Engineering',
-    year: '2026',
+    year: '2026-04-08',
   },
   {
     id: 'rubicon',
@@ -77,6 +77,6 @@ export const projects: Project[] = [
     videoUrl: '/rubicon-demo.mp4',
     previewAccent: 'from-violet-500/20 to-zinc-800/50',
     category: 'Engineering',
-    year: '2026',
+    year: '2026-06-19',
   },
 ]

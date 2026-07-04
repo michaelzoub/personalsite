@@ -1,4 +1,13 @@
 import Link from 'next/link'
+import ArticleSectionNav from '@/app/components/ArticleSectionNav'
+
+const sections = [
+  { id: 'top', label: 'Introduction' },
+  { id: 'exploration', label: 'Exploration > exploitation' },
+  { id: 'uncertainty', label: 'Uncertainty in AI systems' },
+  { id: 'collapse', label: 'Collapsing uncertainty' },
+  { id: 'conclusion', label: 'Conclusion' },
+]
 
 const Figure = ({ src, alt }: { src: string; alt: string }) => (
   <figure><img src={src} alt={alt} loading="lazy" /></figure>
@@ -7,8 +16,9 @@ const Figure = ({ src, alt }: { src: string; alt: string }) => (
 export default function AgiArticle() {
   return (
     <main className="article-page">
-      <header className="article-hero">
-        <Link href="/components/blogpage">← Writing</Link>
+      <ArticleSectionNav sections={sections} />
+      <header className="article-hero" id="top">
+        <Link href="/blogpage">← Writing</Link>
         <p>Essay · June 2, 2026</p>
         <h1>The biggest hurdle to achieving AGI</h1>
         <p className="article-deck">Open-ended exploration and uncertainty over objectives may matter more than simply optimizing harder.</p>
@@ -27,7 +37,7 @@ export default function AgiArticle() {
         <Figure src="/writing/agi/01.png" alt="Diagram contrasting optimization and open-ended exploration" />
         <p>I will make a lot of parallels between intelligent biological systems (humans) and intelligent artificial systems since we want to model the latter as closely as possible to the former.</p>
 
-        <h2>Exploration &gt; exploitation</h2>
+        <h2 id="exploration">Exploration &gt; exploitation</h2>
         <p>I believe current AI systems remain fundamentally constrained by externally specified objectives. For example, humans are very bad at giving concrete and step-by-step goals for machine intelligence to follow. Human-to-human collaboration is oftentimes much more effective because skilled humans are more resourceful and spend time reflecting at every step which oftentimes leads to a different trajectory than what was initially planned. Compared to current AI systems, humans update their trajectory after every new “iteration” of work based on its outcome.</p>
         <p>Across reinforcement learning, bandit problems, evolutionary search, and modern agent systems, empirical evidence consistently shows that balancing exploration and exploitation outperforms prioritizing exploitation in environments with uncertainty, sparse rewards, or incomplete information.</p>
         <Figure src="/writing/agi/02.jpg" alt="Exploration and exploitation comparison" />
@@ -51,7 +61,7 @@ export default function AgiArticle() {
         <p>If humans are constantly evaluated by other humans, why not try the same with artificial beings?</p>
         <Figure src="/writing/agi/09.png" alt="Human evaluation and model comparison diagram" />
 
-        <h2>Uncertainty in AI systems</h2>
+        <h2 id="uncertainty">Uncertainty in AI systems</h2>
         <p>As argued earlier, agents should have no trouble completing open-ended tasks, however we still want agents to be guided, we want to give them some level of agency but they should be as aligned as possible. They should reason like humans instead of spitting out random inferences on every iteration from some ambiguous prompt. There&apos;s an inherent disconnect regarding this, current systems resemble this:</p>
         <Figure src="/writing/agi/10.jpg" alt="Current agent reasoning flow" />
         <p>Essentially, agents lack some sort of separation of concerns, like trying to converse with an intelligent humans who takes good guesses about what you want multiple times instead of asking clarifying questions and solidifying his understanding of the goal. The flow agents should follow should resemble this:</p>
@@ -63,7 +73,7 @@ export default function AgiArticle() {
         <Figure src="/writing/agi/12.jpg" alt="Self-evolving agent benchmark results" />
         <p>Furthermore, if the agent is certain about the wrong objective, it will optimize the wrong thing harder. If it is uncertain, it has reason to ask, observe, defer, and update.</p>
 
-        <h2>AI systems collapse uncertainty too early</h2>
+        <h2 id="collapse">AI systems collapse uncertainty too early</h2>
         <p>A fundamental problem is that predictions are static, the model is not literally obeying an instruction, it&apos;s producing behavior shaped by pre-training, fine-tuning, reinforcement learning, prompting, tool context, and inference-time constraints. This essentially means that an AI model doesn&apos;t actually “follow” orders and respects rules, it simply makes predictions based on how it was trained and what was valued. Since exploitation is oftentimes prized in lab environments, a lot of the most capable models are extremely eager to finish tasks early, or exploit already working formulas instead of taking leaps which lead to worse local scores but might improve results down the line.</p>
         <Figure src="/writing/agi/13.jpg" alt="Benchmark optimization and model behavior" />
         <p>This is exactly why indirectly giving training models access to benchmark data leads to empirically better results but doesn&apos;t necessarily indicate an improvement in real world tasks. Hence why new benchmarks try to counter saturation in models.</p>
@@ -75,7 +85,7 @@ export default function AgiArticle() {
         <p>Stuart Russell’s theory of beneficial AI gives a formal frame for this problem. In the standard model, an AI system is given a fixed objective and is judged by how well it optimizes that objective. Russell argues that this is dangerous because humans rarely specify what they actually mean. The alternative is not goal-less AI, but AI with uncertainty over its objective. A useful agent should treat the user’s request as evidence about an underlying preference, not as a complete specification. This uncertainty should make the system ask clarifying questions, defer when needed, and update its plan as it learns more about the user’s intent, hence the need for an evolutionary component to be paired up with a model (in this case an evolutionary harness).</p>
         <blockquote>“Machines are beneficial to the extent that their actions can be expected to achieve our objectives.”<cite>Stuart Russell</cite></blockquote>
 
-        <h2>Conclusion</h2>
+        <h2 id="conclusion">Conclusion</h2>
         <p>Current frontier labs are doing a great job at building a product that&apos;s useful to most people and yields the most profit. However, if we want to get closer towards truly intelligent systems we need to backtrack and have new labs train models which prioritize exploration and preserve uncertainty until sufficient proof exists. Agents should possess evolutionary harnesses, which should in theory lead to longer task duration and more self-reflection, which should in turn lead to better results.</p>
         <footer><a href="https://arxiv.org/abs/2305.16291" target="_blank" rel="noreferrer">View on arXiv ↗</a></footer>
       </article>

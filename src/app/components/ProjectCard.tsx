@@ -22,7 +22,7 @@ export default function ProjectCard({ project, index, active = false, onFocus }:
       layout
       initial={{ opacity: 0, transform: 'translateY(14px)' }}
       animate={{ opacity: 1, transform: 'translateY(0)' }}
-      exit={{ opacity: 0, transform: 'translateY(8px)' }}
+      exit={{ opacity: 0, transform: 'translateY(8px)', transition: { duration: .15, ease: [0.4, 0, 1, 1] } }}
       transition={{ duration: .26, delay: index * .045, ease: [0.23, 1, 0.32, 1] }}
       viewport={{ amount: index === 0 ? .8 : .58, margin: '-8% 0px -8% 0px' }}
       onViewportEnter={onFocus}

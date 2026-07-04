@@ -122,7 +122,6 @@ function GraphScene({ onSelect }: { onSelect:(track:Track)=>void }) {
 export default function Graph() {
   const [selected,setSelected] = useState<Track|null>(null)
   return <section className="simple-music dense-music-graph">
-    <p className="music-hint">Drag to explore · Scroll to zoom · Select artwork to listen</p>
     <div className="simple-music-canvas">
       <Canvas flat dpr={[1, 2]} camera={{ position:[78,48,245], far:3000 }}>
         <color attach="background" args={['#fafcff']} />
