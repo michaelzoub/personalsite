@@ -18,28 +18,10 @@ export type Project = {
   previewAccent?: string
   category: 'Engineering'
   year: string
+  status: string
 }
 
 export const projects: Project[] = [
-  {
-    id: 'caliga',
-    name: 'Caliga',
-    iconType: 'text',
-    iconText: 'Ca',
-    iconClassName: 'bg-[#c47a30] text-white',
-    description:
-      'A research collective covering crypto, fintech, deep tech, and frontier AI. Research-first, published before pitched.',
-    hoverDetail:
-      'Research on frontier technology before the market prices it in. Open methodology, adversarial review, and AI-assisted synthesis for founders who want implementation-level diligence.',
-    url: 'https://caliga.xyz/',
-    buttonText: 'Explore',
-    buttonWidth: 'w-[90px]',
-    arrowPosition: 'pl-[60px]',
-    screenshotUrl: '/caliga-preview.png',
-    previewAccent: 'from-amber-500/25 to-orange-700/20',
-    category: 'Engineering',
-    year: '2026-02-11',
-  },
   {
     id: 'coldvision',
     name: 'coldvision',
@@ -58,6 +40,7 @@ export const projects: Project[] = [
     previewAccent: 'from-cyan-400/20 to-slate-800/40',
     category: 'Engineering',
     year: '2026-04-08',
+    status: 'active',
   },
   {
     id: 'rubicon',
@@ -78,5 +61,26 @@ export const projects: Project[] = [
     previewAccent: 'from-violet-500/20 to-zinc-800/50',
     category: 'Engineering',
     year: '2026-06-19',
+    status: 'active',
+  },
+  {
+    id: 'research-agent',
+    name: 'research-agent',
+    iconType: 'text',
+    iconText: 'RA',
+    iconClassName: 'bg-slate-100 text-slate-700',
+    description:
+      'Local research and optimization harness for running agent loops, producing reports, artifacts, timelines, and score improvements.',
+    hoverDetail:
+      'A guided command-line tool that turns a question or goal into a research or optimization loop, then leaves behind inspectable reports and run artifacts.',
+    url: 'https://github.com/michaelzoub/research-agent',
+    buttonText: 'View repo',
+    buttonWidth: 'w-[100px]',
+    arrowPosition: 'pl-[70px]',
+    screenshotUrl: '/research-agent-preview.png',
+    previewAccent: 'from-slate-200/30 to-blue-200/20',
+    category: 'Engineering',
+    year: '2026-07-05',
+    status: 'in progress',
   },
 ]

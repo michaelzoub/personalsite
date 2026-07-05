@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { LuArrowLeft } from 'react-icons/lu'
 import ArticleSectionNav from '@/app/components/ArticleSectionNav'
 
 const sections = [
@@ -18,7 +19,7 @@ export default function AgiArticle() {
     <main className="article-page">
       <ArticleSectionNav sections={sections} />
       <header className="article-hero" id="top">
-        <Link href="/blogpage">← Writing</Link>
+        <Link href="/" aria-label="Back home"><LuArrowLeft aria-hidden /> <span>Home</span></Link>
         <p>Essay · June 2, 2026</p>
         <h1>The biggest hurdle to achieving AGI</h1>
         <p className="article-deck">Open-ended exploration and uncertainty over objectives may matter more than simply optimizing harder.</p>

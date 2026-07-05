@@ -4,18 +4,16 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'motion/react'
-import { FaGithub, FaLinkedinIn, FaXTwitter } from 'react-icons/fa6'
-import { LuArrowDown, LuArrowUpRight } from 'react-icons/lu'
-import ProjectCard from './components/ProjectCard'
+import { PiArrowUpRight } from 'react-icons/pi'
 import FarmInstrument from './components/FarmInstrument'
-import ZoomStage from './components/ZoomStage'
 import { ItemMedia } from './components/ItemMedia'
-import { BuildingIcon, ReadingIcon, RepeatIcon } from './components/NowIcons'
 import { projects } from './data/projects'
 
 const MusicGraph = dynamic(() => import('./components/musicVisual/graph'), { ssr: false })
 
 const filters = ['All', 'Engineering', 'Writing', 'Music', 'Future'] as const
+const workFilters = ['All', 'Engineering', 'Writing'] as const
+const personalFilters = ['Music', 'Future'] as const
 type Filter = (typeof filters)[number]
 
 const writing = [{
@@ -31,10 +29,16 @@ const writing = [{
   name: 'The war against frontier labs: decentralizing AI',
   category: 'Writing' as const,
   year: '2026-06-14',
-  description: 'Why access to intelligence should remain contestable,and why decentralized training and open weights matter.',
+  description: 'Why access to intelligence should remain contestable, and why decentralized training and open weights matter.',
   url: '/writing/decentralizing-ai',
   screenshotUrl: '/writing/decentralizing-ai/cover.jpg',
 }]
+
+// Lead with the current work, then keep the remaining artifacts on the same baseline.
+const selectedWork = [
+  ...projects.filter((p) => p.id === 'rubicon'),
+  ...projects.filter((p) => p.id !== 'rubicon'),
+]
 
 declare global {
   interface Window { webkitAudioContext?: typeof AudioContext }
@@ -64,39 +68,6 @@ function useInterfaceSounds() {
     oscillator.stop(now + .02)
   }, [])
 
-  // A carousel detent: lower, two-stage, and slightly mechanical rather than glassy.
-  const carousel = useCallback((context: AudioContext) => {
-    const now = context.currentTime
-    const body = context.createOscillator()
-    const tooth = context.createOscillator()
-    const bodyGain = context.createGain()
-    const toothGain = context.createGain()
-    const filter = context.createBiquadFilter()
-    filter.type = 'bandpass'
-    filter.frequency.setValueAtTime(920, now)
-    filter.Q.setValueAtTime(1.1, now)
-    body.type = 'triangle'
-    body.frequency.setValueAtTime(1050, now)
-    body.frequency.exponentialRampToValueAtTime(520, now + .028)
-    tooth.type = 'square'
-    tooth.frequency.setValueAtTime(1800, now + .007)
-    tooth.frequency.exponentialRampToValueAtTime(1100, now + .024)
-    bodyGain.gain.setValueAtTime(.0001, now)
-    bodyGain.gain.exponentialRampToValueAtTime(.022, now + .002)
-    bodyGain.gain.exponentialRampToValueAtTime(.0001, now + .034)
-    toothGain.gain.setValueAtTime(.0001, now)
-    toothGain.gain.setValueAtTime(.0001, now + .006)
-    toothGain.gain.exponentialRampToValueAtTime(.008, now + .009)
-    toothGain.gain.exponentialRampToValueAtTime(.0001, now + .03)
-    body.connect(bodyGain).connect(filter)
-    tooth.connect(toothGain).connect(filter)
-    filter.connect(context.destination)
-    body.start(now)
-    tooth.start(now)
-    body.stop(now + .04)
-    tooth.stop(now + .04)
-  }, [])
-
   useEffect(() => {
     const enable = () => {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext
@@ -124,126 +95,120 @@ function useInterfaceSounds() {
     click(context)
   }, [click])
 
-  const playCarousel = useCallback(() => {
-    const context = contextRef.current
-    if (!context || !readyRef.current) return
-    carousel(context)
-  }, [carousel])
-
-  return { playClick, playCarousel }
+  return { playClick }
 }
 
 export default function Home() {
   const [filter, setFilter] = useState<Filter>('All')
-  const [activeId, setActiveId] = useState('intro')
-  const previousActiveRef = useRef('intro')
-  const { playClick, playCarousel } = useInterfaceSounds()
+  const { playClick } = useInterfaceSounds()
   const isMusic = filter === 'Music'
   const isFuture = filter === 'Future'
-  const items = [...projects, ...writing]
-  const visible = isMusic || isFuture ? [] : items.filter((item) => filter === 'All' || item.category === filter)
-  const active = items.find((item) => item.id === activeId)
-  const firstVisible = visible[0]
-  const isIntro = !active && !isMusic && !isFuture
-
-  const focusItem = useCallback((id: string) => {
-    if (previousActiveRef.current !== id) {
-      previousActiveRef.current = id
-      playCarousel()
-      setActiveId(id)
-    }
-  }, [playCarousel])
-
-  const resetFocus = useCallback(() => {
-    if (previousActiveRef.current !== 'intro') { previousActiveRef.current = 'intro'; setActiveId('intro') }
-  }, [])
+  const showProjects = filter === 'All' || filter === 'Engineering'
+  const showWriting = filter === 'All' || filter === 'Writing'
+  const surfaceKey = isMusic ? 'music' : isFuture ? 'future' : 'work'
 
   return (
-    <main className="reference-shell focus-layout">
-      <aside className="focus-sidebar">
-        <div className="focus-sidebar-inner">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div key={active?.id ?? (isMusic ? 'music' : isFuture ? 'future' : 'intro')} className={`focus-copy${isIntro ? ' is-intro' : ''}`} initial={{ opacity: 0, transform: 'translateY(10px)', filter: 'blur(2px)' }} animate={{ opacity: 1, transform: 'translateY(0)', filter: 'blur(0px)' }} exit={{ opacity: 0, transform: 'translateY(-7px)', filter: 'blur(2px)', transition: { duration: .15, ease: [0.4, 0, 1, 1] } }} transition={{ duration: .2, ease: [0.23, 1, 0.32, 1] }}>
-              {active ? <>
-                <h1>{active.name}</h1>
-                <p className="focus-description">{active.description}</p>
-                <a className="focus-link" href={active.url} target={active.url.startsWith('http') ? '_blank' : undefined} rel="noreferrer">Open project <LuArrowUpRight size={13} aria-hidden /></a>
-              </> : isMusic ? <>
-                <h1>What I listen to<span className="glow-mark">.</span></h1>
-                <p className="focus-description">Fourteen tracks mapped as a force graph: electronic through techno, ambient, rap, and jazz. Drag to explore, scroll to zoom, click an album to play it.</p>
-              </> : isFuture ? <>
-                <h1>Later<span className="glow-mark">.</span></h1>
-                <p className="focus-description">I want a life that feels a little less abstract.</p>
-                <p className="focus-description">I&apos;m still a city person, and I know I&apos;ll always want to travel. But I also want somewhere I can return to, land I know well, work that changes with the seasons, and a home I can build with my family. A farm feels like a real way to grow into that life.</p>
-              </> : <>
-                <h1>Michael Zoubkoff<span className="glow-mark">.</span></h1>
-                <p className="focus-description">I make tools for machines that spend money, markets that reveal what people believe, and questions without neat endings.</p>
-                <dl className="now-panel now-inline" aria-label="Now">
-                  <div className="now-panel-head"><span>Now</span><time dateTime="2026-07-03">2026-07-03</time></div>
-                  <div className="now-row"><dt><BuildingIcon />Building</dt><dd>Rubicon&apos;s agent-side payments</dd></div>
-                  <div className="now-row"><dt><ReadingIcon />Rereading</dt><dd>The Voyager paper</dd></div>
-                  <div className="now-row"><dt><RepeatIcon />On repeat</dt><dd><Link href="/music">&ldquo;Mos 6581,&rdquo; Carbon Based Lifeforms</Link></dd></div>
-                </dl>
-              </>}
-            </motion.div>
-          </AnimatePresence>
-          <div className="sidebar-foot">
-            <nav className="focus-socials" aria-label="Social links">
-              <a href="https://x.com/wenkafka" target="_blank" rel="noreferrer" aria-label="X"><FaXTwitter size={15} /></a>
-              <a href="https://github.com/michaelzoub" target="_blank" rel="noreferrer" aria-label="GitHub"><FaGithub size={15} /></a>
-              <a href="https://www.linkedin.com/in/michael-zoubkoff-732a7b227/" target="_blank" rel="noreferrer" aria-label="LinkedIn"><FaLinkedinIn size={15} /></a>
-            </nav>
+    <main className="editorial">
+      <header className="lede">
+        <h1>Michael Zoubkoff</h1>
+        <p>I build software around agents, markets, and interfaces.</p>
+        <p>Right now I&apos;m working on <a className="inline-text-link" href="https://www.rubiconpay.xyz/" target="_blank" rel="noreferrer">Rubicon</a>: payment and access rails for agents that discover, buy, and use online writing.</p>
+      </header>
+
+      <div className="editorial-filter-row">
+        <div className="reference-filter unified-filter" role="group" aria-label="Browse work and personal interests">
+          <div className="filter-segment-group" aria-label="Work">
+            {workFilters.map((item) => (
+              <button key={item} onClick={() => { playClick(); setFilter(item) }} aria-pressed={filter === item}>
+                {filter === item && <motion.span layoutId="filter-pill" className="reference-pill" transition={{ duration: .2, ease: [0.23, 1, 0.32, 1] }} />}
+                <span>{item}</span>
+              </button>
+            ))}
+          </div>
+          <div className="filter-segment-group personal" aria-label="Personal">
+            {personalFilters.map((item) => (
+              <button key={item} onClick={() => { playClick(); setFilter(item) }} aria-pressed={filter === item}>
+                {filter === item && <motion.span layoutId="filter-pill" className="reference-pill" transition={{ duration: .2, ease: [0.23, 1, 0.32, 1] }} />}
+                <span>{item}</span>
+              </button>
+            ))}
           </div>
         </div>
-      </aside>
-
-      <div className="focus-content">
-        <div className="reference-filter" role="group" aria-label="Filter work">
-          {filters.map((item) => (
-            <button key={item} onClick={() => { playClick(); setFilter(item); previousActiveRef.current = 'intro'; setActiveId('intro') }} aria-pressed={filter === item}>
-              {filter === item && <motion.span layoutId="reference-pill" className="reference-pill" transition={{ type: 'spring', bounce: 0, duration: .3 }} />}
-              <span>{item}</span>
-            </button>
-          ))}
-        </div>
-        {isMusic ? <motion.div key="music-embed" className="music-embed" initial={{ opacity: 0, transform: 'translateY(8px)' }} animate={{ opacity: 1, transform: 'translateY(0)' }} transition={{ duration: .28, ease: [0.23, 1, 0.32, 1] }}>
-          <MusicGraph />
-        </motion.div> : isFuture ? <motion.div key="future-stage" className="future-stage" initial={{ opacity: 0, transform: 'translateY(8px)' }} animate={{ opacity: 1, transform: 'translateY(0)' }} transition={{ duration: .28, ease: [0.23, 1, 0.32, 1] }}>
-          <FarmInstrument />
-        </motion.div> : <>
-        <section className="overview-grid" aria-label="Work overview">
-          {visible.slice(0, 9).map((item, index) => {
-            const external = item.url.startsWith('http')
-            return (
-              <motion.a
-                key={`overview-${item.id}`}
-                href={item.url}
-                target={external ? '_blank' : undefined}
-                rel={external ? 'noopener noreferrer' : undefined}
-                className={`overview-card overview-${item.id}`}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * .045, duration: .28, ease: [0.23, 1, 0.32, 1] }}
-              >
-                <div className="overview-image">
-                  <ItemMedia item={item} sizes="220px" />
-                </div>
-                <div><span>{item.name}</span><time>{item.year}</time></div>
-              </motion.a>
-            )
-          })}
-          <p className="overview-scroll-cue">Scroll to focus <LuArrowDown size={11} aria-hidden /></p>
-        </section>
-        {firstVisible && <ZoomStage item={firstVisible} onFocus={focusItem} onReset={resetFocus} />}
-        <motion.section layout className="focus-feed" aria-label="Selected work">
-          <AnimatePresence mode="popLayout" initial={false}>
-            {visible.slice(1).map((item, index) => <ProjectCard key={item.id} project={item} index={index + 1} active={activeId === item.id} onFocus={() => focusItem(item.id)} />)}
-          </AnimatePresence>
-        </motion.section>
-        </>}
       </div>
 
-      <footer className="reference-footer"><span>© {new Date().getFullYear()}</span><span>Montréal, Québec</span></footer>
+      <div className="editorial-surface">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={surfaceKey}
+            initial={{ opacity: 0, transform: 'translateY(8px)' }}
+            animate={{ opacity: 1, transform: 'translateY(0)' }}
+            exit={{ opacity: 0, transform: 'translateY(-6px)' }}
+            transition={{ duration: .24, ease: [0.23, 1, 0.32, 1] }}
+          >
+            {isMusic ? (
+              <div className="editorial-music"><MusicGraph /></div>
+            ) : isFuture ? (
+              <FarmInstrument />
+            ) : (
+              <>
+                {showProjects && (
+                  <section className="work-grid" aria-label="Work">
+                    {selectedWork.map((item, i) => {
+                      const external = item.url.startsWith('http')
+                      const isHero = i === 0
+                      return (
+                        <motion.a
+                          key={item.id}
+                          href={item.url}
+                          target={external ? '_blank' : undefined}
+                          rel={external ? 'noopener noreferrer' : undefined}
+                          className={`work-card${isHero ? ' is-hero' : ''} project-${item.id}`}
+                          initial={{ opacity: 0, y: 14 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * .04, duration: .26, ease: [0.23, 1, 0.32, 1] }}
+                        >
+                          <div className="work-media"><ItemMedia item={item} sizes={isHero ? '(max-width:820px) 100vw, 560px' : '380px'} /></div>
+                          <div className="work-meta">
+                            <div className="work-meta-row">
+                              <span className="work-name">{item.name}</span>
+                              <span className="work-status">{item.status}</span>
+                            </div>
+                            <p>{item.description}</p>
+                          </div>
+                        </motion.a>
+                      )
+                    })}
+                  </section>
+                )}
+                {showWriting && (
+                  <section className={`writing-grid${showProjects ? ' after-work' : ''}`} aria-label="Writing">
+                    {writing.map((item, i) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 14 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: (showProjects ? selectedWork.length : 0) * .04 + i * .04, duration: .26, ease: [0.23, 1, 0.32, 1] }}
+                      >
+                        <Link href={item.url} className="writing-card">
+                          <div className="writing-media"><ItemMedia item={item} sizes="(max-width:620px) 100vw, 460px" /></div>
+                          <div className="writing-body">
+                            <div className="writing-heading">
+                              <h3>{item.name}</h3>
+                              <span className="writing-meta"><time>{item.year}</time><PiArrowUpRight aria-hidden /></span>
+                            </div>
+                            <p>{item.description}</p>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </section>
+                )}
+              </>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
     </main>
   )
 }

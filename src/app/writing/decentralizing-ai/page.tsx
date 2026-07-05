@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { LuArrowLeft } from 'react-icons/lu'
 import ArticleSectionNav from '@/app/components/ArticleSectionNav'
 
 const sections = [
@@ -13,7 +14,7 @@ export default function DecentralizingAiArticle() {
   return <main className="article-page">
     <ArticleSectionNav sections={sections} />
     <header className="article-hero" id="top">
-      <Link href="/blogpage">← Writing</Link>
+      <Link href="/" aria-label="Back home"><LuArrowLeft aria-hidden /> <span>Home</span></Link>
       <p>Essay · June 14, 2026</p>
       <h1>The war against frontier labs: decentralizing AI</h1>
       <p className="article-deck">Access to intelligence should not depend on a few labs, clouds, distribution platforms, and governments.</p>
