@@ -26,6 +26,12 @@ const tracks: Track[] = [
   { id:'09riz9pAPJyYYDVynE5xxY',title:'1000 Blunts',artist:'$uicideboy$',genre:'Rap',cover:'/music-covers/1000-blunts.jpg',x:-26,y:-75,z:5 },
   { id:'4IU33qQwEkfP7rxlPc73UA',title:'Chopper',artist:'Lupe Fiasco',genre:'Rap',cover:'/music-covers/chopper.jpg',x:30,y:-82,z:-5 },
   { id:'3nTQL2ScjeyOxjqSmDoCCr',title:'Timeless',artist:'John Abercrombie',genre:'Jazz',cover:'/music-covers/timeless.jpg',x:0,y:-137,z:4 },
+  { id:'3X4dCNeVxPCqiRfyB5hJeH',title:'Paradise Engineering',artist:'Barker',genre:'Electronic',cover:'/music-covers/paradise-engineering.jpg',x:-4,y:96,z:-7 },
+  { id:'4U84eaax6nGQ18iPZDQhb3',title:'Love Is A Battlefield',artist:'Barker & Baumecker',genre:'Techno',cover:'/music-covers/love-is-a-battlefield.jpg',x:2,y:52,z:6 },
+  { id:'0KeqW4my39At2Ke1mVFYBF',title:'Princess Mononoke Theme Song',artist:'Joe Hisaishi',genre:'Ambient',cover:'/music-covers/princess-mononoke.jpg',x:-30,y:14,z:-3 },
+  { id:'3sL6a6Wi6wdmPjtQAS207O',title:'Daybreak',artist:"Albrecht La'Brooy, Oliver Paterson",genre:'Ambient',cover:'/music-covers/daybreak.jpg',x:9,y:24,z:-6 },
+  { id:'4mraRJO2iZA5WQ5dxlSQx9',title:'Heather',artist:'Billy Cobham',genre:'Jazz',cover:'/music-covers/heather.jpg',x:-30,y:-124,z:5 },
+  { id:'43QCD6bZmZZEfalvVoQNJ2',title:'When You Come Home',artist:'Marie Therese',genre:'Jazz',cover:'/music-covers/when-you-come-home.jpg',x:33,y:-128,z:4 },
 ]
 
 const genrePositions: Record<Genre,{x:number;y:number;z:number}> = {
@@ -58,6 +64,9 @@ function GraphScene({ onSelect }: { onSelect:(track:Track)=>void }) {
       [tracks[2].id,tracks[6].id],[tracks[4].id,tracks[8].id],[tracks[5].id,tracks[8].id],[tracks[5].id,tracks[9].id],
       [tracks[6].id,tracks[10].id],[tracks[7].id,tracks[9].id],[tracks[8].id,tracks[10].id],[tracks[9].id,tracks[11].id],
       [tracks[10].id,tracks[12].id],[tracks[11].id,tracks[12].id],[tracks[11].id,tracks[13].id],[tracks[12].id,tracks[13].id],
+      [tracks[0].id,tracks[14].id],[tracks[14].id,tracks[4].id],[tracks[5].id,tracks[15].id],[tracks[15].id,tracks[14].id],
+      [tracks[16].id,tracks[8].id],[tracks[16].id,tracks[17].id],[tracks[17].id,tracks[10].id],[tracks[7].id,tracks[16].id],
+      [tracks[13].id,tracks[18].id],[tracks[18].id,tracks[19].id],[tracks[19].id,tracks[12].id],[tracks[18].id,tracks[11].id],
     ].map(([source,target]) => ({ source,target }))
     return { nodes, links:[...links,...cross] }
   }, [])

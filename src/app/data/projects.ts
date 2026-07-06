@@ -65,7 +65,7 @@ export const projects: Project[] = [
   },
   {
     id: 'research-agent',
-    name: 'research-agent',
+    name: 'Research Agent',
     iconType: 'text',
     iconText: 'RA',
     iconClassName: 'bg-slate-100 text-slate-700',

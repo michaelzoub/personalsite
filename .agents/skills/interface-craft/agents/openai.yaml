@@ -1,0 +1,4 @@
+interface:
+  display_name: "Interface Craft"
+  short_description: "Polish typography, layout, interaction, and motion"
+  default_prompt: "Use $interface-craft to review and improve this interface."
