@@ -149,15 +149,75 @@ function RoboticArm({ x, y, face, dir, duration, delay }: RoboticArmProps) {
   )
 }
 
-// One arm per picking station along the rows. Durations/delays are coprime-ish so the arms
-// drift in and out of phase instead of ever moving together.
-const ARMS: RoboticArmProps[] = [
-  { x: 74.56, y: 57.83, face: 26, dir: 1, duration: 15, delay: 0 },
-  { x: 73.63, y: 70.79, face: -26, dir: -1, duration: 18, delay: -7 },
-  { x: 46.5, y: 50.81, face: 26, dir: 1, duration: 17, delay: -3 },
-  { x: 30.6, y: 62.69, face: 26, dir: 1, duration: 14, delay: -10 },
-  { x: 54.45, y: 70.52, face: -26, dir: -1, duration: 19, delay: -5 },
+// Crop-bed top-surface polygons — the single source of truth for bed positions.
+// Arm positions are derived from these so they stay in sync if beds ever move.
+type Pt = { x: number; y: number }
+type CropBed = { id: string; column: 'left' | 'right'; corners: [Pt, Pt, Pt, Pt] }
+
+const CROP_BEDS: CropBed[] = [
+  { id: 'berry-4', column: 'left',  corners: [{ x: 43.23, y: 43.8 }, { x: 61.47, y: 54.33 }, { x: 55.39, y: 57.84 }, { x: 37.15, y: 47.31 }] },
+  { id: 'berry-5', column: 'left',  corners: [{ x: 35.75, y: 48.12 }, { x: 53.99, y: 58.65 }, { x: 47.91, y: 62.16 }, { x: 29.67, y: 51.63 }] },
+  { id: 'green-6', column: 'left',  corners: [{ x: 26.39, y: 53.52 }, { x: 47.91, y: 65.94 }, { x: 37.15, y: 72.15 }, { x: 15.64, y: 59.73 }] },
+  { id: 'green-1', column: 'right', corners: [{ x: 74.09, y: 51.9 }, { x: 97.48, y: 65.4 }, { x: 89.06, y: 70.26 }, { x: 65.68, y: 56.76 }] },
+  { id: 'green-2', column: 'right', corners: [{ x: 63.34, y: 58.11 }, { x: 86.72, y: 71.61 }, { x: 78.3, y: 76.47 }, { x: 54.92, y: 62.97 }] },
+  { id: 'green-3', column: 'right', corners: [{ x: 53.05, y: 64.05 }, { x: 76.43, y: 77.55 }, { x: 68.01, y: 82.41 }, { x: 44.63, y: 68.91 }] },
 ]
+
+function bedCenter(bed: CropBed): Pt {
+  const n = bed.corners.length
+  return {
+    x: bed.corners.reduce((s, p) => s + p.x, 0) / n,
+    y: bed.corners.reduce((s, p) => s + p.y, 0) / n,
+  }
+}
+
+function midPt(a: Pt, b: Pt): Pt {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+}
+
+// Forward offset (toward the viewer) so arms sit naturally in the front half
+// of each aisle rather than dead center — looks more like a real picking station.
+const AISLE_FORWARD = 0.6
+
+// Animation timings (coprime-ish so arms drift in and out of phase).
+const ARM_TIMINGS = [
+  { duration: 15, delay: 0 },
+  { duration: 18, delay: -7 },
+  { duration: 17, delay: -3 },
+  { duration: 14, delay: -10 },
+  { duration: 19, delay: -5 },
+]
+
+function computeArms(): RoboticArmProps[] {
+  const left = CROP_BEDS.filter(b => b.column === 'left')
+  const right = CROP_BEDS.filter(b => b.column === 'right')
+  const slots: { pos: Pt; dir: Dir }[] = []
+
+  // One arm per within-column aisle (between consecutive beds in each column).
+  for (const col of [left, right]) {
+    for (let i = 0; i < col.length - 1; i++) {
+      const m = midPt(bedCenter(col[i]), bedCenter(col[i + 1]))
+      slots.push({ pos: { x: m.x, y: m.y + AISLE_FORWARD }, dir: (i % 2 === 0 ? 1 : -1) as Dir })
+    }
+  }
+
+  // One arm in the cross-aisle between the two columns (at mid-depth).
+  const crossLeft = bedCenter(left[Math.floor(left.length / 2)])
+  const crossRight = bedCenter(right[Math.floor(right.length / 2)])
+  const cross = midPt(crossLeft, crossRight)
+  slots.push({ pos: { x: cross.x, y: cross.y + AISLE_FORWARD }, dir: 1 })
+
+  return slots.map((s, i) => ({
+    x: s.pos.x,
+    y: s.pos.y,
+    face: s.dir > 0 ? 26 : -26,
+    dir: s.dir,
+    duration: ARM_TIMINGS[i]?.duration ?? 16,
+    delay: ARM_TIMINGS[i]?.delay ?? 0,
+  }))
+}
+
+const ARMS = computeArms()
 
 function FarmArchitectureIcon() {
   const ref = useRef<HTMLDivElement>(null)
@@ -211,7 +271,7 @@ export default function FarmInstrument() {
 
       <div className="farm-prose">
         <p>Eventually I&apos;d like to build a small automated farm: berries, greens, a greenhouse, and enough machinery to handle the repetitive work.</p>
-        <p>Not because everything needs to become a dashboard. Mostly because I want a place to come back to, grow real things, and spend more time outside.</p>
+        <p>Mostly because I want a place to come back to, grow real things, and spend more time outside.</p>
       </div>
 
       <figure className="farm-sketch">

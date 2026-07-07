@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { LuArrowLeft } from 'react-icons/lu'
+import { LuArrowLeft, LuArrowUpRight } from 'react-icons/lu'
 import ArticleSectionNav from '@/app/components/ArticleSectionNav'
 
 export const metadata: Metadata = {
@@ -30,7 +30,9 @@ export default function DecentralizingAiArticle() {
       <p>Essay · June 14, 2026</p>
       <h1>The war against frontier labs: decentralizing AI</h1>
       <p className="article-deck">Access to intelligence should not depend on a few labs, clouds, distribution platforms, and governments.</p>
-      <img src="/writing/decentralizing-ai/cover.jpg" alt="Cover for The war against frontier labs: decentralizing AI" />
+      <div className="article-cover">
+        <img src="/writing/decentralizing-ai/cover.jpg" alt="Cover for The war against frontier labs: decentralizing AI" width={1200} height={480} />
+      </div>
     </header>
 
     <article className="article-body">
@@ -70,7 +72,7 @@ export default function DecentralizingAiArticle() {
 
       <h2 id="conclusion">Conclusion</h2>
       <p>Leaving intelligence in the hands of a few is arguably even more dangerous than leaving capital in the hands of a few. The former is leverage for much more than money. If we achieve AGI, I believe decentralizing it is a better trajectory than leaving it in the hands of a small number of companies and states.</p>
-      <footer><a href="https://x.com/wenkafka/status/2066170830191530243" target="_blank" rel="noreferrer">View original on X ↗</a></footer>
+      <footer><a href="https://x.com/wenkafka/status/2066170830191530243" target="_blank" rel="noreferrer"><span>View original on X</span> <LuArrowUpRight aria-hidden /></a></footer>
     </article>
   </main>
 }
