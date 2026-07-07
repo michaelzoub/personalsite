@@ -1,6 +1,18 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { LuArrowLeft } from 'react-icons/lu'
 import ArticleSectionNav from '@/app/components/ArticleSectionNav'
+
+export const metadata: Metadata = {
+  title: 'The biggest hurdle to achieving AGI',
+  description: 'Why open-ended exploration and uncertainty over objectives matter more than optimizing harder against fixed targets.',
+  openGraph: {
+    title: 'The biggest hurdle to achieving AGI',
+    description: 'Why open-ended exploration and uncertainty over objectives matter more than optimizing harder against fixed targets.',
+    type: 'article',
+    images: ['/writing/agi/cover.jpg'],
+  },
+}
 
 const sections = [
   { id: 'top', label: 'Introduction' },

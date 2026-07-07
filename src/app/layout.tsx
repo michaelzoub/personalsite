@@ -16,7 +16,11 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Michael Zoubkoff's portfolio.",
+  metadataBase: new URL("https://www.zoubkoff.com"),
+  title: {
+    default: "Michael Zoubkoff's portfolio.",
+    template: "%s · Michael Zoubkoff",
+  },
   description: "Resume/portfolio site showcasing projects, skills as well as goals.",
 };
 

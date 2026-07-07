@@ -2,8 +2,8 @@
 
 import { useCallback, useRef } from 'react'
 
-const FARM_SCENE = `<svg class="fd-svg" viewBox="0 0 122 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-<polygon points="9.56,62.7 61,92.4 61,104.82 9.56,75.12" fill="#ded5c4"/>
+// Static scene rendered before the arms: ground prism, greenhouse, crop beds, flow path.
+const SCENE_BG = `<polygon points="9.56,62.7 61,92.4 61,104.82 9.56,75.12" fill="#ded5c4"/>
 <polygon points="61,92.4 112.44,62.7 112.44,75.12 61,104.82" fill="#e7ded0"/>
 <polygon points="9.56,62.7 9.56,75.12 61,104.82 112.44,75.12 112.44,62.7 61,92.4" fill="none" stroke="rgba(120,104,78,.28)" stroke-width=".7"/>
 <polygon points="61,33 112.44,62.7 61,92.4 9.56,62.7" fill="#f2ede2" stroke="rgba(120,104,78,.3)" stroke-width=".7"/>
@@ -75,27 +75,89 @@ const FARM_SCENE = `<svg class="fd-svg" viewBox="0 0 122 122" xmlns="http://www.
 <polygon points="37.15,72.15 47.91,65.94 47.91,68.64 37.15,74.85" fill="#7fa06a"/>
 <polygon points="26.39,53.52 47.91,65.94 37.15,72.15 15.64,59.73" fill="#9dbb84" stroke="rgba(80,90,55,.35)" stroke-width=".5"/>
 <line x1="23.65" y1="56.08" x2="43.48" y2="67.52" stroke="#5f8146" stroke-width=".9" stroke-linecap="round"/>
-<line x1="20.07" y1="58.15" x2="39.89" y2="69.59" stroke="#5f8146" stroke-width=".9" stroke-linecap="round"/>
-<ellipse cx="55.39" cy="80.52" rx="3.09" ry="1.78" fill="rgba(70,80,90,.25)"/>
-<rect x="52.30" y="70.26" width="6.17" height="10.26" rx="1.54" fill="#9db2c0"/>
-<ellipse cx="55.39" cy="70.26" rx="3.09" ry="1.78" fill="#c3d2dc"/>
-<ellipse cx="58.66" cy="85.11" rx="2.57" ry="1.49" fill="rgba(70,80,90,.25)"/>
-<rect x="56.09" y="76.47" width="5.14" height="8.64" rx="1.29" fill="#aebfca"/>
-<ellipse cx="58.66" cy="76.47" rx="2.57" ry="1.49" fill="#ccd8e0"/>
-<g class="fd-arm"><ellipse cx="74.56" cy="57.83" rx="3" ry="1.3" fill="rgba(90,80,56,.16)"/><rect x="72.26" y="55.73" width="4.6" height="2.4" rx="1" fill="#e7e4da" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><rect x="73.46" y="52.43" width="2.2" height="3.6" rx="1" fill="#f6f4ee" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><rect x="74.56" y="51.48" width="6.00" height="1.9" rx=".95" fill="#f6f4ee" stroke="rgba(120,104,78,.42)" stroke-width=".5" transform="rotate(26 74.56 52.43)"/><circle cx="74.56" cy="52.43" r="1.25" fill="#dcd8cc" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><circle cx="79.95" cy="55.06" r="1" fill="#dcd8cc" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><line x1="79.95" y1="55.06" x2="81.65" y2="56.66" stroke="#c9c4b6" stroke-width="1.1" stroke-linecap="round"/><circle cx="81.65" cy="56.66" r="1.15" fill="#cf7a4c"/></g>
-<g><ellipse cx="73.63" cy="70.79" rx="3" ry="1.3" fill="rgba(90,80,56,.16)"/><rect x="71.33" y="68.69" width="4.6" height="2.4" rx="1" fill="#e7e4da" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><rect x="72.53" y="65.39" width="2.2" height="3.6" rx="1" fill="#f6f4ee" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><rect x="73.63" y="64.44" width="6.00" height="1.9" rx=".95" fill="#f6f4ee" stroke="rgba(120,104,78,.42)" stroke-width=".5" transform="rotate(-26 73.63 65.39)"/><circle cx="73.63" cy="65.39" r="1.25" fill="#dcd8cc" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><circle cx="68.24" cy="62.76" r="1" fill="#dcd8cc" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><line x1="68.24" y1="62.76" x2="66.54" y2="64.36" stroke="#c9c4b6" stroke-width="1.1" stroke-linecap="round"/><circle cx="66.54" cy="64.36" r="1.15" fill="#cf7a4c"/></g>
-<g><ellipse cx="46.5" cy="50.81" rx="3" ry="1.3" fill="rgba(90,80,56,.16)"/><rect x="44.20" y="48.71" width="4.6" height="2.4" rx="1" fill="#e7e4da" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><rect x="45.40" y="45.41" width="2.2" height="3.6" rx="1" fill="#f6f4ee" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><rect x="46.50" y="44.46" width="6.00" height="1.9" rx=".95" fill="#f6f4ee" stroke="rgba(120,104,78,.42)" stroke-width=".5" transform="rotate(26 46.5 45.41)"/><circle cx="46.5" cy="45.41" r="1.25" fill="#dcd8cc" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><circle cx="51.89" cy="48.04" r="1" fill="#dcd8cc" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><line x1="51.89" y1="48.04" x2="53.59" y2="49.64" stroke="#c9c4b6" stroke-width="1.1" stroke-linecap="round"/><circle cx="53.59" cy="49.64" r="1.15" fill="#cf7a4c"/></g>
-<g class="fd-arm fd-arm-2"><ellipse cx="30.6" cy="62.69" rx="3" ry="1.3" fill="rgba(90,80,56,.16)"/><rect x="28.30" y="60.59" width="4.6" height="2.4" rx="1" fill="#e7e4da" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><rect x="29.50" y="57.29" width="2.2" height="3.6" rx="1" fill="#f6f4ee" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><rect x="30.60" y="56.34" width="6.00" height="1.9" rx=".95" fill="#f6f4ee" stroke="rgba(120,104,78,.42)" stroke-width=".5" transform="rotate(26 30.6 57.29)"/><circle cx="30.6" cy="57.29" r="1.25" fill="#dcd8cc" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><circle cx="35.99" cy="59.92" r="1" fill="#dcd8cc" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><line x1="35.99" y1="59.92" x2="37.69" y2="61.52" stroke="#c9c4b6" stroke-width="1.1" stroke-linecap="round"/><circle cx="37.69" cy="61.52" r="1.15" fill="#cf7a4c"/></g>
-<g><ellipse cx="54.45" cy="70.52" rx="3" ry="1.3" fill="rgba(90,80,56,.16)"/><rect x="52.15" y="68.42" width="4.6" height="2.4" rx="1" fill="#e7e4da" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><rect x="53.35" y="65.12" width="2.2" height="3.6" rx="1" fill="#f6f4ee" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><rect x="54.45" y="64.17" width="6.00" height="1.9" rx=".95" fill="#f6f4ee" stroke="rgba(120,104,78,.42)" stroke-width=".5" transform="rotate(-26 54.45 65.12)"/><circle cx="54.45" cy="65.12" r="1.25" fill="#dcd8cc" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><circle cx="49.06" cy="62.49" r="1" fill="#dcd8cc" stroke="rgba(120,104,78,.42)" stroke-width=".5"/><line x1="49.06" y1="62.49" x2="47.36" y2="64.09" stroke="#c9c4b6" stroke-width="1.1" stroke-linecap="round"/><circle cx="47.36" cy="64.09" r="1.15" fill="#cf7a4c"/></g>
-<circle class="fd-node" cx="74.09" cy="51.09" r="1.05" fill="#cf7a4c"/>
-<circle class="fd-node" cx="89.06" cy="70.53" r="1.05" fill="#cf7a4c"/>
-<circle class="fd-node" cx="53.05" cy="63.24" r="1.05" fill="#cf7a4c"/>
-<circle class="fd-node" cx="43.23" cy="42.99" r="1.05" fill="#cf7a4c"/>
-<circle class="fd-node" cx="47.91" cy="62.43" r="1.05" fill="#cf7a4c"/>
-<circle class="fd-node" cx="25.93" cy="52.98" r="1.05" fill="#cf7a4c"/>
-<circle class="fd-node" cx="37.15" cy="72.42" r="1.05" fill="#cf7a4c"/>
-<circle class="fd-node" cx="68.48" cy="82.41" r="1.05" fill="#cf7a4c"/>
-</svg>`
+<line x1="20.07" y1="58.15" x2="39.89" y2="69.59" stroke="#5f8146" stroke-width=".9" stroke-linecap="round"/>`
+
+// Static scene rendered after the arms (paints on top): water tanks.
+const SCENE_FG = `<g class="fd-water"><ellipse cx="55.39" cy="80.52" rx="3.09" ry="1.78" fill="rgba(70,80,90,.25)"/><rect x="52.30" y="70.26" width="6.17" height="10.26" rx="1.54" fill="#9db2c0"/><ellipse cx="55.39" cy="70.26" rx="3.09" ry="1.78" fill="#c3d2dc"/><ellipse cx="58.66" cy="85.11" rx="2.57" ry="1.49" fill="rgba(70,80,90,.25)"/><rect x="56.09" y="76.47" width="5.14" height="8.64" rx="1.29" fill="#aebfca"/><ellipse cx="58.66" cy="76.47" rx="2.57" ry="1.49" fill="#ccd8e0"/></g>`
+
+// Robotic arm anatomy, all derived from a base point + facing direction so the boom, elbow, and
+// gripper always stay aligned (the old hardcoded SVG drifted out of sync on the left-facing arms).
+const BOOM_LEN = 6
+const GRIP_LEN = 2.3
+const GRIP_KINK = 12 // degrees the gripper folds downward from the boom
+const POST_H = 5.4   // shoulder height above the base center
+const RAD = Math.PI / 180
+
+type Dir = 1 | -1
+
+type RoboticArmProps = {
+  x: number        // base (shadow) center in viewBox units
+  y: number
+  face: number     // rest angle of the boom in degrees (+ = boom tip down, - = up)
+  dir: Dir         // +1 boom extends right, -1 extends left
+  duration: number // pick-and-place cycle length in seconds
+  delay: number    // animation delay in seconds (negative offsets the phase)
+}
+
+function RoboticArm({ x, y, face, dir, duration, delay }: RoboticArmProps) {
+  const sx = x              // the shoulder sits directly above the base center
+  const sy = y - POST_H
+  const boomAngle = dir > 0 ? face : 180 - face
+  const gripAngle = dir > 0 ? face + GRIP_KINK : 180 - face - GRIP_KINK
+  const elbowX = sx + BOOM_LEN * Math.cos(boomAngle * RAD)
+  const elbowY = sy + BOOM_LEN * Math.sin(boomAngle * RAD)
+  const gripX = elbowX + GRIP_LEN * Math.cos(gripAngle * RAD)
+  const gripY = elbowY + GRIP_LEN * Math.sin(gripAngle * RAD)
+  const boomRectX = dir > 0 ? sx : sx - BOOM_LEN
+  const boomRot = dir > 0 ? face : -face
+
+  return (
+    <>
+      {/* Anchor: ground shadow, mount plate, vertical post. Stays put. */}
+      <g className="fd-base">
+        <ellipse cx={x} cy={y} rx={3} ry={1.3} fill="rgba(90,80,56,.16)" />
+        <rect x={x - 2.3} y={y - 2.1} width={4.6} height={2.4} rx={1} fill="#e7e4da" stroke="rgba(120,104,78,.42)" strokeWidth=".5" />
+        <rect x={x - 1.1} y={sy} width={2.2} height={3.6} rx={1} fill="#f6f4ee" stroke="rgba(120,104,78,.42)" strokeWidth=".5" />
+      </g>
+      {/* Boom: pivots around the shoulder (transform-origin set inline) and runs the
+          pick-and-place choreography from CSS (.fd-arm / @keyframes fdPick). */}
+      <g
+        className="fd-arm"
+        style={{
+          transformBox: 'view-box',
+          transformOrigin: `${sx}px ${sy}px`,
+          animationDuration: `${duration}s`,
+          animationDelay: `${delay}s`,
+        }}
+      >
+        <rect
+          x={boomRectX}
+          y={sy - 0.95}
+          width={BOOM_LEN}
+          height={1.9}
+          rx={0.95}
+          fill="#f6f4ee"
+          stroke="rgba(120,104,78,.42)"
+          strokeWidth=".5"
+          transform={`rotate(${boomRot} ${sx} ${sy})`}
+        />
+        <circle cx={sx} cy={sy} r={1.25} fill="#dcd8cc" stroke="rgba(120,104,78,.42)" strokeWidth=".5" />
+        <circle cx={elbowX} cy={elbowY} r={1} fill="#dcd8cc" stroke="rgba(120,104,78,.42)" strokeWidth=".5" />
+        <line x1={elbowX} y1={elbowY} x2={gripX} y2={gripY} stroke="#c9c4b6" strokeWidth={1.1} strokeLinecap="round" />
+      </g>
+    </>
+  )
+}
+
+// One arm per picking station along the rows. Durations/delays are coprime-ish so the arms
+// drift in and out of phase instead of ever moving together.
+const ARMS: RoboticArmProps[] = [
+  { x: 74.56, y: 57.83, face: 26, dir: 1, duration: 15, delay: 0 },
+  { x: 73.63, y: 70.79, face: -26, dir: -1, duration: 18, delay: -7 },
+  { x: 46.5, y: 50.81, face: 26, dir: 1, duration: 17, delay: -3 },
+  { x: 30.6, y: 62.69, face: 26, dir: 1, duration: 14, delay: -10 },
+  { x: 54.45, y: 70.52, face: -26, dir: -1, duration: 19, delay: -5 },
+]
 
 function FarmArchitectureIcon() {
   const ref = useRef<HTMLDivElement>(null)
@@ -122,9 +184,15 @@ function FarmArchitectureIcon() {
         ref={ref}
         className="farm-device"
         role="img"
-        aria-label="A working miniature of a one-hectare plot: crop beds, a glass greenhouse of grow wheels, robotic picking arms tracing their rows, water tanks, sensor nodes, and a robot-transit path."
+        aria-label="A working miniature of a one-hectare plot: crop beds, a glass greenhouse of grow wheels, robotic picking arms tracing their rows, water tanks, and a robot-transit path."
       >
-        <div className="farm-device-screen" dangerouslySetInnerHTML={{ __html: FARM_SCENE }} />
+        <div className="farm-device-screen">
+          <svg className="fd-svg" viewBox="0 0 122 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g dangerouslySetInnerHTML={{ __html: SCENE_BG }} />
+            {ARMS.map((arm, i) => <RoboticArm key={i} {...arm} />)}
+            <g dangerouslySetInnerHTML={{ __html: SCENE_FG }} />
+          </svg>
+        </div>
       </div>
     </div>
   )
@@ -133,22 +201,21 @@ function FarmArchitectureIcon() {
 export default function FarmInstrument() {
   return (
     <section className="farm" aria-label="Future">
-      <div className="farm-head">
-        <div className="farm-lede">
-          <h2>A place to return to</h2>
-          <p>Eventually I&apos;d like to build a small automated farm: berries, greens, a greenhouse, and enough machinery to handle the repetitive work.</p>
-          <p>Not because everything needs to become a dashboard. Mostly because I want a place to come back to, grow real things, and spend more time outside.</p>
-        </div>
+      <header className="farm-title">
+        <h2>A place to return to</h2>
+      </header>
 
-        <figure className="farm-object">
-          <FarmArchitectureIcon />
-        </figure>
+      <div className="farm-frame">
+        <FarmArchitectureIcon />
       </div>
 
-      <figure className="farm-diagram">
-        <div className="farm-diagram-sheet">
-          <img src="/farm-architecture.png" alt="Hand-drawn architecture sketch of the automated plot: beds, greenhouse, water and power, sensor mesh, and rover routing." />
-        </div>
+      <div className="farm-prose">
+        <p>Eventually I&apos;d like to build a small automated farm: berries, greens, a greenhouse, and enough machinery to handle the repetitive work.</p>
+        <p>Not because everything needs to become a dashboard. Mostly because I want a place to come back to, grow real things, and spend more time outside.</p>
+      </div>
+
+      <figure className="farm-sketch">
+        <img src="/farm-architecture.webp" alt="Hand-drawn architecture sketch of the automated plot: beds, greenhouse, water and power, sensor mesh, and rover routing." loading="lazy" decoding="async" />
         <figcaption>farm architecture sketch</figcaption>
       </figure>
     </section>

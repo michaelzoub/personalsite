@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { PiArrowUpRight } from 'react-icons/pi'
 import FarmInstrument from './components/FarmInstrument'
 import { ItemMedia } from './components/ItemMedia'
@@ -101,21 +101,36 @@ function useInterfaceSounds() {
 export default function Home() {
   const [filter, setFilter] = useState<Filter>('All')
   const { playClick } = useInterfaceSounds()
+  const reduceMotion = useReducedMotion()
+  const [firstLoad, setFirstLoad] = useState(true)
   const isMusic = filter === 'Music'
   const isFuture = filter === 'Future'
   const showProjects = filter === 'All' || filter === 'Engineering'
   const showWriting = filter === 'All' || filter === 'Writing'
   const surfaceKey = isMusic ? 'music' : isFuture ? 'future' : 'work'
 
+  // Lead the entrance only on the first paint; filter switches stay instant.
+  useEffect(() => {
+    const timer = setTimeout(() => setFirstLoad(false), 900)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const ease: [number, number, number, number] = [0.23, 1, 0.32, 1]
+  const rise = (delay: number) =>
+    reduceMotion
+      ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: .3, delay: delay * .5 } }
+      : { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: .5, delay, ease } }
+  const cardBase = firstLoad ? .3 : 0
+
   return (
     <main className="editorial">
       <header className="lede">
-        <h1>Michael Zoubkoff</h1>
-        <p>I build software around agents, markets, and interfaces.</p>
-        <p>Right now I&apos;m working on <a className="inline-text-link" href="https://www.rubiconpay.xyz/" target="_blank" rel="noreferrer">Rubicon</a>: payment and access rails for agents that discover, buy, and use online writing.</p>
+        <motion.h1 {...rise(0)}>Michael Zoubkoff</motion.h1>
+        <motion.p {...rise(.07)}>I build software around agents, markets, and interfaces.</motion.p>
+        <motion.p {...rise(.14)}>Right now I&apos;m working on <a className="inline-text-link" href="https://www.rubiconpay.xyz/" target="_blank" rel="noreferrer">Rubicon</a>: payment and access rails for agents that discover, buy, and use online writing.</motion.p>
       </header>
 
-      <div className="editorial-filter-row">
+      <motion.div className="editorial-filter-row" {...rise(.22)}>
         <div className="reference-filter unified-filter" role="group" aria-label="Browse work and personal interests">
           <div className="filter-segment-group" aria-label="Work">
             {workFilters.map((item) => (
@@ -134,7 +149,7 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <div className="editorial-surface">
         <AnimatePresence mode="wait" initial={false}>
@@ -163,17 +178,19 @@ export default function Home() {
                           target={external ? '_blank' : undefined}
                           rel={external ? 'noopener noreferrer' : undefined}
                           className={`work-card${isHero ? ' is-hero' : ''} project-${item.id}`}
-                          initial={{ opacity: 0, y: 14 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * .04, duration: .26, ease: [0.23, 1, 0.32, 1] }}
+                          initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
+                          animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                          transition={{ delay: cardBase + i * .05, duration: .45, ease }}
                         >
                           <div className="work-media"><ItemMedia item={item} sizes={isHero ? '(max-width:820px) 100vw, 560px' : '380px'} /></div>
-                          <div className="work-meta">
-                            <div className="work-meta-row">
-                              <span className="work-name">{item.name}</span>
-                              <span className="work-status">{item.status}</span>
+                          <div className="work-reveal">
+                            <div className="work-meta">
+                              <div className="work-meta-row">
+                                <span className="work-name">{item.name}</span>
+                                <span className="work-status">{item.status}</span>
+                              </div>
+                              <p>{item.description}</p>
                             </div>
-                            <p>{item.description}</p>
                           </div>
                         </motion.a>
                       )
@@ -185,9 +202,9 @@ export default function Home() {
                     {writing.map((item, i) => (
                       <motion.div
                         key={item.id}
-                        initial={{ opacity: 0, y: 14 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: (showProjects ? selectedWork.length : 0) * .04 + i * .04, duration: .26, ease: [0.23, 1, 0.32, 1] }}
+                        initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
+                        animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                        transition={{ delay: cardBase + (showProjects ? selectedWork.length : 0) * .05 + i * .05, duration: .45, ease }}
                       >
                         <Link href={item.url} className="writing-card">
                           <div className="writing-media"><ItemMedia item={item} sizes="(max-width:620px) 100vw, 460px" /></div>

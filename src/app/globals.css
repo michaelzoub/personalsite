@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { --ink:#20201f; --muted:#646462; --paper:#fdfdfc; --card:#ffffff; --line:#e8e8e7; --accent:#a6ceff; --accent-light:#d9eaff; --accent-strong:#7da9f0; --glow:rgba(148,197,255,.5); --ease-out:cubic-bezier(.23,1,.32,1); --r-card:8px; --r-media:4px; --card-gap:12px; --card-pad:10px; --date-ink:#8d8d8c; --content-max:800px; --font-sans:var(--font-inter),"Inter","Helvetica Neue",Helvetica,Arial,sans-serif; --font-mono:var(--font-roboto-mono),"Roboto Mono","SFMono-Regular",Consolas,monospace; }
+:root { --ink:#1a2331; --muted:#5c6774; --paper:#f2f6fd; --card:#ffffff; --line:#e1e8f2; --accent:#a6ceff; --accent-light:#d9eaff; --accent-strong:#7da9f0; --glow:rgba(148,197,255,.5); --ease-out:cubic-bezier(.23,1,.32,1); --r-card:8px; --r-media:4px; --card-gap:12px; --card-pad:10px; --date-ink:#8791a1; --content-max:800px; --font-sans:var(--font-inter),"Inter","Helvetica Neue",Helvetica,Arial,sans-serif; --font-mono:var(--font-roboto-mono),"Roboto Mono","SFMono-Regular",Consolas,monospace; }
 /* One date system: mono, 11px, muted grey, tabular, right-aligned in its row */
 .masonry-card header time,.focus-feed .masonry-card header time,.now-panel-head time,.overview-card time,.overview-focus-card header time,.artifact-card time,.work-card time { font:11px var(--font-mono),monospace; color:var(--date-ink); font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; letter-spacing:0; }
 * { box-sizing:border-box; }
@@ -13,7 +13,9 @@ p { text-wrap:pretty; }
 time { font-variant-numeric:tabular-nums; }
 a { color:inherit; text-decoration:none; }
 button { font:inherit; }
-::selection { background:#e8e8e7; color:var(--ink); }
+::selection { background:#d8e6fb; color:var(--ink); }
+
+.route-loading { min-height:100dvh; display:grid; place-items:center; background:var(--paper); }
 
 .minimal-nav { position:absolute; z-index:30; top:24px; left:38px; right:38px; display:flex; justify-content:space-between; align-items:center; font:12px var(--font-mono),monospace; }
 .minimal-mark { display:inline-flex; align-items:center; gap:12px; padding:6px; margin:-6px; font-weight:700; letter-spacing:-.05em; }
@@ -324,10 +326,6 @@ button { font:inherit; }
   background:linear-gradient(168deg,#f6f3ec 0%,#eef1e6 100%);
   box-shadow:inset 0 1px 2px rgba(120,104,78,.13),inset 0 0 0 1px rgba(124,106,78,.1); }
 .fd-svg { position:absolute; inset:0; width:100%; height:100%; display:block; }
-/* sensor nodes breathe softly */
-.fd-node { animation:fdNode 3.8s ease-in-out infinite; }
-@keyframes fdNode { 0%,100% { opacity:.5; } 50% { opacity:1; } }
-@media (prefers-reduced-motion:reduce) { .fd-node { animation:none; } }
 @media (prefers-reduced-motion:reduce) { .fd-sensors i,.fd-status i { animation:none; } }
 .future-thesis { display:grid; grid-template-columns:1fr 1fr; gap:clamp(28px,6vw,76px); padding:46px 0; border-bottom:1px solid var(--line); }
 .future-thesis p { margin:0; color:#43536a; font-size:16px; line-height:1.72; }
@@ -409,7 +407,7 @@ button { font:inherit; }
 .filter-segment-group { display:flex; align-items:center; gap:2px; }
 .filter-segment-group + .filter-segment-group { position:relative; margin-left:9px; padding-left:10px; }
 .filter-segment-group + .filter-segment-group::before { content:""; position:absolute; top:6px; bottom:6px; left:0; width:1px; background:rgba(0,0,0,.08); }
-.unified-filter button { min-height:30px; padding:5px 11px; border-radius:8px; color:#838381; letter-spacing:-.01em; }
+.unified-filter button { min-height:30px; padding:5px 11px; border-radius:8px; color:#7a8698; letter-spacing:-.01em; }
 .unified-filter button[aria-pressed="true"] { color:var(--ink); }
 .unified-filter .reference-pill { border-radius:8px; background:#ffffff; box-shadow:0 0 0 1px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.06); }
 .unified-filter button:focus-visible { border-radius:8px; box-shadow:0 0 0 2px var(--paper),0 0 0 4px rgba(0,0,0,.18); }
@@ -420,12 +418,12 @@ button { font:inherit; }
 .work-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; align-items:start; }
 .work-card { position:relative; display:flex; flex-direction:column; min-width:0; transition:transform 180ms ease-out; }
 .work-card.is-hero { grid-column:auto; grid-row:auto; }
-.work-name { font-size:13px; font-weight:500; letter-spacing:-.01em; }
-.work-meta { padding:12px 2px 2px; color:var(--muted); }
+.work-name { font-size:13px; font-weight:500; letter-spacing:-.01em; color:var(--ink); }
+.work-meta { padding:12px 0 0; color:var(--muted); }
 .work-meta-row { display:flex; justify-content:space-between; align-items:baseline; gap:16px; }
-.work-status { color:var(--date-ink); font:10px var(--font-mono),monospace; white-space:nowrap; }
-.work-meta p { margin:7px 0 0; max-width:50ch; color:var(--muted); font-size:12px; line-height:1.5; }
-.work-media { position:relative; height:clamp(164px,18vw,202px); overflow:hidden; border-radius:var(--r-media); background:#f0f0ef; }
+.work-status { color:var(--date-ink); font:11px var(--font-mono),monospace; white-space:nowrap; }
+.work-meta p { margin:8px 0 0; max-width:50ch; color:var(--muted); font-size:12px; line-height:1.5; }
+.work-media { position:relative; height:clamp(164px,18vw,202px); overflow:hidden; border-radius:var(--r-media); background:#e9eff8; }
 .work-card.is-hero .work-media { flex:none; height:clamp(164px,18vw,202px); min-height:0; }
 .work-media img,.work-media video { width:100%; height:100%; object-fit:cover; object-position:top; transition:transform 180ms ease-out; }
 .work-media::after { content:""; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 0 1px rgba(0,0,0,.1); pointer-events:none; }
@@ -435,13 +433,13 @@ button { font:inherit; }
 .writing-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
 .writing-grid.after-work { margin-top:clamp(64px,9vh,100px); }
 .writing-card { display:flex; flex-direction:column; min-width:0; height:100%; transition:transform 180ms ease-out; }
-.writing-media { position:relative; height:clamp(150px,15vw,178px); overflow:hidden; border-radius:var(--r-media); background:#f0f0ef; }
+.writing-media { position:relative; height:clamp(150px,15vw,178px); overflow:hidden; border-radius:var(--r-media); background:#e9eff8; }
 .writing-media img { width:100%; height:100%; object-fit:cover; object-position:top; transition:transform 180ms ease-out; }
 .writing-media::after { content:""; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 0 1px rgba(0,0,0,.1); pointer-events:none; }
-.writing-body { flex:1; padding:12px 2px 2px; color:var(--muted); }
-.writing-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:18px; }
-.writing-body h3 { margin:0; font-size:13px; line-height:1.45; font-weight:500; letter-spacing:-.01em; }
-.writing-body p { margin:7px 0 0; max-width:52ch; color:var(--muted); font-size:12px; line-height:1.5; }
+.writing-body { flex:1; padding:12px 0 0; color:var(--muted); }
+.writing-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+.writing-body h3 { margin:0; font-size:13px; line-height:1.45; font-weight:500; letter-spacing:-.01em; color:var(--ink); }
+.writing-body p { margin:8px 0 0; max-width:52ch; color:var(--muted); font-size:12px; line-height:1.5; }
 .writing-meta { display:inline-flex; align-items:center; gap:8px; flex:none; color:var(--date-ink); font:11px var(--font-mono),monospace; font-variant-numeric:tabular-nums; }
 .writing-meta svg { width:14px; height:14px; stroke-width:1.4; transition:transform 180ms ease-out; }
 .writing-card:active { transform:scale(.99); }
@@ -452,38 +450,52 @@ button { font:inherit; }
 
 .editorial-surface { padding-bottom:clamp(88px,14vh,160px); }
 
-/* Future — personal note, then a working miniature, then the engineering sketch. */
-.farm { display:flex; flex-direction:column; gap:clamp(30px,4.5vh,46px); padding-top:2px; }
-.farm-head { display:grid; grid-template-columns:minmax(0,1fr) 264px; column-gap:clamp(28px,4.5vw,56px); align-items:start; }
-.farm-lede { max-width:560px; }
-.farm-lede h2 { margin:0; font-size:clamp(20px,1.9vw,24px); line-height:1.2; font-weight:590; letter-spacing:-.025em; }
-.farm-lede p { margin:18px 0 0; color:var(--muted); font-size:clamp(15px,1.35vw,16px); line-height:1.68; }
-.farm-object { display:flex; flex-direction:column; align-items:center; margin:0; padding-top:4px; }
+/* Future — a quiet article column: small title, framed miniature, prose, then the sketch. */
+.farm { width:100%; max-width:none; margin:0; padding-top:2px; }
+.farm-title { display:flex; justify-content:space-between; align-items:baseline; gap:16px; }
+.farm-title h2 { margin:0; font-size:13px; font-weight:500; letter-spacing:-.01em; }
+.farm-title span { color:var(--date-ink); font:10px var(--font-mono),monospace; letter-spacing:.02em; }
+.farm-frame { display:grid; place-items:center; margin:16px 0 0; padding:clamp(32px,7vw,60px) 24px; border-radius:12px; background:var(--card); box-shadow:inset 0 0 0 1px rgba(0,0,0,.08); }
+.farm-prose { margin-top:28px; }
+.farm-prose p { margin:0 0 16px; max-width:60ch; color:var(--muted); font-size:15px; line-height:1.68; letter-spacing:-.006em; }
+.farm-prose p:last-child { margin-bottom:0; }
+.farm-sketch { margin:clamp(40px,6vh,56px) 0 0; }
+.farm-sketch img { display:block; width:100%; height:auto; border-radius:8px; outline:1px solid rgba(0,0,0,.1); outline-offset:-1px; background:#fff; }
+.farm-sketch figcaption { margin:11px 0 0 2px; color:var(--date-ink); font:10px var(--font-mono),monospace; letter-spacing:.02em; }
 
-/* Enlarged, gently alive miniature: idle float on the frame, cursor-lean on the device. */
+/* The miniature: cursor-lean on the device, arms that stir only once in a while. */
 .farm-architecture-icon { position:relative; width:100%; height:auto; display:grid; place-items:center; justify-self:auto; overflow:visible; perspective:900px; }
-.farm-device { width:min(248px,64vw); height:min(248px,64vw); border-radius:42px; background:#fff; box-shadow:0 18px 40px -24px rgba(15,28,48,.24),0 2px 8px rgba(15,28,48,.06),inset 0 0 0 1px rgba(15,28,48,.07); transform:rotateX(0deg) rotateY(0deg); transform-style:preserve-3d; transition:transform 220ms var(--ease-out),box-shadow 220ms ease; }
+.farm-device { width:min(232px,62vw); height:min(232px,62vw); border-radius:40px; background:#fff; box-shadow:0 18px 40px -24px rgba(15,28,48,.24),0 2px 8px rgba(15,28,48,.06),inset 0 0 0 1px rgba(15,28,48,.07); transform:rotateX(0deg) rotateY(0deg); transform-style:preserve-3d; transition:transform 220ms var(--ease-out),box-shadow 220ms ease; }
 .farm-device::before { background:linear-gradient(145deg,rgba(255,255,255,.9),rgba(255,255,255,0) 38%); }
 .farm-device::after { opacity:.025; }
-.farm-device-screen { inset:18px; border-radius:23px; background:#fbfcfa; box-shadow:inset 0 0 0 1px rgba(15,28,48,.07); }
+.farm-device-screen { inset:17px; border-radius:22px; background:#fbfcfa; box-shadow:inset 0 0 0 1px rgba(15,28,48,.07); }
 .fd-flow { animation:fdFlow 5.5s linear infinite; }
 @keyframes fdFlow { to { stroke-dashoffset:-38; } }
 .fd-glass { transform-box:fill-box; animation:fdGlass 5.5s ease-in-out infinite; }
 @keyframes fdGlass { 0%,100% { opacity:.55; } 50% { opacity:1; } }
-.fd-arm { transform-box:fill-box; transform-origin:center; animation:fdArm 5s ease-in-out infinite; }
-.fd-arm-2 { animation-duration:5.8s; animation-delay:-2s; }
-@keyframes fdArm { 0%,100% { transform:rotate(0deg); } 50% { transform:rotate(-3.5deg); } }
+/* Robotic picking arms: each pivots around its own shoulder joint (transform-origin set inline
+   per arm) and runs a pick-and-place choreography — neutral → reach down → lift → swing aside →
+   return — on a long, staggered cycle so the plot feels alive without any two arms moving in sync. */
+.fd-arm { transform-box:view-box; animation:fdPick 18s ease-in-out infinite; }
+@keyframes fdPick {
+  0%,50% { transform:rotate(0deg); }
+  58%,63% { transform:rotate(16deg); }
+  70% { transform:rotate(-8deg); }
+  80%,86% { transform:rotate(-24deg); }
+  94%,100% { transform:rotate(0deg); }
+}
 @media (hover:hover) and (pointer:fine) { .farm-device:hover { box-shadow:0 22px 46px -25px rgba(15,28,48,.28),0 3px 10px rgba(15,28,48,.07),inset 0 0 0 1px rgba(15,28,48,.07); } }
 @media (prefers-reduced-motion:reduce) { .fd-flow,.fd-glass,.fd-arm { animation:none; } }
-
-.farm-diagram { width:min(100%,660px); margin:0; }
-.farm-diagram figcaption { margin:11px 0 0 2px; color:#7f8998; font:10px var(--font-mono),monospace; letter-spacing:.02em; }
-.farm-diagram-sheet { overflow:hidden; border:1px solid rgba(77,94,115,.11); border-radius:10px; background:rgba(255,255,255,.58); box-shadow:0 12px 38px -34px rgba(15,28,48,.3); }
-.farm-diagram img { display:block; width:100%; height:auto; background:#fff; opacity:.92; }
 
 @media (hover:hover) and (pointer:fine) {
   .work-card:hover { transform:translateY(-2px); }
   .work-card:hover .work-media img,.work-card:hover .work-media video { transform:scale(1.02); }
+  /* Quiet thumbnails on hover devices: hovering the grid reveals every card's title + description
+     at once, so all cards keep the same height and the hitbox never resets when moving between them. */
+  .work-reveal { display:grid; grid-template-rows:minmax(0,0fr); transition:grid-template-rows 220ms var(--ease-out); }
+  .work-reveal > .work-meta { min-height:0; overflow:hidden; opacity:0; transform:translateY(4px); transition:opacity 140ms ease,transform 220ms var(--ease-out); }
+  .work-grid:hover .work-reveal,.work-grid:focus-within .work-reveal { grid-template-rows:minmax(0,1fr); transition-duration:320ms; }
+  .work-grid:hover .work-reveal > .work-meta,.work-grid:focus-within .work-reveal > .work-meta { opacity:1; transform:translateY(0); transition-duration:240ms; transition-delay:60ms; }
   .writing-card:hover { transform:translateY(-2px); }
   .writing-card:hover .writing-media img { transform:scale(1.02); }
   .writing-card:hover .writing-meta svg { transform:translate(2px,-2px); }
@@ -493,7 +505,6 @@ button { font:inherit; }
   .work-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .work-card.is-hero { grid-column:auto; grid-row:auto; }
   .work-card.is-hero .work-media { flex:none; height:clamp(180px,28vw,220px); min-height:0; }
-  .farm-head { grid-template-columns:minmax(0,1fr) 228px; column-gap:28px; }
 }
 
 @media (max-width:620px) {
@@ -507,9 +518,8 @@ button { font:inherit; }
   .work-media,.work-card.is-hero .work-media { height:clamp(210px,56vw,300px); }
   .writing-grid { grid-template-columns:1fr; }
   .editorial-music { height:calc(100dvh - 260px); min-height:420px; }
-  .farm-head { grid-template-columns:1fr; row-gap:26px; }
-  .farm-object { align-items:flex-start; margin:0; padding:2px 0 0; }
-  .farm-diagram figcaption { font-size:8px; }
+  .farm-frame { padding:clamp(28px,9vw,44px) 18px; border-radius:10px; }
+  .farm-sketch figcaption { font-size:9px; }
 }
 
 /* Essays — quiet journal typography with an unobtrusive section rail. */

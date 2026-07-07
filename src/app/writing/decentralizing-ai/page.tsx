@@ -1,6 +1,18 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { LuArrowLeft } from 'react-icons/lu'
 import ArticleSectionNav from '@/app/components/ArticleSectionNav'
+
+export const metadata: Metadata = {
+  title: 'The war against frontier labs: decentralizing AI',
+  description: 'Why access to intelligence should remain contestable, and why decentralized training and open weights matter.',
+  openGraph: {
+    title: 'The war against frontier labs: decentralizing AI',
+    description: 'Why access to intelligence should remain contestable, and why decentralized training and open weights matter.',
+    type: 'article',
+    images: ['/writing/decentralizing-ai/cover.jpg'],
+  },
+}
 
 const sections = [
   { id: 'top', label: 'Introduction' },
