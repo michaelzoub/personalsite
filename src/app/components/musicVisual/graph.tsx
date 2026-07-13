@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BoxGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, TextureLoader } from 'three'
 import SpriteText from 'three-spritetext'
 import { motion, useReducedMotion } from 'motion/react'
+import { playUiSound } from '../sound'
 
 type Genre = 'Electronic' | 'Rap' | 'Techno' | 'Ambient' | 'Jazz' | 'Indie' | 'R&B'
 type Track = { id: string; title: string; artist: string; genre: Genre; cover: string }
@@ -245,28 +246,6 @@ export default function Graph() {
   const [preloaded,setPreloaded] = useState<Track|null>(null)
   const preloadTimer = useRef<ReturnType<typeof setTimeout>|null>(null)
   const reduceMotion = useReducedMotion()
-  const audioRef = useRef<AudioContext | null>(null)
-
-  const playNodeSelect = useCallback(() => {
-    const AudioContextClass = window.AudioContext ?? window.webkitAudioContext
-    if (!AudioContextClass) return
-    const context = audioRef.current ?? new AudioContextClass()
-    audioRef.current = context
-    void context.resume()
-    const now = context.currentTime
-    const oscillator = context.createOscillator()
-    const gain = context.createGain()
-    oscillator.type = 'triangle'
-    oscillator.frequency.setValueAtTime(360, now)
-    oscillator.frequency.exponentialRampToValueAtTime(680, now + .06)
-    gain.gain.setValueAtTime(.0001, now)
-    gain.gain.exponentialRampToValueAtTime(.022, now + .006)
-    gain.gain.exponentialRampToValueAtTime(.0001, now + .085)
-    oscillator.connect(gain).connect(context.destination)
-    oscillator.start(now)
-    oscillator.stop(now + .09)
-  }, [])
-
   useEffect(() => {
     const preconnect = document.createElement('link')
     preconnect.rel = 'preconnect'
@@ -275,7 +254,6 @@ export default function Graph() {
     return () => {
       preconnect.remove()
       if (preloadTimer.current) clearTimeout(preloadTimer.current)
-      audioRef.current?.close()
     }
   }, [])
 
@@ -289,10 +267,10 @@ export default function Graph() {
 
   const selectTrack = useCallback((track:Track) => {
     if (preloadTimer.current) clearTimeout(preloadTimer.current)
-    playNodeSelect()
+    playUiSound('music-select')
     setPreloaded(track)
     setSelected(track)
-  }, [playNodeSelect])
+  }, [])
 
   return <motion.section
     className="simple-music dense-music-graph"

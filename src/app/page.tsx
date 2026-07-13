@@ -175,7 +175,7 @@ export default function Home() {
                           rel={external ? 'noopener noreferrer' : undefined}
                           className={`work-card${isHero ? ' is-hero' : ''} project-${item.id}`}
                           initial={cardInitial}
-                          animate={{ opacity: 1, transform: 'translateY(0)' }}
+                          animate={{ opacity: 1 }}
                           transition={{ delay: firstLoad ? cardBase + i * .035 : 0, duration: firstLoad ? .54 : 0, ease }}
                         >
                           <div className="work-media"><ItemMedia item={item} sizes={isHero ? '(max-width:820px) 100vw, 560px' : '380px'} priority={i < 3} /></div>
@@ -199,7 +199,7 @@ export default function Home() {
                       <motion.div
                         key={item.id}
                         initial={cardInitial}
-                        animate={{ opacity: 1, transform: 'translateY(0)' }}
+                        animate={{ opacity: 1 }}
                         transition={{ delay: firstLoad ? cardBase + (showProjects ? selectedWork.length : 0) * .035 + i * .035 : 0, duration: firstLoad ? .54 : 0, ease }}
                       >
                         <Link href={item.url} className="writing-card">
