@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "./components/navbar";
+import { RouteTransition } from "./components/RouteTransition";
+import { AudioFeedback } from "./components/AudioFeedback";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,7 +37,8 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${robotoMono.variable}`}>
       <body>
         <Navbar />
-        {children}
+        <AudioFeedback />
+        <RouteTransition>{children}</RouteTransition>
         </body>
     </html>
   );

@@ -3,10 +3,10 @@
 import R3fForceGraph from 'r3f-forcegraph'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { TrackballControls } from '@react-three/drei'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BoxGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, TextureLoader } from 'three'
 import SpriteText from 'three-spritetext'
-import { AnimatePresence, motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 
 type Genre = 'Electronic' | 'Rap' | 'Techno' | 'Ambient' | 'Jazz' | 'Indie' | 'R&B'
 type Track = { id: string; title: string; artist: string; genre: Genre; cover: string }
@@ -76,6 +76,8 @@ const tracks: Track[] = [
   { id:'4KXASWZfC8ZCZpiJhlVqXK',title:'Rosinenbomber',artist:'Pan-Pot',genre:'Techno',cover:'https://i.scdn.co/image/ab67616d0000b273c73773804952319805b49f7a' },
 ]
 
+const tracksById = new Map(tracks.map((track) => [track.id, track]))
+
 const genrePositions: Record<Genre,{x:number;y:number;z:number}> = {
   Electronic:{x:0,y:92,z:0},
   Techno:{x:0,y:60,z:0},
@@ -87,16 +89,38 @@ const genrePositions: Record<Genre,{x:number;y:number;z:number}> = {
 }
 const genres = Object.keys(genrePositions) as Genre[]
 
-function GraphScene({ onSelect }: { onSelect:(track:Track)=>void }) {
+function GraphScene({ onHover, onSelect }: { onHover:(track:Track|null)=>void; onSelect:(track:Track)=>void }) {
   const graph = useRef<any>(null)
   const cards = useRef(new Map<string, Group>())
-  const { camera, gl } = useThree()
+  const coverMaterials = useRef(new Set<MeshBasicMaterial>())
+  const cleanupTimer = useRef<ReturnType<typeof setTimeout>|null>(null)
+  const { camera, gl, invalidate } = useThree()
   const loader = useMemo(() => new TextureLoader(), [])
   const maxAnisotropy = useMemo(() => gl.capabilities.getMaxAnisotropy(), [gl])
+  const bodyGeometry = useMemo(() => new BoxGeometry(22,22,1.6), [])
+  const coverGeometry = useMemo(() => new PlaneGeometry(20.8,20.8), [])
+  const bodyMaterial = useMemo(() => new MeshStandardMaterial({ color:'#e7e4de', roughness:.48, metalness:.06 }), [])
   useFrame(() => {
     graph.current?.tickFrame()
     cards.current.forEach((card) => card.quaternion.copy(camera.quaternion))
   })
+
+  useEffect(() => {
+    if (cleanupTimer.current) clearTimeout(cleanupTimer.current)
+    return () => {
+      cleanupTimer.current = setTimeout(() => {
+        cards.current.clear()
+        coverMaterials.current.forEach((material) => {
+          material.map?.dispose()
+          material.dispose()
+        })
+        coverMaterials.current.clear()
+        bodyGeometry.dispose()
+        coverGeometry.dispose()
+        bodyMaterial.dispose()
+      }, 0)
+    }
+  }, [bodyGeometry, bodyMaterial, coverGeometry])
 
   const data = useMemo(() => {
     const genreCounts = tracks.reduce<Record<Genre, number>>((acc, track) => {
@@ -168,19 +192,21 @@ function GraphScene({ onSelect }: { onSelect:(track:Track)=>void }) {
       label.material.depthWrite = false
       return label
     }
-    const track = tracks.find((item) => item.id === node.id)!
+    const track = tracksById.get(node.id)!
     const group = new Group()
-    const texture = loader.load(track.cover)
+    const texture = loader.load(track.cover, () => invalidate())
     texture.colorSpace = 'srgb'
-    texture.anisotropy = maxAnisotropy
+    texture.anisotropy = Math.min(maxAnisotropy, 8)
+    const coverMaterial = new MeshBasicMaterial({ map:texture, side:DoubleSide })
+    coverMaterials.current.add(coverMaterial)
     const body = new Mesh(
-      new BoxGeometry(22,22,1.6),
-      new MeshStandardMaterial({ color:'#e7e4de', roughness:.48, metalness:.06 }),
+      bodyGeometry,
+      bodyMaterial,
     )
     group.add(body)
     const cover = new Mesh(
-      new PlaneGeometry(20.8,20.8),
-      new MeshBasicMaterial({ map:texture, side:DoubleSide }),
+      coverGeometry,
+      coverMaterial,
     )
     cover.position.z = 1.05
     group.add(cover)
@@ -195,7 +221,7 @@ function GraphScene({ onSelect }: { onSelect:(track:Track)=>void }) {
     label.material.depthWrite = false
     group.add(label)
     return group
-  }, [loader, maxAnisotropy])
+  }, [bodyGeometry, bodyMaterial, coverGeometry, invalidate, loader, maxAnisotropy])
 
   return <R3fForceGraph
     ref={graph}
@@ -208,32 +234,98 @@ function GraphScene({ onSelect }: { onSelect:(track:Track)=>void }) {
     nodeThreeObject={makeNode}
     linkColor={() => '#191919'}
     linkWidth={.22}
-    linkOpacity={.62}
-    linkDirectionalParticles={1}
-    linkDirectionalParticleWidth={.45}
-    linkDirectionalParticleSpeed={.0025}
-    onNodeClick={(node:any) => { const track = tracks.find((item) => item.id === node.id); if (track) onSelect(track) }}
+    linkOpacity={.52}
+    onNodeHover={(node:any) => onHover(node?.kind === 'track' ? tracksById.get(node.id) ?? null : null)}
+    onNodeClick={(node:any) => { const track = tracksById.get(node.id); if (track) onSelect(track) }}
   />
 }
 
 export default function Graph() {
   const [selected,setSelected] = useState<Track|null>(null)
-  return <section className="simple-music dense-music-graph">
-    <div className="simple-music-canvas">
-      <Canvas flat dpr={[1, 2]} camera={{ position:[78,48,245], far:3000 }}>
+  const [preloaded,setPreloaded] = useState<Track|null>(null)
+  const preloadTimer = useRef<ReturnType<typeof setTimeout>|null>(null)
+  const reduceMotion = useReducedMotion()
+  const audioRef = useRef<AudioContext | null>(null)
+
+  const playNodeSelect = useCallback(() => {
+    const AudioContextClass = window.AudioContext ?? window.webkitAudioContext
+    if (!AudioContextClass) return
+    const context = audioRef.current ?? new AudioContextClass()
+    audioRef.current = context
+    void context.resume()
+    const now = context.currentTime
+    const oscillator = context.createOscillator()
+    const gain = context.createGain()
+    oscillator.type = 'triangle'
+    oscillator.frequency.setValueAtTime(360, now)
+    oscillator.frequency.exponentialRampToValueAtTime(680, now + .06)
+    gain.gain.setValueAtTime(.0001, now)
+    gain.gain.exponentialRampToValueAtTime(.022, now + .006)
+    gain.gain.exponentialRampToValueAtTime(.0001, now + .085)
+    oscillator.connect(gain).connect(context.destination)
+    oscillator.start(now)
+    oscillator.stop(now + .09)
+  }, [])
+
+  useEffect(() => {
+    const preconnect = document.createElement('link')
+    preconnect.rel = 'preconnect'
+    preconnect.href = 'https://open.spotify.com'
+    document.head.append(preconnect)
+    return () => {
+      preconnect.remove()
+      if (preloadTimer.current) clearTimeout(preloadTimer.current)
+      audioRef.current?.close()
+    }
+  }, [])
+
+  const preload = useCallback((track:Track|null) => {
+    if (preloadTimer.current) clearTimeout(preloadTimer.current)
+    if (!track || selected) return
+    preloadTimer.current = setTimeout(() => {
+      setPreloaded((current) => current?.id === track.id ? current : track)
+    }, 120)
+  }, [selected])
+
+  const selectTrack = useCallback((track:Track) => {
+    if (preloadTimer.current) clearTimeout(preloadTimer.current)
+    playNodeSelect()
+    setPreloaded(track)
+    setSelected(track)
+  }, [playNodeSelect])
+
+  return <motion.section
+    className="simple-music dense-music-graph"
+    initial={reduceMotion ? { opacity:0 } : { opacity:0, transform:'scale(.995)' }}
+    animate={{ opacity:1, transform:'scale(1)' }}
+    transition={{ duration:reduceMotion ? .12 : .28, ease:[.23,1,.32,1] }}
+  >
+    <div className="simple-music-canvas" role="application" aria-label="Interactive map of music by genre">
+      <Canvas
+        flat
+        dpr={[1, 2]}
+        gl={{ antialias:true, alpha:false, powerPreference:'high-performance' }}
+        camera={{ position:[78,48,245], far:3000 }}
+      >
         <color attach="background" args={['#fafcff']} />
         <ambientLight intensity={2.2} />
         <directionalLight position={[90,110,160]} intensity={3.4} />
         <directionalLight position={[-80,-40,-100]} intensity={1.1} />
-        <TrackballControls rotateSpeed={3.2} panSpeed={1.1} zoomSpeed={1.25} dynamicDampingFactor={.14} />
-        <GraphScene onSelect={setSelected} />
+        <TrackballControls rotateSpeed={2.6} panSpeed={.95} zoomSpeed={1.1} dynamicDampingFactor={.18} />
+        <GraphScene onHover={preload} onSelect={selectTrack} />
       </Canvas>
-      <AnimatePresence mode="wait">
-        {selected && <motion.aside key={selected.id} className="track-panel simple-track-panel" initial={{opacity:0,transform:'translateY(8px) scale(.98)'}} animate={{opacity:1,transform:'translateY(0) scale(1)'}} exit={{opacity:0,transform:'translateY(5px) scale(.98)'}} transition={{duration:.18,ease:[.23,1,.32,1]}}>
-          <div className="track-meta"><img src={selected.cover} alt="" /><div><small>{selected.genre}</small><h2>{selected.title}</h2><p>{selected.artist}</p></div><button onClick={() => setSelected(null)} aria-label="Close player">×</button></div>
-          <iframe title={`Listen to ${selected.title}`} src={`https://open.spotify.com/embed/track/${selected.id}`} width="100%" height="80" allow="encrypted-media" loading="lazy" />
-        </motion.aside>}
-      </AnimatePresence>
+      {preloaded && <motion.aside
+        className={`track-panel simple-track-panel spotify-player${selected ? ' is-visible' : ''}`}
+        aria-hidden={!selected}
+        initial={false}
+        animate={selected
+          ? { opacity:1, transform:'translateY(0) scale(1)' }
+          : { opacity:0, transform:reduceMotion ? 'none' : 'translateY(6px) scale(.985)' }}
+        transition={{duration:reduceMotion ? .1 : .18,ease:selected ? [.23,1,.32,1] : [.4,0,1,1]}}
+      >
+        <div className="track-meta"><img src={preloaded.cover} alt="" /><div><small>{preloaded.genre}</small><h2>{preloaded.title}</h2><p>{preloaded.artist}</p></div><button onClick={() => setSelected(null)} aria-label="Close player" tabIndex={selected ? 0 : -1}>×</button></div>
+        <iframe title={`Listen to ${preloaded.title}`} src={`https://open.spotify.com/embed/track/${preloaded.id}`} width="100%" height="80" allow="encrypted-media" tabIndex={selected ? 0 : -1} />
+      </motion.aside>}
     </div>
-  </section>
+  </motion.section>
 }

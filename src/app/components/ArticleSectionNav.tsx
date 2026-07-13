@@ -10,37 +10,12 @@ const prefersInstantScroll = () => window.matchMedia('(prefers-reduced-motion: r
 
 export default function ArticleSectionNav({ sections }: { sections: ArticleSection[] }) {
   const [active, setActive] = useState(sections[0]?.id ?? '')
-  const audioRef = useRef<AudioContext | null>(null)
   const settleLockRef = useRef(false)
   const settleTimerRef = useRef(0)
   const targetRef = useRef<string | null>(null)
   const retryRef = useRef(0)
   const settleRef = useRef<() => void>(() => {})
   const reduceMotion = useReducedMotion()
-
-  const playDetent = useCallback(() => {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext
-    if (!AudioContextClass) return
-    const context = audioRef.current ?? new AudioContextClass()
-    audioRef.current = context
-    void context.resume()
-
-    const now = context.currentTime
-    const oscillator = context.createOscillator()
-    const gain = context.createGain()
-    const filter = context.createBiquadFilter()
-    oscillator.type = 'triangle'
-    oscillator.frequency.setValueAtTime(1240, now)
-    oscillator.frequency.exponentialRampToValueAtTime(820, now + .026)
-    filter.type = 'lowpass'
-    filter.frequency.setValueAtTime(2400, now)
-    gain.gain.setValueAtTime(.0001, now)
-    gain.gain.exponentialRampToValueAtTime(.025, now + .003)
-    gain.gain.exponentialRampToValueAtTime(.0001, now + .04)
-    oscillator.connect(filter).connect(gain).connect(context.destination)
-    oscillator.start(now)
-    oscillator.stop(now + .045)
-  }, [])
 
   useEffect(() => {
     let frame = 0
@@ -121,7 +96,6 @@ export default function ArticleSectionNav({ sections }: { sections: ArticleSecti
     event.preventDefault()
     const target = document.getElementById(id)
     if (!target) return
-    playDetent()
     // Hold the scroll spy while the page glides so the marker doesn't sweep
     // back through every section between here and the target; the settle pass
     // re-checks the landing spot once the glide stops.
@@ -133,7 +107,7 @@ export default function ArticleSectionNav({ sections }: { sections: ArticleSecti
     target.scrollIntoView({ behavior: prefersInstantScroll() ? 'auto' : 'smooth', block: 'start' })
     window.history.replaceState(null, '', `#${id}`)
     setActive(id)
-  }, [playDetent])
+  }, [])
 
   return <nav className="article-section-nav" aria-label="Article sections">
     <ol>

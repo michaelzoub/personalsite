@@ -1,17 +1,29 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { FaGithub } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import { PiArrowUpRight } from 'react-icons/pi'
+import { DotmCircular3 } from '@/components/ui/dotm-circular-3'
 import FarmInstrument from './components/FarmInstrument'
 import { ItemMedia } from './components/ItemMedia'
 import { projects } from './data/projects'
 
-const MusicGraph = dynamic(() => import('./components/musicVisual/graph'), { ssr: false })
+function MusicStageLoading() {
+  return (
+    <div className="music-stage-loading" role="status" aria-label="Loading music map">
+      <DotmCircular3 color="var(--accent-strong)" size={30} dotSize={4} ariaLabel="Loading music map" />
+    </div>
+  )
+}
+
+const MusicGraph = dynamic(() => import('./components/musicVisual/graph'), {
+  ssr: false,
+  loading: MusicStageLoading,
+})
 
 const filters = ['All', 'Engineering', 'Writing', 'Music', 'Future'] as const
 const workFilters = ['All', 'Engineering', 'Writing'] as const
@@ -47,78 +59,20 @@ const selectedWork = [
   ...projects.filter((p) => p.id !== 'rubicon'),
 ]
 
-declare global {
-  interface Window { webkitAudioContext?: typeof AudioContext }
-}
-
-function useInterfaceSounds() {
-  const contextRef = useRef<AudioContext | null>(null)
-  const readyRef = useRef(false)
-
-  // A watch-crown detent: tiny, high, dry, and over before it calls attention to itself.
-  const click = useCallback((context: AudioContext) => {
-    const now = context.currentTime
-    const oscillator = context.createOscillator()
-    const gain = context.createGain()
-    const filter = context.createBiquadFilter()
-    filter.type = 'bandpass'
-    filter.frequency.setValueAtTime(3200, now)
-    filter.Q.setValueAtTime(2.4, now)
-    oscillator.type = 'square'
-    oscillator.frequency.setValueAtTime(3600, now)
-    oscillator.frequency.exponentialRampToValueAtTime(2100, now + .012)
-    gain.gain.setValueAtTime(.0001, now)
-    gain.gain.exponentialRampToValueAtTime(.016, now + .0015)
-    gain.gain.exponentialRampToValueAtTime(.0001, now + .018)
-    oscillator.connect(filter).connect(gain).connect(context.destination)
-    oscillator.start(now)
-    oscillator.stop(now + .02)
-  }, [])
-
-  useEffect(() => {
-    const enable = () => {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext
-      if (!AudioContextClass) return
-      contextRef.current ??= new AudioContextClass()
-      void contextRef.current.resume()
-      readyRef.current = true
-    }
-    const options = { passive: true } as AddEventListenerOptions
-    window.addEventListener('wheel', enable, options)
-    window.addEventListener('touchstart', enable, options)
-    window.addEventListener('pointerdown', enable, options)
-    window.addEventListener('keydown', enable)
-    return () => {
-      window.removeEventListener('wheel', enable)
-      window.removeEventListener('touchstart', enable)
-      window.removeEventListener('pointerdown', enable)
-      window.removeEventListener('keydown', enable)
-    }
-  }, [click])
-
-  const playClick = useCallback(() => {
-    const context = contextRef.current
-    if (!context || !readyRef.current) return
-    click(context)
-  }, [click])
-
-  return { playClick }
-}
-
 export default function Home() {
   const [filter, setFilter] = useState<Filter>('All')
-  const { playClick } = useInterfaceSounds()
+  const [animateSurface, setAnimateSurface] = useState(true)
   const reduceMotion = useReducedMotion()
   const [firstLoad, setFirstLoad] = useState(true)
   const isMusic = filter === 'Music'
   const isFuture = filter === 'Future'
   const showProjects = filter === 'All' || filter === 'Engineering'
   const showWriting = filter === 'All' || filter === 'Writing'
-  const surfaceKey = isMusic ? 'music' : isFuture ? 'future' : 'work'
+  const surfaceKey = filter.toLowerCase()
 
   // Lead the entrance only on the first paint; filter switches stay instant.
   useEffect(() => {
-    const timer = setTimeout(() => setFirstLoad(false), 900)
+    const timer = setTimeout(() => setFirstLoad(false), 520)
     return () => clearTimeout(timer)
   }, [])
 
@@ -127,18 +81,27 @@ export default function Home() {
   const fadeIn = (delay: number) => ({
     initial: { opacity: 0 },
     animate: { opacity: 1 },
-    transition: { duration: reduceMotion ? .3 : .55, delay: reduceMotion ? delay * .5 : delay, ease: 'easeOut' as const },
+    transition: { duration: reduceMotion ? .16 : .54, delay: reduceMotion ? 0 : delay, ease: 'easeOut' as const },
   })
   // The segmented control doesn't slide in — it seats into the page: slightly
   // raised and soft, then settles flush and sharp.
   const embed = reduceMotion
-    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: .3, delay: .14 } }
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: .16, delay: 0 } }
     : {
-        initial: { opacity: 0, scale: 1.04, filter: 'blur(3px)' },
-        animate: { opacity: 1, scale: 1, filter: 'blur(0px)' },
-        transition: { duration: .55, delay: .28, ease },
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        transition: { duration: .54, delay: .12, ease },
       }
-  const cardBase = firstLoad ? .3 : 0
+  const cardBase = .14
+  const cardInitial = firstLoad
+    ? { opacity: 0 }
+    : false
+
+  const selectFilter = (item: Filter, pointerInitiated: boolean) => {
+    if (item === filter) return
+    setAnimateSurface(pointerInitiated)
+    setFilter(item)
+  }
 
   return (
     <main className="editorial">
@@ -164,16 +127,16 @@ export default function Home() {
         <motion.div className="reference-filter unified-filter" role="group" aria-label="Browse work and personal interests" {...embed}>
           <div className="filter-segment-group" aria-label="Work">
             {workFilters.map((item) => (
-              <button key={item} onClick={() => { playClick(); setFilter(item) }} aria-pressed={filter === item}>
-                {filter === item && <motion.span layoutId="filter-pill" className="reference-pill" transition={{ duration: .2, ease: [0.23, 1, 0.32, 1] }} />}
+              <button key={item} onClick={(event) => selectFilter(item, event.detail > 0)} aria-pressed={filter === item}>
+                {filter === item && <motion.span layoutId="filter-pill" className="reference-pill" transition={{ duration: animateSurface && !reduceMotion ? .2 : 0, ease }} />}
                 <span>{item}</span>
               </button>
             ))}
           </div>
           <div className="filter-segment-group personal" aria-label="Personal">
             {personalFilters.map((item) => (
-              <button key={item} onClick={() => { playClick(); setFilter(item) }} aria-pressed={filter === item}>
-                {filter === item && <motion.span layoutId="filter-pill" className="reference-pill" transition={{ duration: .2, ease: [0.23, 1, 0.32, 1] }} />}
+              <button key={item} onClick={(event) => selectFilter(item, event.detail > 0)} aria-pressed={filter === item}>
+                {filter === item && <motion.span layoutId="filter-pill" className="reference-pill" transition={{ duration: animateSurface && !reduceMotion ? .2 : 0, ease }} />}
                 <span>{item}</span>
               </button>
             ))}
@@ -182,13 +145,16 @@ export default function Home() {
       </div>
 
       <div className="editorial-surface">
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
             key={surfaceKey}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: .16, ease: 'easeIn' } }}
-            transition={{ duration: .22, ease: 'easeOut' }}
+            className="editorial-view"
+            initial={animateSurface && !reduceMotion ? { opacity: 0, transform: 'translateY(6px)' } : false}
+            animate={{ opacity: 1, transform: 'translateY(0)' }}
+            exit={animateSurface && !reduceMotion
+              ? { opacity: 0, transform: 'translateY(-3px)', transition: { duration: .11, ease: 'easeIn' } }
+              : { opacity: 0, transition: { duration: .06 } }}
+            transition={{ duration: animateSurface && !reduceMotion ? .21 : .08, ease }}
           >
             {isMusic ? (
               <div className="editorial-music"><MusicGraph /></div>
@@ -208,11 +174,11 @@ export default function Home() {
                           target={external ? '_blank' : undefined}
                           rel={external ? 'noopener noreferrer' : undefined}
                           className={`work-card${isHero ? ' is-hero' : ''} project-${item.id}`}
-                          initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
-                          animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                          transition={{ delay: cardBase + i * .05, duration: .45, ease }}
+                          initial={cardInitial}
+                          animate={{ opacity: 1, transform: 'translateY(0)' }}
+                          transition={{ delay: firstLoad ? cardBase + i * .035 : 0, duration: firstLoad ? .54 : 0, ease }}
                         >
-                          <div className="work-media"><ItemMedia item={item} sizes={isHero ? '(max-width:820px) 100vw, 560px' : '380px'} /></div>
+                          <div className="work-media"><ItemMedia item={item} sizes={isHero ? '(max-width:820px) 100vw, 560px' : '380px'} priority={i < 3} /></div>
                           <div className="work-reveal">
                             <div className="work-meta">
                               <div className="work-meta-row">
@@ -232,12 +198,12 @@ export default function Home() {
                     {writing.map((item, i) => (
                       <motion.div
                         key={item.id}
-                        initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
-                        animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                        transition={{ delay: cardBase + (showProjects ? selectedWork.length : 0) * .05 + i * .05, duration: .45, ease }}
+                        initial={cardInitial}
+                        animate={{ opacity: 1, transform: 'translateY(0)' }}
+                        transition={{ delay: firstLoad ? cardBase + (showProjects ? selectedWork.length : 0) * .035 + i * .035 : 0, duration: firstLoad ? .54 : 0, ease }}
                       >
                         <Link href={item.url} className="writing-card">
-                          <div className="writing-media"><ItemMedia item={item} sizes="(max-width:620px) 100vw, 460px" /></div>
+                          <div className="writing-media"><ItemMedia item={item} sizes="(max-width:620px) 100vw, 460px" priority={!showProjects} /></div>
                           <div className="writing-body">
                             <div className="writing-heading">
                               <h3>{item.name}</h3>
