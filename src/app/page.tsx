@@ -69,7 +69,9 @@ export default function Home() {
   const isFuture = filter === 'Future'
   const showProjects = filter === 'All' || filter === 'Engineering'
   const showWriting = filter === 'All' || filter === 'Writing'
-  const surfaceKey = filter.toLowerCase()
+  // "All" and "Engineering" share the same project media. Keep that subtree
+  // mounted when moving between the two so an in-progress video is never reset.
+  const surfaceKey = showProjects ? 'work' : filter.toLowerCase()
 
   // Lead the entrance only on the first paint; filter switches stay instant.
   useEffect(() => {

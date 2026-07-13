@@ -25,20 +25,21 @@ export function ItemMedia({ item, sizes, priority = false }: { item: MediaItem; 
   }, [])
 
   if (item.videoUrl) return (
-    <video
-      ref={videoRef}
-      className={className}
-      src={item.videoUrl}
-      autoPlay
-      muted
-      loop
-      playsInline
-      poster={typeof item.screenshotUrl === 'string' ? item.screenshotUrl : undefined}
-      preload="metadata"
-      onCanPlay={markReady}
-      onLoadedData={markReady}
-      onError={markReady}
-    />
+    <>
+      {!ready && <span className="media-loading-skeleton" role="status" aria-label={`Loading ${item.name} preview`} />}
+      <video
+        ref={videoRef}
+        className={className}
+        src={item.videoUrl}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload={priority ? 'auto' : 'metadata'}
+        onCanPlay={markReady}
+        onLoadedData={markReady}
+      />
+    </>
   )
   if (typeof item.screenshotUrl === 'string') return (
     <Image
