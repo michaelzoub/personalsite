@@ -64,6 +64,7 @@ export default function Home() {
   const [animateSurface, setAnimateSurface] = useState(true)
   const reduceMotion = useReducedMotion()
   const [firstLoad, setFirstLoad] = useState(true)
+  const [expandedWorkId, setExpandedWorkId] = useState<string | null>(null)
   const isMusic = filter === 'Music'
   const isFuture = filter === 'Future'
   const showProjects = filter === 'All' || filter === 'Engineering'
@@ -173,7 +174,12 @@ export default function Home() {
                           href={item.url}
                           target={external ? '_blank' : undefined}
                           rel={external ? 'noopener noreferrer' : undefined}
-                          className={`work-card${isHero ? ' is-hero' : ''} project-${item.id}`}
+                          className={`work-card${isHero ? ' is-hero' : ''}${expandedWorkId === item.id ? ' is-expanded' : ''} project-${item.id}`}
+                          onPointerEnter={(event) => {
+                            if (event.pointerType === 'mouse') setExpandedWorkId(item.id)
+                          }}
+                          onFocus={() => setExpandedWorkId(item.id)}
+                          aria-expanded={expandedWorkId === item.id}
                           initial={cardInitial}
                           animate={{ opacity: 1 }}
                           transition={{ delay: firstLoad ? cardBase + i * .035 : 0, duration: firstLoad ? .54 : 0, ease }}

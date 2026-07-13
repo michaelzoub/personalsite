@@ -471,8 +471,8 @@ button { font:inherit; }
   /* A card answers its own hover and focus state; adjacent work stays still. */
   .work-reveal { display:grid; grid-template-rows:minmax(0,0fr); transition:grid-template-rows 220ms var(--ease-out); }
   .work-reveal > .work-meta { min-height:0; overflow:hidden; opacity:0; transform:translateY(3px); transition:opacity 150ms ease,transform 200ms var(--ease-out); }
-  .work-card:hover .work-reveal,.work-card:focus-visible .work-reveal { grid-template-rows:minmax(0,1fr); }
-  .work-card:hover .work-reveal > .work-meta,.work-card:focus-visible .work-reveal > .work-meta { opacity:1; transform:translateY(0); transition-delay:20ms; }
+  .work-card:hover .work-reveal,.work-card:focus-visible .work-reveal,.work-card.is-expanded .work-reveal { grid-template-rows:minmax(0,1fr); }
+  .work-card:hover .work-reveal > .work-meta,.work-card:focus-visible .work-reveal > .work-meta,.work-card.is-expanded .work-reveal > .work-meta { opacity:1; transform:translateY(0); transition-delay:20ms; }
   .writing-card:hover { transform:translateY(-1px); }
   .writing-card:hover .writing-media img { transform:scale(1.012); }
   .writing-card:hover .writing-meta svg { transform:translate(2px,-2px); }
