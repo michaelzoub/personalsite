@@ -49,7 +49,7 @@ export default function BlogList() {
     <section className="simple-writing-list" aria-label="Writing archive">
       {published.map((post, index) => (
         <motion.article key={'href' in post ? post.href : post.id} className="simple-writing-row" initial={{ opacity: 0, transform: 'translateY(10px)' }} animate={{ opacity: 1, transform: 'translateY(0)' }} transition={{ delay: index * .045 }}>
-          <Link href={'href' in post ? post.href : `/${post.name}?id=${post.id}`}>
+          <Link href={'href' in post ? post.href : `/${post.name}?id=${post.id}`} data-sound="none">
             <div><small>Essay / {String(index + 1).padStart(2, '0')}</small><h2>{post.name}</h2><p>{post.description || 'A note from the ongoing archive.'}</p></div>
             <div><time>{post.date}</time><span>↗</span></div>
           </Link>

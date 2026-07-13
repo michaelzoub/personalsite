@@ -33,7 +33,7 @@ export default function AgiArticle() {
     <main className="article-page">
       <ArticleSectionNav sections={sections} />
       <header className="article-hero" id="top">
-        <Link href="/" aria-label="Back home"><LuArrowLeft aria-hidden /> <span>Home</span></Link>
+        <Link href="/" aria-label="Back home" data-sound="none"><LuArrowLeft aria-hidden /> <span>Home</span></Link>
         <p>Essay · June 2, 2026</p>
         <h1>The biggest hurdle to achieving AGI</h1>
         <p className="article-deck">Open-ended exploration and uncertainty over objectives may matter more than simply optimizing harder.</p>
@@ -104,7 +104,7 @@ export default function AgiArticle() {
 
         <h2 id="conclusion">Conclusion</h2>
         <p>Current frontier labs are doing a great job at building a product that&apos;s useful to most people and yields the most profit. However, if we want to get closer towards truly intelligent systems we need to backtrack and have new labs train models which prioritize exploration and preserve uncertainty until sufficient proof exists. Agents should possess evolutionary harnesses, which should in theory lead to longer task duration and more self-reflection, which should in turn lead to better results.</p>
-        <footer><a href="https://arxiv.org/abs/2305.16291" target="_blank" rel="noreferrer"><span>View on arXiv</span> <LuArrowUpRight aria-hidden /></a></footer>
+        <footer><a href="https://arxiv.org/abs/2305.16291" target="_blank" rel="noreferrer" data-sound="none"><span>View on arXiv</span> <LuArrowUpRight aria-hidden /></a></footer>
       </article>
     </main>
   )

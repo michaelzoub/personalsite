@@ -33,20 +33,22 @@ export function ItemMedia({ item, sizes, priority = false }: { item: MediaItem; 
       muted
       loop
       playsInline
+      poster={typeof item.screenshotUrl === 'string' ? item.screenshotUrl : undefined}
       preload="metadata"
+      onCanPlay={markReady}
       onLoadedData={markReady}
       onError={markReady}
     />
   )
   if (typeof item.screenshotUrl === 'string') return (
-    <img
+    <Image
       ref={imageRef}
       className={className}
       src={item.screenshotUrl}
+      fill
+      sizes={sizes}
       alt=""
-      loading={priority ? 'eager' : 'lazy'}
-      decoding="async"
-      fetchPriority={priority ? 'high' : 'auto'}
+      priority={priority}
       onLoad={markReady}
       onError={markReady}
     />

@@ -12,6 +12,7 @@ export function AudioFeedback() {
       const control = target.closest('button, a, [role="button"]')
       if (!control || control.matches('[aria-disabled="true"], :disabled')) return
       const sound = control.getAttribute('data-sound') ?? (control.tagName === 'BUTTON' ? 'control' : 'navigate')
+      if (sound === 'none') return
       playUiSound(sound as UiSound)
     }
 

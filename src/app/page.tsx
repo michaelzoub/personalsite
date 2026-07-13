@@ -64,7 +64,7 @@ export default function Home() {
   const [animateSurface, setAnimateSurface] = useState(true)
   const reduceMotion = useReducedMotion()
   const [firstLoad, setFirstLoad] = useState(true)
-  const [expandedWorkId, setExpandedWorkId] = useState<string | null>(null)
+  const [isWorkExpanded, setIsWorkExpanded] = useState(false)
   const isMusic = filter === 'Music'
   const isFuture = filter === 'Future'
   const showProjects = filter === 'All' || filter === 'Engineering'
@@ -128,7 +128,7 @@ export default function Home() {
         <motion.div className="reference-filter unified-filter" role="group" aria-label="Browse work and personal interests" {...embed}>
           <div className="filter-segment-group" aria-label="Work">
             {workFilters.map((item) => (
-              <button key={item} onClick={(event) => selectFilter(item, event.detail > 0)} aria-pressed={filter === item}>
+              <button key={item} data-sound="control" onClick={(event) => selectFilter(item, event.detail > 0)} aria-pressed={filter === item}>
                 {filter === item && <motion.span layoutId="filter-pill" className="reference-pill" transition={{ duration: animateSurface && !reduceMotion ? .2 : 0, ease }} />}
                 <span>{item}</span>
               </button>
@@ -136,7 +136,7 @@ export default function Home() {
           </div>
           <div className="filter-segment-group personal" aria-label="Personal">
             {personalFilters.map((item) => (
-              <button key={item} onClick={(event) => selectFilter(item, event.detail > 0)} aria-pressed={filter === item}>
+              <button key={item} data-sound="control" onClick={(event) => selectFilter(item, event.detail > 0)} aria-pressed={filter === item}>
                 {filter === item && <motion.span layoutId="filter-pill" className="reference-pill" transition={{ duration: animateSurface && !reduceMotion ? .2 : 0, ease }} />}
                 <span>{item}</span>
               </button>
@@ -164,7 +164,22 @@ export default function Home() {
             ) : (
               <>
                 {showProjects && (
-                  <section className="work-grid" aria-label="Work">
+                  <section
+                    className="work-grid"
+                    aria-label="Work"
+                    onPointerEnter={(event) => {
+                      if (event.pointerType === 'mouse') setIsWorkExpanded(true)
+                    }}
+                    onPointerLeave={(event) => {
+                      if (event.pointerType === 'mouse') setIsWorkExpanded(false)
+                    }}
+                    onFocusCapture={() => setIsWorkExpanded(true)}
+                    onBlurCapture={(event) => {
+                      if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) {
+                        setIsWorkExpanded(false)
+                      }
+                    }}
+                  >
                     {selectedWork.map((item, i) => {
                       const external = item.url.startsWith('http')
                       const isHero = i === 0
@@ -174,12 +189,9 @@ export default function Home() {
                           href={item.url}
                           target={external ? '_blank' : undefined}
                           rel={external ? 'noopener noreferrer' : undefined}
-                          className={`work-card${isHero ? ' is-hero' : ''}${expandedWorkId === item.id ? ' is-expanded' : ''} project-${item.id}`}
-                          onPointerEnter={(event) => {
-                            if (event.pointerType === 'mouse') setExpandedWorkId(item.id)
-                          }}
-                          onFocus={() => setExpandedWorkId(item.id)}
-                          aria-expanded={expandedWorkId === item.id}
+                          data-sound="card"
+                          className={`work-card${isHero ? ' is-hero' : ''}${isWorkExpanded ? ' is-expanded' : ''} project-${item.id}`}
+                          aria-expanded={isWorkExpanded}
                           initial={cardInitial}
                           animate={{ opacity: 1 }}
                           transition={{ delay: firstLoad ? cardBase + i * .035 : 0, duration: firstLoad ? .54 : 0, ease }}
@@ -208,7 +220,7 @@ export default function Home() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: firstLoad ? cardBase + (showProjects ? selectedWork.length : 0) * .035 + i * .035 : 0, duration: firstLoad ? .54 : 0, ease }}
                       >
-                        <Link href={item.url} className="writing-card">
+                        <Link href={item.url} className="writing-card" data-sound="none">
                           <div className="writing-media"><ItemMedia item={item} sizes="(max-width:620px) 100vw, 460px" priority={!showProjects} /></div>
                           <div className="writing-body">
                             <div className="writing-heading">

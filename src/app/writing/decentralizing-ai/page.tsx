@@ -26,7 +26,7 @@ export default function DecentralizingAiArticle() {
   return <main className="article-page">
     <ArticleSectionNav sections={sections} />
     <header className="article-hero" id="top">
-      <Link href="/" aria-label="Back home"><LuArrowLeft aria-hidden /> <span>Home</span></Link>
+      <Link href="/" aria-label="Back home" data-sound="none"><LuArrowLeft aria-hidden /> <span>Home</span></Link>
       <p>Essay · June 14, 2026</p>
       <h1>The war against frontier labs: decentralizing AI</h1>
       <p className="article-deck">Access to intelligence should not depend on a few labs, clouds, distribution platforms, and governments.</p>
@@ -72,7 +72,7 @@ export default function DecentralizingAiArticle() {
 
       <h2 id="conclusion">Conclusion</h2>
       <p>Leaving intelligence in the hands of a few is arguably even more dangerous than leaving capital in the hands of a few. The former is leverage for much more than money. If we achieve AGI, I believe decentralizing it is a better trajectory than leaving it in the hands of a small number of companies and states.</p>
-      <footer><a href="https://x.com/wenkafka/status/2066170830191530243" target="_blank" rel="noreferrer"><span>View original on X</span> <LuArrowUpRight aria-hidden /></a></footer>
+      <footer><a href="https://x.com/wenkafka/status/2066170830191530243" target="_blank" rel="noreferrer" data-sound="none"><span>View original on X</span> <LuArrowUpRight aria-hidden /></a></footer>
     </article>
   </main>
 }

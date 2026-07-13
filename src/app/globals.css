@@ -416,7 +416,7 @@ button { font:inherit; }
 .writing-card:active { transform:scale(.98); transition-duration:120ms; }
 .writing-card:focus-visible { outline:0; box-shadow:0 0 0 2px var(--paper),0 0 0 4px rgba(125,169,240,.48); }
 
-.work-media .media-item,.writing-media .media-item { opacity:.08; transform:scale(1.008); filter:saturate(.96); }
+.work-media .media-item,.writing-media .media-item { opacity:1; transform:scale(1); filter:saturate(1); }
 .work-media .media-item.is-ready,.writing-media .media-item.is-ready { opacity:1; transform:scale(1); filter:saturate(1); }
 
 .editorial-music { position:relative; height:calc(100dvh - 320px); min-height:480px; overflow:hidden; border:1px solid var(--line); border-radius:var(--r-card); background:var(--card); }
@@ -468,7 +468,8 @@ button { font:inherit; }
   .track-meta button:hover { color:var(--ink); }
   .work-card:hover { transform:translateY(-1px); }
   .work-card:hover .work-media img,.work-card:hover .work-media video { transform:scale(1.012); }
-  /* A card answers its own hover and focus state; adjacent work stays still. */
+  /* The reveal follows the description's intrinsic height, so no line is
+     clipped. Pointer leave clears .is-expanded, returning the card to rest. */
   .work-reveal { display:grid; grid-template-rows:minmax(0,0fr); transition:grid-template-rows 220ms var(--ease-out); }
   .work-reveal > .work-meta { min-height:0; overflow:hidden; opacity:0; transform:translateY(3px); transition:opacity 150ms ease,transform 200ms var(--ease-out); }
   .work-card:hover .work-reveal,.work-card:focus-visible .work-reveal,.work-card.is-expanded .work-reveal { grid-template-rows:minmax(0,1fr); }
@@ -558,7 +559,7 @@ button { font:inherit; }
 .article-section-nav a { min-height:40px; display:flex; align-items:center; justify-content:flex-end; gap:14px; }
 /* Labels: enter on the slow springy curve (set in the open states below); the
    base transition here is what plays on the way out, so exits stay softer/faster. */
-.article-section-nav span { overflow:hidden; padding:6px 10px; border-radius:4px; background:rgba(255,255,255,.82); box-shadow:0 0 0 1px rgba(15,28,48,.055); clip-path:inset(0 100% 0 0 round 4px); opacity:0; transform:translateX(10px); white-space:nowrap; font-size:11px; line-height:1; color:var(--muted); transition:clip-path 220ms ease,opacity 120ms ease,transform 220ms ease,color 160ms ease; }
+.article-section-nav span { overflow:hidden; padding:6px 10px; border-radius:4px; background:rgba(255,255,255,.9); box-shadow:0 0 0 1px rgba(15,28,48,.055); clip-path:inset(0 0 0 0 round 4px); opacity:.72; transform:translateX(0); white-space:nowrap; font-size:11px; line-height:1; color:var(--muted); transition:opacity 160ms ease,color 160ms ease; }
 .article-section-nav i { position:relative; width:7px; height:7px; flex:none; border-radius:2px; background:#c7d1de; transform:rotate(45deg); transition:background-color 180ms ease,transform 260ms var(--ease-out),box-shadow 260ms ease; }
 /* The single sliding marker — the motion spring element. Solid-enough backdrop
    so the rail line doesn't show through it. */
@@ -578,11 +579,18 @@ button { font:inherit; }
   .article-section-nav a:hover span { clip-path:inset(0 0 0 0 round 4px); opacity:1; transform:translateX(0); transition:clip-path 360ms cubic-bezier(.16,1,.3,1),opacity 160ms ease,transform 260ms var(--ease-out),color 160ms ease; }
 }
 
-@media (max-width:1120px) {
-  .article-section-nav { display:none; }
+@media (max-width:1080px) {
+  /* Keep the article navigator available in narrower desktop windows without
+     stealing readable measure from the essay. The dots remain a clear right
+     rail; labels expand only when the viewport has room for them. */
+  .article-section-nav { right:16px; width:auto; }
+  .article-section-nav span { position:absolute; right:21px; clip-path:inset(0 0 0 100% round 4px); opacity:0; transform:translateX(6px); pointer-events:none; }
+  .article-section-nav li.is-active span,.article-section-nav a:focus-visible span { clip-path:inset(0 0 0 0 round 4px); opacity:1; transform:translateX(0); }
+  .article-section-nav::before { right:3px; }
 }
 
 @media (max-width:620px) {
+  .article-section-nav { display:none; }
   .article-page { padding:96px 20px 84px; }
   .article-hero { margin-bottom:64px; }
   .article-hero h1 { font-size:clamp(26px,8vw,36px); }
