@@ -20,7 +20,9 @@ function MusicStageLoading() {
   )
 }
 
-const MusicGraph = dynamic(() => import('./components/musicVisual/graph'), {
+const loadMusicGraph = () => import('./components/musicVisual/graph')
+
+const MusicGraph = dynamic(loadMusicGraph, {
   ssr: false,
   loading: MusicStageLoading,
 })
@@ -79,6 +81,14 @@ export default function Home() {
     return () => clearTimeout(timer)
   }, [])
 
+  // Fetch the graph code after the hero is interactive so entering Music does
+  // not wait on its otherwise on-demand chunk. Mounting still waits until the
+  // user selects Music, avoiding background WebGL work and texture loading.
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void loadMusicGraph() }, 800)
+    return () => window.clearTimeout(timer)
+  }, [])
+
   const ease: [number, number, number, number] = [0.23, 1, 0.32, 1]
   // Text fades in place — no vertical travel — so the page reads as one still sheet.
   const fadeIn = (delay: number) => ({
@@ -122,6 +132,13 @@ export default function Home() {
             })}
           </motion.nav>
         </div>
+        <motion.section className="consulting" aria-label="Consulting" {...fadeIn(.04)}>
+          <p>Available for consulting.</p>
+          <a className="book-call" href="https://calendly.com/michaezl/new-meeting" target="_blank" rel="noreferrer" aria-label="Book a call. I help startups build AI agents, developer tools, and production systems.">
+            <span className="book-call-label" aria-hidden>Book a call →</span>
+            <span className="book-call-detail" aria-hidden>I help startups build AI agents, developer tools, and production systems.</span>
+          </a>
+        </motion.section>
         <motion.p {...fadeIn(.07)}>I build software around agents, markets, and interfaces.</motion.p>
         <motion.p {...fadeIn(.14)}>Right now I&apos;m working on <a className="inline-text-link" href="https://www.rubiconpay.xyz/" target="_blank" rel="noreferrer">Rubicon</a>: payment and access rails for agents that discover, buy, and use online writing.</motion.p>
       </header>
