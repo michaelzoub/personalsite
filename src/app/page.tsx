@@ -38,6 +38,14 @@ const socials = [
 ]
 
 const writing = [{
+  id: 'fluid-computer',
+  name: 'The Fluid Computer',
+  category: 'Writing' as const,
+  year: '2026-09-25',
+  description: 'A proof-learning environment where language, verification, and interface adapt around the student’s reasoning.',
+  url: '/writing/the-fluid-computer',
+  screenshotUrl: '/writing/fluid-computer/cover.svg' as string | undefined,
+}, {
   id: 'biggest-hurdle-agi',
   name: 'The biggest hurdle to achieving AGI',
   category: 'Writing' as const,
@@ -58,7 +66,8 @@ const writing = [{
 // Lead with the current work, then keep the remaining artifacts on the same baseline.
 const selectedWork = [
   ...projects.filter((p) => p.id === 'rubicon'),
-  ...projects.filter((p) => p.id !== 'rubicon'),
+  ...projects.filter((p) => p.id === 'mapbench'),
+  ...projects.filter((p) => p.id !== 'rubicon' && p.id !== 'mapbench'),
 ]
 
 export default function Home() {

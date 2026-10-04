@@ -558,6 +558,24 @@ button { font:inherit; }
 .article-body footer a:active { transform:translateX(2px) scale(.96); }
 .article-hero[id],.article-body h2[id] { scroll-margin-top:96px; }
 
+/* The Fluid Computer — the essay stays narrow while the requirements briefly
+   widen into a quiet two-column field, echoing the structure of a proof. */
+.fluid-article .article-body { max-width:760px; }
+.fluid-article .article-body > p,
+.fluid-article .article-body > h2,
+.fluid-article .article-body > blockquote { max-width:600px; }
+.fluid-article .article-body > p,
+.fluid-article .article-body > h2 { margin-left:auto; margin-right:auto; }
+.fluid-article .article-body > blockquote { margin-left:auto; margin-right:auto; }
+.fluid-cover img { background:#eaf1fa; object-fit:cover; }
+.requirements-intro { margin-top:42px!important; color:var(--ink); }
+.requirements-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:clamp(48px,8vw,96px); row-gap:52px; margin:44px 0 86px; }
+.requirement { min-width:0; }
+.requirement > svg { display:block; width:25px; height:25px; margin-bottom:20px; color:var(--ink); stroke-width:1.35; }
+.requirement h3 { margin:0 0 8px; color:var(--ink); font-size:15px; line-height:1.35; font-weight:520; letter-spacing:-.015em; }
+.requirement p { margin:0; color:var(--muted); font-size:14px; line-height:1.62; }
+.requirement:last-child { grid-column:1 / 2; }
+
 @media (hover:hover) and (pointer:fine) {
   .article-hero > a:hover { color:var(--ink); transform:translateX(-2px); }
   .article-body a:hover { text-decoration-color:var(--ink); }
@@ -611,4 +629,7 @@ button { font:inherit; }
   .article-cover img { border-radius:4px; }
   .article-body { font-size:15px; line-height:1.76; }
   .article-body h2 { margin-top:56px; }
+  .requirements-grid { grid-template-columns:1fr; row-gap:38px; margin:36px 0 64px; }
+  .requirement:last-child { grid-column:auto; }
+  .requirement > svg { margin-bottom:16px; }
 }
