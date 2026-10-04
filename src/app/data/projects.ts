@@ -19,33 +19,9 @@ export type Project = {
   category: 'Engineering'
   year: string
   status: string
-  supportWordmark?: string
-  supportName?: string
 }
 
 export const projects: Project[] = [
-  {
-    id: 'mapbench',
-    name: 'MapBench',
-    iconType: 'text',
-    iconText: 'MB',
-    iconClassName: 'bg-black text-white',
-    description:
-      'Testing whether repository maps help coding agents navigate unfamiliar codebases.',
-    hoverDetail:
-      'A benchmark measuring whether deterministic structural artifacts help coding agents traverse unfamiliar repositories more efficiently.',
-    url: 'https://www.map-bench.xyz/#mapbench',
-    buttonText: 'View benchmark',
-    buttonWidth: 'w-[130px]',
-    arrowPosition: 'pl-[96px]',
-    screenshotUrl: '/mapbench-preview.png',
-    previewAccent: 'from-zinc-500/10 to-black/40',
-    category: 'Engineering',
-    year: '2026-09-23',
-    status: 'research',
-    supportWordmark: '/rubric-wordmark.svg',
-    supportName: 'Rubric Labs',
-  },
   {
     id: 'coldvision',
     name: 'coldvision',

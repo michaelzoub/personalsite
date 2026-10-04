@@ -8,7 +8,6 @@ import { getLocalStorage, setLocalStorage } from '@/app/utils/localStorage'
 type Post = { id: number; name: string; date: string; description?: string }
 
 const localWriting = [
-  { name: 'The Fluid Computer', date: '2026-09-25', description: 'A proof-learning environment where language, verification, and interface adapt around the student’s reasoning.', href: '/writing/the-fluid-computer', published: true },
   { name: 'The biggest hurdle to achieving AGI', date: '2026-06-02', description: 'Why open-ended exploration and objective uncertainty are foundational to intelligent systems.', href: '/writing/the-biggest-hurdle-to-achieving-agi', published: true },
   { name: 'The war against frontier labs: decentralizing AI', date: '2026-06-14', description: 'Why access to intelligence should remain contestable, and why decentralized training and open weights matter.', href: '/writing/decentralizing-ai', published: true },
 ]
