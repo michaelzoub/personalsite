@@ -10,6 +10,7 @@ export type Project = {
   description: string
   hoverDetail: string
   url: string
+  articleUrl?: string
   buttonText: string
   buttonWidth: string
   arrowPosition: string
@@ -19,8 +20,6 @@ export type Project = {
   category: 'Engineering'
   year: string
   status: string
-  supportWordmark?: string
-  supportName?: string
 }
 
 export const projects: Project[] = [
@@ -29,22 +28,20 @@ export const projects: Project[] = [
     name: 'MapBench',
     iconType: 'text',
     iconText: 'MB',
-    iconClassName: 'bg-black text-white',
+    iconClassName: 'bg-zinc-950 text-white',
     description:
-      'Testing whether repository maps help coding agents navigate unfamiliar codebases.',
+      'A benchmark for testing whether deterministic repository maps help coding agents navigate unfamiliar codebases.',
     hoverDetail:
-      'A benchmark measuring whether deterministic structural artifacts help coding agents traverse unfamiliar repositories more efficiently.',
+      'MapBench compares architecture, skeleton, and call-graph artifacts across 359 coding-agent trials, measuring task success, navigation speed, token use, and runtime.',
     url: 'https://www.map-bench.xyz/#mapbench',
+    articleUrl: 'https://rubriclabs.com/blog/static-analysis-for-the-agentic-era',
     buttonText: 'View benchmark',
-    buttonWidth: 'w-[130px]',
-    arrowPosition: 'pl-[96px]',
-    screenshotUrl: '/mapbench-preview.png',
-    previewAccent: 'from-zinc-500/10 to-black/40',
+    buttonWidth: 'w-[128px]',
+    arrowPosition: 'pl-[98px]',
+    previewAccent: 'from-stone-300/20 to-zinc-800/30',
     category: 'Engineering',
-    year: '2026-09-23',
-    status: 'research',
-    supportWordmark: '/rubric-wordmark.svg',
-    supportName: 'Rubric Labs',
+    year: '2026-09-22',
+    status: 'published',
   },
   {
     id: 'coldvision',

@@ -2,6 +2,7 @@
 
 import Image, { type StaticImageData } from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import MapBenchPreview from './MapBenchPreview'
 
 export type MediaItem = {
   id: string
@@ -23,6 +24,8 @@ export function ItemMedia({ item, sizes, priority = false }: { item: MediaItem; 
   useEffect(() => {
     if (imageRef.current?.complete || (videoRef.current && videoRef.current.readyState >= 2)) setReady(true)
   }, [])
+
+  if (item.id === 'mapbench') return <MapBenchPreview />
 
   if (item.videoUrl) return (
     <>
