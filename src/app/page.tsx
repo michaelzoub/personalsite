@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import dynamic from 'next/dynamic'
-import Link from 'next/link'
+import Image from 'next/image'
+import { gsap } from 'gsap'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { FaGithub } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
@@ -38,6 +39,14 @@ const socials = [
 ]
 
 const writing = [{
+  id: 'fluid-computer',
+  name: 'The Fluid Computer',
+  category: 'Writing' as const,
+  year: '2026-09-25',
+  description: 'A proof-learning environment where language, verification, and interface adapt around the student’s reasoning.',
+  url: '/writing/the-fluid-computer',
+  screenshotUrl: '/writing/fluid-computer/cover.svg' as string | undefined,
+}, {
   id: 'biggest-hurdle-agi',
   name: 'The biggest hurdle to achieving AGI',
   category: 'Writing' as const,
@@ -58,28 +67,26 @@ const writing = [{
 // Lead with the current work, then keep the remaining artifacts on the same baseline.
 const selectedWork = [
   ...projects.filter((p) => p.id === 'rubicon'),
-  ...projects.filter((p) => p.id !== 'rubicon'),
+  ...projects.filter((p) => p.id === 'mapbench'),
+  ...projects.filter((p) => p.id !== 'rubicon' && p.id !== 'mapbench'),
 ]
 
 export default function Home() {
   const [filter, setFilter] = useState<Filter>('All')
   const [animateSurface, setAnimateSurface] = useState(true)
   const reduceMotion = useReducedMotion()
-  const [firstLoad, setFirstLoad] = useState(true)
-  const [isWorkExpanded, setIsWorkExpanded] = useState(false)
+  const deckRef = useRef<HTMLDivElement>(null)
   const isMusic = filter === 'Music'
   const isFuture = filter === 'Future'
   const showProjects = filter === 'All' || filter === 'Engineering'
   const showWriting = filter === 'All' || filter === 'Writing'
-  // "All" and "Engineering" share the same project media. Keep that subtree
-  // mounted when moving between the two so an in-progress video is never reset.
-  const surfaceKey = showProjects ? 'work' : filter.toLowerCase()
-
-  // Lead the entrance only on the first paint; filter switches stay instant.
-  useEffect(() => {
-    const timer = setTimeout(() => setFirstLoad(false), 520)
-    return () => clearTimeout(timer)
-  }, [])
+  const visibleItems = [
+    ...(showProjects ? selectedWork : []),
+    ...(showWriting ? writing : []),
+  ]
+  const [activeId, setActiveId] = useState(selectedWork[0].id)
+  const activeItem = visibleItems.find((item) => item.id === activeId) ?? visibleItems[0]
+  const surfaceKey = isMusic ? 'music' : isFuture ? 'future' : 'archive'
 
   // Fetch the graph code after the hero is interactive so entering Music does
   // not wait on its otherwise on-demand chunk. Mounting still waits until the
@@ -88,6 +95,52 @@ export default function Home() {
     const timer = window.setTimeout(() => { void loadMusicGraph() }, 800)
     return () => window.clearTimeout(timer)
   }, [])
+
+  useLayoutEffect(() => {
+    if (!visibleItems.length) return
+    setActiveId(visibleItems[0].id)
+
+    const cards = deckRef.current?.querySelectorAll<HTMLElement>('[data-cascade-card]')
+    if (!cards?.length || window.matchMedia('(max-width:620px)').matches) return
+
+    const reduced = window.matchMedia('(prefers-reduced-motion:reduce)').matches
+    gsap.killTweensOf(cards)
+    if (reduced) {
+      gsap.set(cards, {
+        x: 0,
+        xPercent: (i) => i * 11.5,
+        y: (i) => i * -39,
+        z: (i) => i * -52,
+        scale: (i) => 1 - i * .016,
+        rotationX: 4,
+        rotationY: -14,
+        rotationZ: -.7,
+        opacity: 1,
+      })
+      return
+    }
+
+    gsap.fromTo(cards,
+      { x: 0, xPercent: 2, y: 18, z: 0, scale: .975, opacity: 0 },
+      {
+        x: 0,
+        xPercent: (i) => i * 11.5,
+        y: (i) => i * -39,
+        z: (i) => i * -52,
+        scale: (i) => 1 - i * .016,
+        rotationX: 4,
+        rotationY: -14,
+        rotationZ: -.7,
+        opacity: 1,
+        duration: .52,
+        stagger: .045,
+        ease: 'power3.out',
+        overwrite: true,
+      },
+    )
+  // The visible sequence changes only with this filter.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter])
 
   const ease: [number, number, number, number] = [0.23, 1, 0.32, 1]
   // Text fades in place — no vertical travel — so the page reads as one still sheet.
@@ -105,15 +158,52 @@ export default function Home() {
         animate: { opacity: 1 },
         transition: { duration: .54, delay: .12, ease },
       }
-  const cardBase = .14
-  const cardInitial = firstLoad
-    ? { opacity: 0 }
-    : false
-
   const selectFilter = (item: Filter, pointerInitiated: boolean) => {
     if (item === filter) return
     setAnimateSurface(pointerInitiated)
     setFilter(item)
+  }
+
+  const emphasizeCard = (card: HTMLElement, index: number, active: boolean, immediate = false) => {
+    if (window.matchMedia('(max-width:620px)').matches) return
+    const panel = card.querySelector<HTMLElement>('.cascade-hover-panel')
+    const glass = card.querySelector<HTMLElement>('.cascade-glass')
+    if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) {
+      if (panel) gsap.set(panel, { opacity: active ? 1 : 0, visibility: active ? 'visible' : 'hidden' })
+      return
+    }
+    gsap.to(card, {
+      x: 0,
+      xPercent: index * 11.5,
+      y: index * -39 + (active ? -10 : 0),
+      z: index * -52 + (active ? 112 : 0),
+      scale: 1 - index * .016 + (active ? .028 : 0),
+      rotationX: active ? 2 : 4,
+      rotationY: active ? -7 : -14,
+      rotationZ: active ? -.15 : -.7,
+      zIndex: active ? 50 : visibleItems.length - index,
+      duration: immediate ? 0 : .18,
+      ease: 'power3.out',
+      overwrite: true,
+    })
+    if (panel) {
+      gsap.to(panel, {
+        opacity: active ? 1 : 0,
+        yPercent: -50,
+        y: active ? 0 : 8,
+        scale: active ? 1 : .97,
+        rotationX: active ? -2 : -4,
+        rotationY: active ? 7 : 14,
+        rotationZ: active ? .15 : .7,
+        visibility: active ? 'visible' : 'hidden',
+        duration: immediate ? 0 : active ? .2 : .12,
+        ease: active ? 'power3.out' : 'power2.in',
+        overwrite: true,
+      })
+    }
+    if (glass) {
+      gsap.to(glass, { opacity: active ? .72 : .34, xPercent: active ? 16 : 0, duration: .24, ease: 'power2.out', overwrite: true })
+    }
   }
 
   return (
@@ -181,79 +271,85 @@ export default function Home() {
             ) : isFuture ? (
               <FarmInstrument />
             ) : (
-              <>
-                {showProjects && (
-                  <section
-                    className="work-grid"
-                    aria-label="Work"
-                    onPointerEnter={(event) => {
-                      if (event.pointerType === 'mouse') setIsWorkExpanded(true)
-                    }}
-                    onPointerLeave={(event) => {
-                      if (event.pointerType === 'mouse') setIsWorkExpanded(false)
-                    }}
-                    onFocusCapture={() => setIsWorkExpanded(true)}
-                    onBlurCapture={(event) => {
-                      if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) {
-                        setIsWorkExpanded(false)
-                      }
-                    }}
-                  >
-                    {selectedWork.map((item, i) => {
-                      const external = item.url.startsWith('http')
-                      const isHero = i === 0
-                      return (
-                        <motion.a
-                          key={item.id}
-                          href={item.url}
-                          target={external ? '_blank' : undefined}
-                          rel={external ? 'noopener noreferrer' : undefined}
-                          data-sound="card"
-                          className={`work-card${isHero ? ' is-hero' : ''}${isWorkExpanded ? ' is-expanded' : ''} project-${item.id}`}
-                          aria-expanded={isWorkExpanded}
-                          initial={cardInitial}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: firstLoad ? cardBase + i * .035 : 0, duration: firstLoad ? .54 : 0, ease }}
-                        >
-                          <div className="work-media"><ItemMedia item={item} sizes={isHero ? '(max-width:820px) 100vw, 560px' : '380px'} priority={i < 3} /></div>
-                          <div className="work-reveal">
-                            <div className="work-meta">
-                              <div className="work-meta-row">
-                                <span className="work-name">{item.name}</span>
-                                <span className="work-status">{item.status}</span>
-                              </div>
-                              <p>{item.description}</p>
-                            </div>
-                          </div>
-                        </motion.a>
-                      )
-                    })}
-                  </section>
-                )}
-                {showWriting && (
-                  <section className={`writing-grid${showProjects ? ' after-work' : ''}`} aria-label="Writing">
-                    {writing.map((item, i) => (
-                      <motion.div
+              <section className="cascade-archive" aria-label="Selected work and writing">
+                <div ref={deckRef} className="cascade-stage">
+                  {visibleItems.map((item, i) => {
+                    const external = item.url.startsWith('http')
+                    return (
+                      <a
                         key={item.id}
-                        initial={cardInitial}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: firstLoad ? cardBase + (showProjects ? selectedWork.length : 0) * .035 + i * .035 : 0, duration: firstLoad ? .54 : 0, ease }}
+                        href={item.url}
+                        target={external ? '_blank' : undefined}
+                        rel={external ? 'noopener noreferrer' : undefined}
+                        className={`cascade-card${activeItem?.id === item.id ? ' is-active' : ''}`}
+                        data-cascade-card
+                        data-sound="card"
+                        style={{
+                          zIndex: visibleItems.length - i,
+                          '--cascade-x': `${i * 11.5}%`,
+                          '--cascade-y': `${i * -39}px`,
+                          '--cascade-z': `${i * -52}px`,
+                          '--cascade-scale': 1 - i * .016,
+                        } as CSSProperties}
+                        aria-label={`${item.name}, ${item.category}`}
+                        onPointerEnter={(event) => {
+                          if (event.pointerType !== 'mouse') return
+                          setActiveId(item.id)
+                          emphasizeCard(event.currentTarget, i, true)
+                        }}
+                        onPointerLeave={(event) => emphasizeCard(event.currentTarget, i, false)}
+                        onFocus={(event) => {
+                          setActiveId(item.id)
+                          emphasizeCard(event.currentTarget, i, true, true)
+                        }}
+                        onBlur={(event) => emphasizeCard(event.currentTarget, i, false, true)}
                       >
-                        <Link href={item.url} className="writing-card" data-sound="none">
-                          <div className="writing-media"><ItemMedia item={item} sizes="(max-width:620px) 100vw, 460px" priority={!showProjects} /></div>
-                          <div className="writing-body">
-                            <div className="writing-heading">
-                              <h3>{item.name}</h3>
-                              <span className="writing-meta"><time>{item.year}</time><PiArrowUpRight aria-hidden /></span>
-                            </div>
-                            <p>{item.description}</p>
-                          </div>
-                        </Link>
-                      </motion.div>
-                    ))}
-                  </section>
+                        <div className="cascade-media">
+                          <ItemMedia item={item} sizes="(max-width:620px) 82vw, 520px" priority={i < 3} />
+                          <span className="cascade-glass" aria-hidden />
+                        </div>
+                        <div className="cascade-hover-panel">
+                          <span className="cascade-hover-kicker">{item.category}</span>
+                          <strong>{item.name}</strong>
+                          <p>{item.description}</p>
+                          {'supportWordmark' in item && item.supportWordmark && (
+                            <span className="cascade-hover-support">
+                              <span>with support from</span>
+                              <Image src={item.supportWordmark} width={22} height={9} alt={item.supportName ?? 'Supporting organization'} />
+                            </span>
+                          )}
+                          <PiArrowUpRight className="cascade-hover-arrow" aria-hidden />
+                        </div>
+                      </a>
+                    )
+                  })}
+                </div>
+
+                {activeItem && (
+                  <div className="cascade-caption" aria-live="polite">
+                    <div>
+                      <span className="cascade-kicker">{activeItem.category}</span>
+                      <h2>{activeItem.name}</h2>
+                      {'supportWordmark' in activeItem && activeItem.supportWordmark && (
+                        <span className="cascade-support">
+                          <span>with support from</span>
+                          <Image
+                            src={activeItem.supportWordmark}
+                            width={22}
+                            height={9}
+                            alt={activeItem.supportName ?? 'Supporting organization'}
+                          />
+                        </span>
+                      )}
+                    </div>
+                    <p>{activeItem.description}</p>
+                    <span className="cascade-date">
+                      <time>{activeItem.year}</time>
+                      <PiArrowUpRight aria-hidden />
+                    </span>
+                  </div>
                 )}
-              </>
+              </section>
             )}
           </motion.div>
         </AnimatePresence>
