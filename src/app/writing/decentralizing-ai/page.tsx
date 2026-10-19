@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
-import { LuArrowLeft, LuArrowUpRight } from 'react-icons/lu'
-import ArticleSectionNav from '@/app/components/ArticleSectionNav'
+import ArticleLayout from '@/app/components/ArticleLayout'
 
 export const metadata: Metadata = {
   title: 'The war against frontier labs: decentralizing AI',
@@ -23,19 +21,15 @@ const sections = [
 ]
 
 export default function DecentralizingAiArticle() {
-  return <main className="article-page">
-    <ArticleSectionNav sections={sections} />
-    <header className="article-hero" id="top">
-      <Link href="/" aria-label="Back home" data-sound="none"><LuArrowLeft aria-hidden /> <span>Home</span></Link>
-      <p>Essay · June 14, 2026</p>
-      <h1>The war against frontier labs: decentralizing AI</h1>
-      <p className="article-deck">Access to intelligence should not depend on a few labs, clouds, distribution platforms, and governments.</p>
-      <div className="article-cover">
-        <img src="/writing/decentralizing-ai/cover.jpg" alt="Cover for The war against frontier labs: decentralizing AI" width={1200} height={480} />
-      </div>
-    </header>
-
-    <article className="article-body">
+  return (
+    <ArticleLayout
+      glyph="decentralizing-ai"
+      title="The war against frontier labs: decentralizing AI"
+      date="2026-06-14"
+      deck="Access to intelligence should not depend on a few labs, clouds, distribution platforms, and governments."
+      sections={sections}
+      source={{ label: 'View original on X', href: 'https://x.com/wenkafka/status/2066170830191530243' }}
+    >
       <p>If you follow frontier AI, the Fable 5 episode should bother you.</p>
       <p>Anthropic released one of the most capable models available to the public. Within days, access was restricted after the U.S. government intervened over national-security and export-control concerns. Whether that decision was justified is a separate debate. The important part is the shape of the current system: a model used by millions can disappear, or become geographically gated, through decisions made by a very small number of companies and actors.</p>
 
@@ -72,7 +66,6 @@ export default function DecentralizingAiArticle() {
 
       <h2 id="conclusion">Conclusion</h2>
       <p>Leaving intelligence in the hands of a few is arguably even more dangerous than leaving capital in the hands of a few. The former is leverage for much more than money. If we achieve AGI, I believe decentralizing it is a better trajectory than leaving it in the hands of a small number of companies and states.</p>
-      <footer><a href="https://x.com/wenkafka/status/2066170830191530243" target="_blank" rel="noreferrer" data-sound="none"><span>View original on X</span> <LuArrowUpRight aria-hidden /></a></footer>
-    </article>
-  </main>
+    </ArticleLayout>
+  )
 }

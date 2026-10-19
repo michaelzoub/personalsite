@@ -3,10 +3,10 @@
 import R3fForceGraph from 'r3f-forcegraph'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { TrackballControls } from '@react-three/drei'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { BoxGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, TextureLoader } from 'three'
 import SpriteText from 'three-spritetext'
-import { motion, useReducedMotion } from 'motion/react'
+import gsap from 'gsap'
 import { playUiSound } from '../sound'
 
 type Genre = 'Electronic' | 'Rap' | 'Techno' | 'Ambient' | 'Jazz' | 'Indie' | 'R&B'
@@ -245,7 +245,9 @@ export default function Graph() {
   const [selected,setSelected] = useState<Track|null>(null)
   const [preloaded,setPreloaded] = useState<Track|null>(null)
   const preloadTimer = useRef<ReturnType<typeof setTimeout>|null>(null)
-  const reduceMotion = useReducedMotion()
+  const sectionRef = useRef<HTMLElement>(null)
+  const panelRef = useRef<HTMLElement>(null)
+  const panelShown = useRef(false)
   useEffect(() => {
     const preconnect = document.createElement('link')
     preconnect.rel = 'preconnect'
@@ -272,12 +274,35 @@ export default function Graph() {
     setSelected(track)
   }, [])
 
-  return <motion.section
-    className="simple-music dense-music-graph"
-    initial={reduceMotion ? { opacity:0 } : { opacity:0, transform:'scale(.995)' }}
-    animate={{ opacity:1, transform:'scale(1)' }}
-    transition={{ duration:reduceMotion ? .12 : .28, ease:[.23,1,.32,1] }}
-  >
+  useLayoutEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const tween = gsap.fromTo(section, { opacity:0, scale:reduced ? 1 : .995 }, { opacity:1, scale:1, duration:reduced ? .12 : .28, ease:'expo.out', clearProps:'transform' })
+    return () => { tween.kill() }
+  }, [])
+
+  // The panel mounts hidden on first hover (so the embed preloads), then
+  // eases in and out as a track is picked or closed.
+  const hasPanel = preloaded !== null
+  useLayoutEffect(() => {
+    const panel = panelRef.current
+    if (!panel) {
+      panelShown.current = false
+      return
+    }
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const hidden = { opacity:0, y:reduced ? 0 : 6, scale:reduced ? 1 : .985 }
+    const shown = { opacity:1, y:0, scale:1 }
+    if (!panelShown.current) {
+      panelShown.current = true
+      gsap.set(panel, selected ? shown : hidden)
+      return
+    }
+    gsap.to(panel, { ...(selected ? shown : hidden), duration:reduced ? .1 : .18, ease:selected ? 'expo.out' : 'power2.in', overwrite:'auto' })
+  }, [selected, hasPanel])
+
+  return <section ref={sectionRef} className="simple-music dense-music-graph">
     <div className="simple-music-canvas" role="application" aria-label="Interactive map of music by genre">
       <Canvas
         flat
@@ -292,18 +317,14 @@ export default function Graph() {
         <TrackballControls rotateSpeed={2.6} panSpeed={.95} zoomSpeed={1.1} dynamicDampingFactor={.18} />
         <GraphScene onHover={preload} onSelect={selectTrack} />
       </Canvas>
-      {preloaded && <motion.aside
+      {preloaded && <aside
+        ref={panelRef}
         className={`track-panel simple-track-panel spotify-player${selected ? ' is-visible' : ''}`}
         aria-hidden={!selected}
-        initial={false}
-        animate={selected
-          ? { opacity:1, transform:'translateY(0) scale(1)' }
-          : { opacity:0, transform:reduceMotion ? 'none' : 'translateY(6px) scale(.985)' }}
-        transition={{duration:reduceMotion ? .1 : .18,ease:selected ? [.23,1,.32,1] : [.4,0,1,1]}}
       >
         <div className="track-meta"><img src={preloaded.cover} alt="" /><div><small>{preloaded.genre}</small><h2>{preloaded.title}</h2><p>{preloaded.artist}</p></div><button onClick={() => setSelected(null)} aria-label="Close player" tabIndex={selected ? 0 : -1}>×</button></div>
         <iframe title={`Listen to ${preloaded.title}`} src={`https://open.spotify.com/embed/track/${preloaded.id}`} width="100%" height="80" allow="encrypted-media" tabIndex={selected ? 0 : -1} />
-      </motion.aside>}
+      </aside>}
     </div>
-  </motion.section>
+  </section>
 }

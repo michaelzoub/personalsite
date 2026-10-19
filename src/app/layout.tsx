@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "./components/navbar";
 import { RouteTransition } from "./components/RouteTransition";
 import { AudioFeedback } from "./components/AudioFeedback";
+import { InspectEgg } from "./components/InspectEgg";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body>
         <Navbar />
         <AudioFeedback />
+        <InspectEgg />
         <RouteTransition>{children}</RouteTransition>
         </body>
     </html>

@@ -2,8 +2,6 @@
 
 import type { MouseEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { motion, useReducedMotion } from 'motion/react'
 
 export type ArticleSection = { id: string; label: string }
 
@@ -11,18 +9,11 @@ const prefersInstantScroll = () => window.matchMedia('(prefers-reduced-motion: r
 
 export default function ArticleSectionNav({ sections }: { sections: ArticleSection[] }) {
   const [active, setActive] = useState(sections[0]?.id ?? '')
-  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
   const settleLockRef = useRef(false)
   const settleTimerRef = useRef(0)
   const targetRef = useRef<string | null>(null)
   const retryRef = useRef(0)
   const settleRef = useRef<() => void>(() => {})
-  const reduceMotion = useReducedMotion()
-
-  // Route transitions use transforms, which make `position: fixed` descendants
-  // behave as if they are fixed to the article wrapper. Portaling to body keeps
-  // the rail pinned to the viewport through both scrolling and transitions.
-  useEffect(() => setPortalTarget(document.body), [])
 
   useEffect(() => {
     let frame = 0
@@ -116,23 +107,19 @@ export default function ArticleSectionNav({ sections }: { sections: ArticleSecti
     setActive(id)
   }, [])
 
-  const navigation = <nav className="article-section-nav" aria-label="Article sections">
+  // Sits in the landing's label column and sticks there while the essay scrolls.
+  return <nav className="article-toc" aria-label="Article sections">
     <ol>
-      {sections.map((section) => <li key={section.id} className={active === section.id ? 'is-active' : ''}>
-        <a href={`#${section.id}`} onClick={(event) => navigate(event, section.id)} aria-label={`Go to ${section.label}`} aria-current={active === section.id ? 'location' : undefined}>
-          <span>{section.label}</span>
-          <i aria-hidden>
-            {active === section.id && (
-              <motion.b
-                layoutId="article-section-signal"
-                transition={reduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 520, damping: 34, mass: .7 }}
-              />
-            )}
-          </i>
+      {sections.map((section) => <li key={section.id}>
+        <a
+          href={`#${section.id}`}
+          onClick={(event) => navigate(event, section.id)}
+          aria-current={active === section.id ? 'location' : undefined}
+          data-sound="none"
+        >
+          {section.label}
         </a>
       </li>)}
     </ol>
   </nav>
-
-  return portalTarget ? createPortal(navigation, portalTarget) : null
 }

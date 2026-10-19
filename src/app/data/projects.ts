@@ -44,26 +44,6 @@ export const projects: Project[] = [
     status: 'published',
   },
   {
-    id: 'coldvision',
-    name: 'coldvision',
-    iconType: 'text',
-    iconText: 'CV',
-    iconClassName: 'bg-slate-900 text-cyan-300',
-    description:
-      'A terminal for prediction markets. Your compass in the storm for researching and acting on market odds.',
-    hoverDetail:
-      'coldvision pro is a prediction-market terminal built for fast research, odds tracking, and decision-making when markets move quickly.',
-    url: 'https://coldvision.xyz/',
-    buttonText: 'Explore',
-    buttonWidth: 'w-[90px]',
-    arrowPosition: 'pl-[60px]',
-    screenshotUrl: '/coldvision-preview.png',
-    previewAccent: 'from-cyan-400/20 to-slate-800/40',
-    category: 'Engineering',
-    year: '2026-04-08',
-    status: 'active',
-  },
-  {
     id: 'rubicon',
     name: 'Rubicon',
     iconType: 'text',
@@ -83,25 +63,5 @@ export const projects: Project[] = [
     category: 'Engineering',
     year: '2026-06-19',
     status: 'active',
-  },
-  {
-    id: 'research-agent',
-    name: 'Research Agent',
-    iconType: 'text',
-    iconText: 'RA',
-    iconClassName: 'bg-slate-100 text-slate-700',
-    description:
-      'Local research and optimization harness for running agent loops, producing reports, artifacts, timelines, and score improvements.',
-    hoverDetail:
-      'A guided command-line tool that turns a question or goal into a research or optimization loop, then leaves behind inspectable reports and run artifacts.',
-    url: 'https://github.com/michaelzoub/research-agent',
-    buttonText: 'View repo',
-    buttonWidth: 'w-[100px]',
-    arrowPosition: 'pl-[70px]',
-    screenshotUrl: '/research-agent-preview.png',
-    previewAccent: 'from-slate-200/30 to-blue-200/20',
-    category: 'Engineering',
-    year: '2026-07-05',
-    status: 'in progress',
   },
 ]
