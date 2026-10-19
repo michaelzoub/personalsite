@@ -6,12 +6,14 @@ import Link from 'next/link'
 import gsap from 'gsap'
 import { FaGithub } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
-import { LuCircleCheck, LuCircleDotDashed, LuCirclePlay, LuLoaderCircle } from 'react-icons/lu'
-import { PiArrowUpRight } from 'react-icons/pi'
 import { DotmCircular3 } from '@/components/ui/dotm-circular-3'
+import { BrandMark } from './components/BrandMark'
 import FarmInstrument from './components/FarmInstrument'
-import { ItemMedia } from './components/ItemMedia'
+import { ProjectGlyph } from './components/ProjectGlyph'
+import { useMagneticHighlight } from './components/useMagneticHighlight'
+import { assignTints } from './data/palette'
 import { projects } from './data/projects'
+import { formatDate } from './utils/formatDate'
 
 function MusicStageLoading() {
   return (
@@ -38,23 +40,6 @@ const socials = [
   { label: 'GitHub', href: 'https://github.com/michaelzoub', icon: FaGithub },
 ]
 
-const statusIcons = {
-  active: LuCirclePlay,
-  published: LuCircleCheck,
-  'in progress': LuLoaderCircle,
-}
-
-function ProjectStatus({ status }: { status: string }) {
-  const Icon = statusIcons[status as keyof typeof statusIcons] ?? LuCircleDotDashed
-  const statusClass = status.toLowerCase().replaceAll(' ', '-')
-  return (
-    <span className={`work-status is-${statusClass}`}>
-      <Icon aria-hidden="true" />
-      <span>{status}</span>
-    </span>
-  )
-}
-
 const writing = [{
   id: 'biggest-hurdle-agi',
   name: 'The biggest hurdle to achieving AGI',
@@ -71,7 +56,7 @@ const writing = [{
   description: 'Why access to intelligence should remain contestable, and why decentralized training and open weights matter.',
   url: '/writing/decentralizing-ai',
   screenshotUrl: '/writing/decentralizing-ai/cover.jpg',
-}]
+}].sort((a, b) => b.year.localeCompare(a.year))
 
 // Lead with the current work, then keep the remaining artifacts on the same baseline.
 const selectedWork = [
@@ -79,9 +64,11 @@ const selectedWork = [
   ...projects.filter((p) => p.id !== 'mapbench'),
 ]
 
+// One pass over both lists in reading order, so neighbors across the section break differ too.
+const tints = assignTints([...selectedWork, ...writing].map((item) => item.id))
+
 export default function Home() {
   const [filter, setFilter] = useState<Filter>('All')
-  const [isWorkExpanded, setIsWorkExpanded] = useState(false)
   const rootRef = useRef<HTMLElement>(null)
   const filterRef = useRef<HTMLDivElement>(null)
   const pillRef = useRef<HTMLSpanElement>(null)
@@ -99,6 +86,8 @@ export default function Home() {
   const activePane: 'portfolio' | 'music' | 'future' = isMusic ? 'music' : isFuture ? 'future' : 'portfolio'
   const panes = { portfolio: portfolioRef, music: musicRef, future: futureRef }
 
+  useMagneticHighlight(portfolioRef)
+
   // GSAP owns the initial reveal. All segmented views already exist in the DOM,
   // so this animation never gates loading or component setup.
   useLayoutEffect(() => {
@@ -112,7 +101,7 @@ export default function Home() {
         { autoAlpha: 1, duration: reduced ? .01 : .42, stagger: reduced ? 0 : .04, ease: 'power2.out', clearProps: 'opacity,visibility' },
       )
       gsap.fromTo(
-        '.work-card, .writing-entry',
+        '.index-entry',
         { autoAlpha: 0 },
         { autoAlpha: 1, duration: reduced ? .01 : .42, stagger: reduced ? 0 : .035, ease: 'power2.out', clearProps: 'opacity,visibility' },
       )
@@ -198,6 +187,7 @@ export default function Home() {
   return (
     <main ref={rootRef} className="editorial">
       <header className="lede">
+        <BrandMark />
         <div className="lede-head">
           <h1 data-gsap-enter>Michael Zoubkoff</h1>
           <nav data-gsap-enter className="lede-links" aria-label="Social links">
@@ -211,17 +201,11 @@ export default function Home() {
             })}
           </nav>
         </div>
-        <section data-gsap-enter className="consulting" aria-label="Consulting">
-          <p>Available for consulting.</p>
-          <a className="book-call" href="https://calendly.com/michaezl/new-meeting" target="_blank" rel="noreferrer" aria-label="Book a call. I help startups build AI agents, developer tools, and production systems.">
-            <span className="book-call-label" aria-hidden>Book a call →</span>
-            <span className="book-call-detail" aria-hidden>I help startups build AI agents, developer tools, and production systems.</span>
-          </a>
-        </section>
-        <p data-gsap-enter>I build software around agents, markets, and interfaces.</p>
-        <p data-gsap-enter>Right now I&apos;m working on <a className="inline-text-link" href="https://www.rubiconpay.xyz/" target="_blank" rel="noreferrer">Rubicon</a>: payment and access rails for agents that discover, buy, and use online writing.</p>
+        <p data-gsap-enter>I research and build agents.</p>
+        <p data-gsap-enter>Right now I&apos;m researching independently and experimenting with new ways of building software.</p>
       </header>
 
+      {/* Segmented control hidden for the index layout — uncomment to bring back Music / Future.
       <div className="editorial-filter-row">
         <div ref={filterRef} data-gsap-enter className="reference-filter unified-filter" role="group" aria-label="Browse work and personal interests">
           <span ref={pillRef} className="reference-pill filter-pill-gsap" aria-hidden="true" />
@@ -257,70 +241,61 @@ export default function Home() {
           </div>
         </div>
       </div>
+      */}
 
       <div className="editorial-surface">
         <div className="segmented-panels">
           <div ref={portfolioRef} className="editorial-view segmented-panel" data-active={activePane === 'portfolio'} aria-hidden={activePane !== 'portfolio'}>
-            <section
-                    hidden={!showProjects}
-                    className="work-grid"
-                    aria-label="Work"
-                    onPointerEnter={(event) => {
-                      if (event.pointerType === 'mouse') setIsWorkExpanded(true)
-                    }}
-                    onPointerLeave={(event) => {
-                      if (event.pointerType === 'mouse') setIsWorkExpanded(false)
-                    }}
-                    onFocusCapture={() => setIsWorkExpanded(true)}
-                    onBlurCapture={(event) => {
-                      if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) {
-                        setIsWorkExpanded(false)
-                      }
-                    }}
-                  >
-                    {selectedWork.map((item, i) => {
+            <div className="index">
+              <section hidden={!showProjects} className="index-section" aria-labelledby="index-work">
+                <h2 id="index-work" className="index-label">Work</h2>
+                <div className="index-track" data-magnetic-track>
+                  <span className="magnetic-frame" aria-hidden="true"><span className="magnetic-fill" /></span>
+                  <ul className="index-list">
+                    {selectedWork.map((item) => {
                       const external = item.url.startsWith('http')
-                      const isHero = i === 0
                       return (
-                        <a
-                          key={item.id}
-                          href={item.url}
-                          target={external ? '_blank' : undefined}
-                          rel={external ? 'noopener noreferrer' : undefined}
-                          data-sound="card"
-                          className={`work-card${isHero ? ' is-hero' : ''}${isWorkExpanded ? ' is-expanded' : ''} project-${item.id}`}
-                          aria-expanded={isWorkExpanded}
-                        >
-                          <div className="work-media"><ItemMedia item={item} sizes={isHero ? '(max-width:820px) 100vw, 560px' : '380px'} priority /></div>
-                          <div className="work-reveal">
-                            <div className="work-meta">
-                              <div className="work-meta-row">
-                                <span className="work-name">{item.name}</span>
-                                <ProjectStatus status={item.status} />
-                              </div>
+                        <li key={item.id} className="index-entry">
+                          <a
+                            href={item.url}
+                            target={external ? '_blank' : undefined}
+                            rel={external ? 'noopener noreferrer' : undefined}
+                            data-sound="card"
+                            data-tint={tints[item.id]}
+                            className="index-row"
+                          >
+                            <div>
+                              <h3>{item.name}</h3>
                               <p>{item.description}</p>
                             </div>
-                          </div>
-                        </a>
+                            <ProjectGlyph id={item.id} />
+                          </a>
+                        </li>
                       )
                     })}
-            </section>
-            <section hidden={!showWriting} className={`writing-grid${showProjects ? ' after-work' : ''}`} aria-label="Writing">
+                  </ul>
+                </div>
+              </section>
+              <section hidden={!showWriting} className="index-section" aria-labelledby="index-writing">
+                <h2 id="index-writing" className="index-label">Writing</h2>
+                <div className="index-track" data-magnetic-track>
+                  <span className="magnetic-frame" aria-hidden="true"><span className="magnetic-fill" /></span>
+                  <ul className="index-list">
                     {writing.map((item) => (
-                      <div className="writing-entry" key={item.id}>
-                        <Link href={item.url} className="writing-card" data-sound="none">
-                          <div className="writing-media"><ItemMedia item={item} sizes="(max-width:620px) 100vw, 460px" priority /></div>
-                          <div className="writing-body">
-                            <div className="writing-heading">
-                              <h3>{item.name}</h3>
-                              <span className="writing-meta"><time>{item.year}</time><PiArrowUpRight aria-hidden /></span>
-                            </div>
-                            <p>{item.description}</p>
+                      <li key={item.id} className="index-entry">
+                        <Link href={item.url} className="index-row" data-sound="none" data-tint={tints[item.id]}>
+                          <div>
+                            <h3>{item.name}</h3>
+                            <p><time dateTime={item.year}>{formatDate(item.year)}</time></p>
                           </div>
+                          <ProjectGlyph id={item.id} />
                         </Link>
-                      </div>
+                      </li>
                     ))}
-            </section>
+                  </ul>
+                </div>
+              </section>
+            </div>
           </div>
           <div ref={musicRef} className="editorial-view segmented-panel" data-active={activePane === 'music'} aria-hidden={activePane !== 'music'}>
             <div className="editorial-music"><MusicGraph /></div>
