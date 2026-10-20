@@ -9,7 +9,7 @@ export const contentType = 'image/png'
 
 const NAME = 'Michael Zoubkoff'
 const LINES = ['I research and build agents.', 'Experimenting with new ways of building software.']
-const DOMAIN = 'zoubkoff.com'
+const DOMAIN = 'zoubkoff.xyz'
 
 // Satori can't read woff2; an unrecognized user agent makes Google Fonts serve TTF.
 async function inter(weight: number, text: string) {
