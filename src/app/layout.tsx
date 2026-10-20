@@ -18,7 +18,7 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.zoubkoff.com"),
+  metadataBase: new URL("https://www.zoubkoff.xyz"),
   title: {
     default: "Michael Zoubkoff's portfolio.",
     template: "%s · Michael Zoubkoff",
