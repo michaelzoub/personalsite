@@ -1,6 +1,6 @@
 'use client'
 
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import gsap from 'gsap'
@@ -69,7 +69,6 @@ const tints = assignTints([...selectedWork, ...writing].map((item) => item.id))
 
 export default function Home() {
   const [filter, setFilter] = useState<Filter>('All')
-  const rootRef = useRef<HTMLElement>(null)
   const filterRef = useRef<HTMLDivElement>(null)
   const pillRef = useRef<HTMLSpanElement>(null)
   const portfolioRef = useRef<HTMLDivElement>(null)
@@ -87,27 +86,6 @@ export default function Home() {
   const panes = { portfolio: portfolioRef, music: musicRef, future: futureRef }
 
   useMagneticHighlight(portfolioRef)
-
-  // GSAP owns the initial reveal. All segmented views already exist in the DOM,
-  // so this animation never gates loading or component setup.
-  useLayoutEffect(() => {
-    const root = rootRef.current
-    if (!root) return
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const context = gsap.context(() => {
-      gsap.fromTo(
-        '[data-gsap-enter]',
-        { autoAlpha: 0 },
-        { autoAlpha: 1, duration: reduced ? .01 : .42, stagger: reduced ? 0 : .04, ease: 'power2.out', clearProps: 'opacity,visibility' },
-      )
-      gsap.fromTo(
-        '.index-entry',
-        { autoAlpha: 0 },
-        { autoAlpha: 1, duration: reduced ? .01 : .42, stagger: reduced ? 0 : .035, ease: 'power2.out', clearProps: 'opacity,visibility' },
-      )
-    }, root)
-    return () => context.revert()
-  }, [])
 
   // One physical pill moves between every segment. Updating it in a layout
   // effect prevents the old button from flashing selected for a frame.
@@ -185,12 +163,12 @@ export default function Home() {
   }
 
   return (
-    <main ref={rootRef} className="editorial">
+    <main className="editorial">
       <header className="lede">
         <BrandMark />
         <div className="lede-head">
-          <h1 data-gsap-enter>Michael Zoubkoff</h1>
-          <nav data-gsap-enter className="lede-links" aria-label="Social links">
+          <h1 data-enter style={{ '--i': 1 } as CSSProperties}>Michael Zoubkoff</h1>
+          <nav data-enter style={{ '--i': 2 } as CSSProperties} className="lede-links" aria-label="Social links">
             {socials.map((item) => {
               const Icon = item.icon
               return (
@@ -201,20 +179,19 @@ export default function Home() {
             })}
           </nav>
         </div>
-        <p data-gsap-enter>I research and build agents.</p>
-        <p data-gsap-enter>Right now I&apos;m researching independently and experimenting with new ways of building software.</p>
+        <p data-enter style={{ '--i': 3 } as CSSProperties}>I research and build agents.</p>
+        <p data-enter style={{ '--i': 4 } as CSSProperties}>I&apos;m currently conducting independent research and experimenting with new ways of building software.</p>
       </header>
 
       {/* Segmented control hidden for the index layout — uncomment to bring back Music / Future.
       <div className="editorial-filter-row">
-        <div ref={filterRef} data-gsap-enter className="reference-filter unified-filter" role="group" aria-label="Browse work and personal interests">
+        <div ref={filterRef} data-enter className="reference-filter unified-filter" role="group" aria-label="Browse work and personal interests">
           <span ref={pillRef} className="reference-pill filter-pill-gsap" aria-hidden="true" />
           <div className="filter-segment-group" aria-label="Work">
             {workFilters.map((item) => (
               <button
                 key={item}
                 data-filter={item}
-                data-sound="control"
                 onPointerDown={() => selectFilter(item)}
                 onMouseDown={() => selectFilter(item)}
                 onClick={() => selectFilter(item)}
@@ -229,7 +206,6 @@ export default function Home() {
               <button
                 key={item}
                 data-filter={item}
-                data-sound="control"
                 onPointerDown={() => selectFilter(item)}
                 onMouseDown={() => selectFilter(item)}
                 onClick={() => selectFilter(item)}
@@ -252,15 +228,14 @@ export default function Home() {
                 <div className="index-track" data-magnetic-track>
                   <span className="magnetic-frame" aria-hidden="true"><span className="magnetic-fill" /></span>
                   <ul className="index-list">
-                    {selectedWork.map((item) => {
+                    {selectedWork.map((item, index) => {
                       const external = item.url.startsWith('http')
                       return (
-                        <li key={item.id} className="index-entry">
+                        <li key={item.id} className="index-entry" style={{ '--i': index } as CSSProperties}>
                           <a
                             href={item.url}
                             target={external ? '_blank' : undefined}
                             rel={external ? 'noopener noreferrer' : undefined}
-                            data-sound="card"
                             data-tint={tints[item.id]}
                             className="index-row"
                           >
@@ -281,9 +256,9 @@ export default function Home() {
                 <div className="index-track" data-magnetic-track>
                   <span className="magnetic-frame" aria-hidden="true"><span className="magnetic-fill" /></span>
                   <ul className="index-list">
-                    {writing.map((item) => (
-                      <li key={item.id} className="index-entry">
-                        <Link href={item.url} className="index-row" data-sound="none" data-tint={tints[item.id]}>
+                    {writing.map((item, index) => (
+                      <li key={item.id} className="index-entry" style={{ '--i': selectedWork.length + index } as CSSProperties}>
+                        <Link href={item.url} className="index-row" data-tint={tints[item.id]}>
                           <div>
                             <h3>{item.name}</h3>
                             <p><time dateTime={item.year}>{formatDate(item.year)}</time></p>

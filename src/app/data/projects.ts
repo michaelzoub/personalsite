@@ -30,7 +30,7 @@ export const projects: Project[] = [
     iconText: 'MB',
     iconClassName: 'bg-zinc-950 text-white',
     description:
-      'A benchmark for testing whether deterministic repository maps help coding agents navigate unfamiliar codebases.',
+      'A large-scale experiment testing whether deterministic repository maps help coding agents navigate unfamiliar codebases. With support from Rubric Labs.',
     hoverDetail:
       'MapBench compares architecture, skeleton, and call-graph artifacts across 359 coding-agent trials, measuring task success, navigation speed, token use, and runtime.',
     url: 'https://www.map-bench.xyz/#mapbench',

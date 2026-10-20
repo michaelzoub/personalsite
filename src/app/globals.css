@@ -567,6 +567,14 @@ button { font:inherit; }
   .article-head { grid-template-columns:minmax(0,1fr) 72px; gap:24px; }
 }
 
+/* Landing entrance in pure CSS, so it starts with the first paint (no
+   hydration flash) and runs on the compositor: lede first, then the index. */
+@keyframes enterFade { from { opacity:0; transform:translateY(4px); } }
+@media (prefers-reduced-motion:no-preference) {
+  [data-enter] { animation:enterFade 420ms var(--ease-out) calc(var(--i,0) * 40ms) backwards; }
+  .index-entry { animation:enterFade 420ms var(--ease-out) calc(160ms + var(--i,0) * 35ms) backwards; }
+}
+
 /* Index — label column on the left, entries with a small animated glyph on the right. */
 .index { display:grid; gap:clamp(72px,11vh,112px); margin-top:clamp(64px,9vh,96px); }
 .index-section { display:grid; grid-template-columns:minmax(0,150px) minmax(0,1fr); gap:24px; }
@@ -592,44 +600,41 @@ button { font:inherit; }
 .index-row:active { transform:scale(.98); transition-duration:120ms; }
 .index-row:focus-visible { outline:0; box-shadow:0 0 0 2px var(--paper),0 0 0 4px rgba(26,35,49,.2); }
 
-/* Glyphs — one dot-matrix language: identical ink dots on a 19×15 grid (only
-   lit cells render) where motion only changes opacity. Resting state is the
-   finished frame. */
-.glyph { --off:0; display:block; width:76px; height:auto; color:var(--ink); justify-self:end; }
-.glyph .g-dot { fill:currentColor; opacity:var(--off); }
-.glyph .g-on,.glyph .g-show,.glyph .g-pulse,.glyph .g-peer,.glyph .is-rest { opacity:1; }
+/* Glyphs — one pixel language: ink cells on a 7×7 grid packed into solid,
+   softly filleted masses. Each glyph is one icon with one quiet motion; the
+   resting state is the finished frame. */
+.glyph { display:block; width:60px; height:auto; overflow:visible; color:var(--ink); justify-self:end; }
+.glyph .g-dot { fill:currentColor; }
+.glyph .g-fuse { opacity:0; }
+.glyph .g-link { opacity:.28; }
+.glyph .g-blink,.glyph .g-spark { opacity:0; }
 
 @media (prefers-reduced-motion:no-preference) {
-  .glyph .g-show,.glyph .g-pulse,.glyph .g-hub,.glyph .g-peer { animation:4.8s cubic-bezier(.4,0,.2,1) var(--d,0ms) infinite both; }
-  .glyph .g-morph { animation:var(--dur) cubic-bezier(.4,0,.2,1) var(--d,0ms) infinite both; }
-  .glyph .g-show { animation-name:g-show; }
-  .glyph .g-pulse { animation-name:g-pulse; }
-  .glyph .g-hub { animation-name:g-hub; }
-  .glyph .g-peer { animation-name:g-peer; }
+  .glyph .g-ping { animation:g-ping 2.4s cubic-bezier(.2,.8,.2,1) var(--d,0ms) infinite both; }
+  .glyph .g-blink { animation:g-blink 4.4s linear infinite; }
+  .glyph .g-spark { animation:g-spark 3.2s ease-in-out var(--d,0ms) infinite both; }
+  /* The spread plays once, shortly after the row appears (sections toggled
+     back in via the segment selector replay it); the mesh then keeps talking. */
+  .glyph .g-spread { animation:g-spread 1.2s cubic-bezier(.65,0,.35,1) .9s both; }
+  .glyph .g-fuse { animation:g-fuse .24s ease-out .9s both; }
+  .glyph .g-link { animation:g-link .6s ease-out 1.9s both,g-talk 6s ease-in-out calc(2.5s + var(--d,0ms)) infinite; }
 }
 
-/* Morph frames: each dot's name spells which frames it's lit in. Each frame
-   holds ~63% of its slot, then outgoing dots fade in a clockwise sweep with
-   incoming dots tracing in just behind them (per-dot --d sets the sweep).
-   Percentages scale with --dur, so glyphs can run at different tempos. */
-@keyframes g-m01 { 0% { opacity:0; } 37.5% { opacity:0; } 40.5% { opacity:1; } 81.67% { opacity:1; } 84.67% { opacity:0; } 100% { opacity:0; } }
-@keyframes g-m10 { 0% { opacity:1; } 31.67% { opacity:1; } 34.67% { opacity:0; } 87.5% { opacity:0; } 90.5% { opacity:1; } 100% { opacity:1; } }
-@keyframes g-m001 { 0% { opacity:0; } 58.33% { opacity:0; } 60.33% { opacity:1; } 87.78% { opacity:1; } 89.78% { opacity:0; } 100% { opacity:0; } }
-@keyframes g-m010 { 0% { opacity:0; } 25% { opacity:0; } 27% { opacity:1; } 54.44% { opacity:1; } 56.44% { opacity:0; } 100% { opacity:0; } }
-@keyframes g-m011 { 0% { opacity:0; } 25% { opacity:0; } 27% { opacity:1; } 87.78% { opacity:1; } 89.78% { opacity:0; } 100% { opacity:0; } }
-@keyframes g-m100 { 0% { opacity:1; } 21.11% { opacity:1; } 23.11% { opacity:0; } 91.67% { opacity:0; } 93.67% { opacity:1; } 100% { opacity:1; } }
-@keyframes g-m101 { 0% { opacity:1; } 21.11% { opacity:1; } 23.11% { opacity:0; } 58.33% { opacity:0; } 60.33% { opacity:1; } 100% { opacity:1; } }
-@keyframes g-m110 { 0% { opacity:1; } 54.44% { opacity:1; } 56.44% { opacity:0; } 91.67% { opacity:0; } 93.67% { opacity:1; } 100% { opacity:1; } }
-@keyframes g-show { 0% { opacity:var(--off); } 5%,72% { opacity:1; } 80%,100% { opacity:var(--off); } }
-@keyframes g-pulse { 0%,40% { opacity:var(--off); } 45% { opacity:1; } 58%,100% { opacity:var(--off); } }
-@keyframes g-hub { 0%,30% { opacity:1; } 38%,92% { opacity:var(--off); } 100% { opacity:1; } }
-@keyframes g-peer { 0%,34% { opacity:var(--off); } 40%,80% { opacity:1; } 88%,100% { opacity:var(--off); } }
+@keyframes g-ping { 0% { opacity:0; } 12% { opacity:1; } 55%,100% { opacity:0; } }
+/* A double blink: two quick closes near the end of each cycle. */
+@keyframes g-blink { 0%,86%,89%,93%,96%,100% { opacity:0; } 87%,88%,94%,95% { opacity:1; } }
+/* Each half lights for half the cycle; offset by half, one always carries the spark. */
+@keyframes g-spark { 0%,50%,100% { opacity:0; } 25% { opacity:.5; } }
+@keyframes g-spread { from { transform:translate(var(--tx),var(--ty)); } to { transform:none; } }
+@keyframes g-fuse { from { opacity:1; } to { opacity:0; } }
+@keyframes g-link { from { opacity:0; } }
+@keyframes g-talk { 0%,18%,100% { opacity:.28; } 7% { opacity:.9; } }
 
 @media (max-width:620px) {
   .index-section { grid-template-columns:1fr; gap:20px; }
   .index-list { gap:36px; }
   .index-row { grid-template-columns:minmax(0,1fr) 72px; gap:24px; }
-  .glyph { width:60px; }
+  .glyph { width:48px; }
 }
 @media (prefers-reduced-motion:reduce) {
   .index-row { transition-duration:.01ms!important; }
@@ -648,20 +653,29 @@ button { font:inherit; }
 .egg-package { display:block; overflow:visible; }
 .egg-backdrop { position:fixed; inset:0; z-index:100; opacity:0; background:rgba(250,252,255,.3); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
 .egg-layer { position:fixed; inset:0; z-index:101; display:grid; place-items:center; pointer-events:none; }
-.egg-shell { position:relative; width:48px; height:48px; overflow:hidden; border-radius:8px; background-color:rgba(255,255,255,0); box-shadow:0 8px 24px rgba(15,28,48,0),0 1px 3px rgba(15,28,48,0); pointer-events:auto; transition:transform 160ms var(--ease-out); }
-.egg-shell:has(.egg-row:active) { transform:scale(.98); }
+.egg-shell { position:relative; width:64px; height:64px; overflow:hidden; border-radius:8px; background-color:rgba(255,255,255,0); box-shadow:0 8px 24px rgba(15,28,48,0),0 1px 3px rgba(15,28,48,0); pointer-events:auto; transition:transform 160ms var(--ease-out); }
+.egg-shell:has(.egg-cta:active) { transform:scale(.98); }
 .egg-glyph { position:absolute; inset:0; z-index:1; display:grid; place-items:center; color:var(--ink); pointer-events:none; }
-/* The dialog is one landing index row: title, muted line, glyph on the right. */
-.egg-body { position:absolute; top:0; left:0; box-sizing:border-box; opacity:0; }
-.egg-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:32px; align-items:center; width:100%; padding:20px 24px; border:0; border-radius:inherit; background:transparent; color:inherit; font:inherit; text-align:left; cursor:pointer; }
-.egg-row:focus-visible { outline:0; box-shadow:inset 0 0 0 2px rgba(26,35,49,.2); }
-.egg-title { display:block; color:var(--ink); font-size:15px; line-height:1.5; font-weight:500; letter-spacing:-.011em; }
-.egg-cta { display:flex; align-items:center; gap:6px; margin-top:4px; color:var(--muted); font-size:15px; line-height:1.55; letter-spacing:-.006em; transition:color 150ms ease; }
-.egg-cta svg { width:14px; height:14px; transition:transform 180ms var(--ease-out); }
-.egg-slot { display:block; width:43px; height:48px; }
+/* The dialog borrows the landing: a gray tray around a white card, the logo
+   stripes up top, title and quote, then the CTA. */
+.egg-body { position:absolute; top:0; left:0; box-sizing:border-box; padding:8px; opacity:0; }
+.egg-card { overflow:hidden; border-radius:10px; background:#fff; box-shadow:0 0 0 1px rgba(15,28,48,.06),0 1px 2px rgba(15,28,48,.04); }
+.egg-head { padding:22px 24px 0; line-height:0; }
+.egg-head svg { display:block; }
+.egg-row { padding:26px 24px 24px; }
+.egg-title { margin:0; color:var(--ink); font-size:15px; line-height:1.5; font-weight:600; letter-spacing:-.011em; }
+.egg-line { margin:4px 0 0; color:var(--muted); font-size:15px; line-height:1.55; letter-spacing:-.006em; }
+.egg-cta { position:relative; display:flex; justify-content:space-between; align-items:center; width:calc(100% - 24px); margin:6px 12px 10px; padding:11px 12px; border:0; border-radius:6px; background:transparent; color:var(--ink); font:inherit; font-size:15px; line-height:1.5; font-weight:500; letter-spacing:-.011em; text-align:left; cursor:pointer; transition:background-color 180ms ease; }
+.egg-cta svg { width:15px; height:15px; color:var(--muted); transition:transform 180ms var(--ease-out),color 150ms ease; }
+.egg-cta:focus-visible { outline:0; box-shadow:inset 0 0 0 2px rgba(26,35,49,.2); }
 @media (hover:hover) and (pointer:fine) {
-  .egg-row:hover .egg-cta { color:var(--ink); }
-  .egg-row:hover .egg-cta svg { transform:translateX(2px); }
+  .egg-cta:hover { background-color:var(--tint); }
+  .egg-cta:hover svg { color:var(--ink); transform:translate(1px,-1px); }
+}
+@media (max-width:420px) {
+  .egg-head { padding:18px 18px 0; }
+  .egg-row { padding:22px 18px 20px; }
+  .egg-cta { width:calc(100% - 12px); margin:6px 6px 6px; }
 }
 
 /* Egg state only: the settled facade turns light blue. Registering the color

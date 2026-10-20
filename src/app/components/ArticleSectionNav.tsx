@@ -115,7 +115,6 @@ export default function ArticleSectionNav({ sections }: { sections: ArticleSecti
           href={`#${section.id}`}
           onClick={(event) => navigate(event, section.id)}
           aria-current={active === section.id ? 'location' : undefined}
-          data-sound="none"
         >
           {section.label}
         </a>
