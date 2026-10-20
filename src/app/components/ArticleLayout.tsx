@@ -23,7 +23,7 @@ export default function ArticleLayout({ glyph, title, date, deck, sections, sour
     <main className="editorial article">
       <header className="lede article-lede">
         <BrandMark />
-        <Link href="/" className="article-home" aria-label="Michael Zoubkoff, back home" data-sound="none">Michael Zoubkoff</Link>
+        <Link href="/" className="article-home" aria-label="Michael Zoubkoff, back home">Michael Zoubkoff</Link>
       </header>
 
       <div className="article-layout">
@@ -39,7 +39,7 @@ export default function ArticleLayout({ glyph, title, date, deck, sections, sour
           <p className="article-deck">{deck}</p>
           {children}
           <footer>
-            <a href={source.href} target="_blank" rel="noreferrer" data-sound="none">
+            <a href={source.href} target="_blank" rel="noreferrer">
               <span>{source.label}</span> <LuArrowUpRight aria-hidden />
             </a>
           </footer>

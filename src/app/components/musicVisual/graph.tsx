@@ -7,7 +7,6 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { BoxGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, TextureLoader } from 'three'
 import SpriteText from 'three-spritetext'
 import gsap from 'gsap'
-import { playUiSound } from '../sound'
 
 type Genre = 'Electronic' | 'Rap' | 'Techno' | 'Ambient' | 'Jazz' | 'Indie' | 'R&B'
 type Track = { id: string; title: string; artist: string; genre: Genre; cover: string }
@@ -269,7 +268,6 @@ export default function Graph() {
 
   const selectTrack = useCallback((track:Track) => {
     if (preloadTimer.current) clearTimeout(preloadTimer.current)
-    playUiSound('music-select')
     setPreloaded(track)
     setSelected(track)
   }, [])

@@ -4,11 +4,13 @@ import gsap from 'gsap'
 import { usePathname } from 'next/navigation'
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
-import { LuArrowRight, LuX } from 'react-icons/lu'
+import { LuArrowUpRight, LuX } from 'react-icons/lu'
 import { palette } from '../data/palette'
+import { pixelPaths, type Cell } from './pixels'
+import { BrandStripes } from './BrandMark'
 
-// Easter egg: dwell in the top-right corner and a care package shoots to the
-// center, unfolds into a dialog, and "Start" turns the page into its box model
+// Easter egg: dwell in the top-right corner (tap or press it on touch) and a
+// care package shoots to the center, unfolds into a dialog, and "Start" turns the page into its box model
 // (margins, padding, gaps) with a track playing underneath.
 
 type Stage = 'idle' | 'flight' | 'dialog' | 'inspect'
@@ -21,17 +23,23 @@ type Hover = Rect & { name: string; className: string; margin: Edges; padding: E
 
 const TRACK = { src: '/audio/texture-401.mp3', title: 'Texture 401', artist: 'Joachim Spieth' }
 const DWELL_MS = 320
+// Touch has no hover, so the corner answers to a tap or a short press instead.
+const CORNER = 72
+const TAP_SLOP = 10
 const FLIGHT_MS = 820
 const TRAIL_LAG_MS = 170
 const ICON = 48
-const DIALOG_W = 340
-const DIALOG_R = 12
+const DIALOG_W = 440
+// The gray tray around the white card: card radius 10 + tray padding 8.
+const DIALOG_R = 18
+const TRAY = '#f2f5f9'
 // Shadow only, no stroke, same as the inspect HUD.
 const SHADOW = '0 8px 24px rgba(15,28,48,.08), 0 1px 3px rgba(15,28,48,.05)'
 
 // Chrome's box-model colors, swapped for the logo's five stripes.
 const [red, orange, yellow, amber] = palette.map((color) => color.base)
 const colorVars = { '--gap': red, '--margin': orange, '--padding': yellow, '--hover': amber } as CSSProperties
+const amberTint = palette[3].tint
 
 const LANDMARKS = new Set(['MAIN', 'HEADER', 'SECTION', 'NAV', 'ARTICLE', 'ASIDE', 'FOOTER', 'UL', 'OL', 'FIGURE', 'H1', 'H2'])
 const LEAVES = new Set(['SVG', 'PRE', 'CANVAS', 'VIDEO', 'IFRAME', 'PICTURE'])
@@ -49,76 +57,29 @@ function useLatest<T>(value: T) {
   return ref
 }
 
-/* The package, in the same dot language as the work glyphs: an isometric box
-   drawn as three dot lattices. Edges are solid ink, the faces are shaded by dot
-   opacity (lit top, darker sides), and a strip of tape in the logo's five
-   colors runs over the lid seam and down the front. */
-const PK_EDGE = 22
-const PK_STEPS = 6
-const PK_PAD = 2
-const PK_W = Math.ceil(PK_EDGE * Math.sqrt(3) + PK_PAD * 2)
-const PK_H = PK_EDGE * 2 + PK_PAD * 2
-const PK_PITCH = PK_EDGE / PK_STEPS
-const PK_DOT = 1.15
-
-type PackageDot = { x: number; y: number; opacity: number; tape?: string }
-
-const packageDots: PackageDot[] = (() => {
-  const cos = Math.cos(Math.PI / 6) * PK_EDGE
-  const sin = Math.sin(Math.PI / 6) * PK_EDGE
-  const top = { x: PK_W / 2, y: PK_PAD }
-  const right = { x: cos, y: sin }
-  const left = { x: -cos, y: sin }
-  const down = { x: 0, y: PK_EDGE }
-  const front = { x: top.x + right.x + left.x, y: top.y + right.y + left.y }
-  const dots = new Map<string, PackageDot & { rank: number }>()
-  const tapeDots: { x: number; y: number; t: number }[] = []
-  const put = (x: number, y: number, opacity: number, rank: number) => {
-    const key = `${Math.round(x * 10)},${Math.round(y * 10)}`
-    const current = dots.get(key)
-    if (!current || current.rank < rank) dots.set(key, { x, y, opacity, rank })
-  }
-  // Each face is origin + i·u + j·v over an N×N lattice; boundary dots are edges.
-  const face = (origin: { x: number; y: number }, u: { x: number; y: number }, v: { x: number; y: number }, shade: number, tapeAt: 'i' | 'j' | null, tapeFrom: number) => {
-    const n = PK_STEPS
-    for (let i = 0; i <= n; i++) {
-      for (let j = 0; j <= n; j++) {
-        const x = origin.x + (u.x * i + v.x * j) / n
-        const y = origin.y + (u.y * i + v.y * j) / n
-        const onTape = (tapeAt === 'i' && i === n / 2) || (tapeAt === 'j' && j === n / 2)
-        if (onTape) tapeDots.push({ x, y, t: tapeFrom + (tapeAt === 'i' ? j : i) })
-        put(x, y, i === 0 || j === 0 || i === n || j === n ? 1 : shade, i === 0 || j === 0 || i === n || j === n ? 1 : 0)
-      }
-    }
-  }
-  face(top, right, left, .18, 'i', 0) // lid: tape along the seam, back to front
-  face(front, { x: -left.x, y: -left.y }, down, .52, null, 0) // right side
-  face(front, { x: -right.x, y: -right.y }, down, .34, 'i', PK_STEPS) // left side: tape runs down it
-
-  const ordered = tapeDots.sort((a, b) => a.t - b.t)
-  const span = ordered[ordered.length - 1].t || 1
-  ordered.forEach(({ x, y, t }) => {
-    const key = `${Math.round(x * 10)},${Math.round(y * 10)}`
-    const color = palette[Math.min(palette.length - 1, Math.floor((t / span) * palette.length))].base
-    dots.set(key, { x, y, opacity: 1, tape: color, rank: 2 })
-  })
-  return Array.from(dots.values()).map(({ x, y, opacity, tape }) => ({ x, y, opacity, tape }))
-})()
+/* The package, in the work glyphs' rounded-pixel language: an ink lid over a
+   body striped in the logo's five colors, one column each. */
+const PX = 8
+const PACKAGE = [
+  '#######',
+  '.12345.',
+  '.12345.',
+  '.12345.',
+  '.12345.',
+]
+const PK_W = PACKAGE[0].length * PX
+const PK_H = PACKAGE.length * PX
+const packagePaths = Array.from(pixelPaths(
+  new Map(PACKAGE.flatMap((row, r) => [...row].flatMap((ch, c) =>
+    ch === '.' ? [] : [[`${c},${r}`, ch === '#' ? 'currentColor' : palette[Number(ch) - 1].base] as const],
+  ))),
+  PX,
+))
 
 function PackageGlyph() {
   return (
     <svg className="egg-package" width={PK_W} height={PK_H} viewBox={`0 0 ${PK_W} ${PK_H}`} aria-hidden="true">
-      {packageDots.map((dot, i) => (
-        <circle
-          key={i}
-          cx={dot.x}
-          cy={dot.y}
-          r={dot.tape ? 1.45 : PK_DOT}
-          fill={dot.tape ?? 'currentColor'}
-          opacity={dot.opacity}
-          data-tape={dot.tape ? '' : undefined}
-        />
-      ))}
+      {packagePaths.map(([fill, d]) => <path key={fill} fill={fill} d={d} />)}
     </svg>
   )
 }
@@ -151,6 +112,50 @@ export function InspectEgg() {
     setTrail(true)
     setStage('flight')
   }
+  const launchRef = useLatest(launch)
+
+  // A listener rather than a hit zone, so the corner never swallows taps meant
+  // for the page. Scrolling cancels the pointer, so a swipe that starts in the
+  // corner doesn't count.
+  useEffect(() => {
+    if (stage !== 'idle') return
+    let start: { id: number; x: number; y: number } | null = null
+    let timer = 0
+    const reset = () => {
+      window.clearTimeout(timer)
+      start = null
+    }
+    const fire = () => {
+      reset()
+      launchRef.current()
+    }
+    const onDown = (event: PointerEvent) => {
+      if (event.pointerType === 'mouse' || !event.isPrimary) return
+      if (event.clientX < window.innerWidth - CORNER || event.clientY > CORNER) return
+      start = { id: event.pointerId, x: event.clientX, y: event.clientY }
+      timer = window.setTimeout(fire, DWELL_MS)
+    }
+    const onMove = (event: PointerEvent) => {
+      if (start?.id === event.pointerId && Math.hypot(event.clientX - start.x, event.clientY - start.y) > TAP_SLOP) reset()
+    }
+    // Deferred past the tap's own click, so it can't land on the new backdrop.
+    const onUp = (event: PointerEvent) => {
+      if (start?.id !== event.pointerId) return
+      window.clearTimeout(timer)
+      timer = window.setTimeout(fire, 0)
+    }
+    window.addEventListener('pointerdown', onDown, { passive: true })
+    window.addEventListener('pointermove', onMove, { passive: true })
+    window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', reset)
+    return () => {
+      reset()
+      window.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', reset)
+    }
+  }, [stage, launchRef])
 
   // Called inside the click handler so the browser treats it as user-initiated.
   const play = () => {
@@ -200,7 +205,7 @@ export function InspectEgg() {
 }
 
 /* Flight: the package arcs from the corner to the center, dragging a five-stripe
-   trail in the logo colors. A GSAP timeline drives head and tail along the same
+   pixel trail in the logo colors. A GSAP timeline drives head and tail along the same
    curve, the tail starting a beat later, so the trail shortens on its own once
    the package lands. */
 function Flight({ onLand, onDone }: { onLand: () => void; onDone: () => void }) {
@@ -237,8 +242,7 @@ function Flight({ onLand, onDone }: { onLand: () => void; onDone: () => void }) 
       const length = Math.hypot(dx, dy) || 1
       return { x: -dy / length, y: dx / length }
     }
-    // Arc-length table, so trail dots sit at a fixed pitch along the curve and
-    // stay put as the head advances: the trail is printed, not dragged.
+    // Arc-length table, so the trail can be measured along the curve.
     const TABLE = 240
     const lengths = [0]
     for (let i = 1, prev = point(0); i <= TABLE; i++) {
@@ -251,41 +255,46 @@ function Flight({ onLand, onDone }: { onLand: () => void; onDone: () => void }) 
       const i = Math.min(TABLE - 1, Math.floor(f))
       return lengths[i] + (lengths[i + 1] - lengths[i]) * (f - i)
     }
-    const tAt = (length: number) => {
-      let lo = 0
-      let hi = TABLE
-      while (hi - lo > 1) {
-        const mid = (lo + hi) >> 1
-        if (lengths[mid] < length) lo = mid
-        else hi = mid
+
+    // The trail is a pixel line printed on a fixed grid behind the package:
+    // the cells the curve passes through, stepping only to side neighbors so
+    // it stays one connected mass, striped along its length in the logo's colors.
+    const trail: { key: string; at: number }[] = []
+    for (let i = 0, last: Cell | null = null; i <= TABLE; i++) {
+      const p = point(i / TABLE)
+      const cell: Cell = [Math.floor(p.x / PX), Math.floor(p.y / PX)]
+      if (last && cell[0] === last[0] && cell[1] === last[1]) continue
+      if (last && cell[0] !== last[0] && cell[1] !== last[1]) {
+        // A diagonal step turns the corner through whichever side cell the curve hugs.
+        const via: Cell[] = [[cell[0], last[1]], [last[0], cell[1]]]
+        const off = ([col, row]: Cell) => Math.hypot((col + .5) * PX - p.x, (row + .5) * PX - p.y)
+        const [col, row] = off(via[0]) <= off(via[1]) ? via[0] : via[1]
+        trail.push({ key: `${col},${row}`, at: lengths[i] })
       }
-      return (lo + (length - lengths[lo]) / ((lengths[hi] - lengths[lo]) || 1)) / TABLE
+      trail.push({ key: `${cell[0]},${cell[1]}`, at: lengths[i] })
+      last = cell
     }
 
-    // The package's dot lattice carried on behind it: ten lanes at the box's
-    // pitch, two per logo color, narrowing and fading toward the tail. It starts
-    // at the box's back edge so it reads as coming out of the package.
-    const LANES = 10
-    const HEAD_GAP = 18
+    // Each color holds for three cells; toward the tail the line fades in flat
+    // steps rather than a gradient, so it stays pixel-crisp.
+    const STRIPE = 3
+    const FADE_STEPS = 3
+    const HEAD_GAP = PX
     const drawTrail = (tail: number, head: number) => {
       const from = lengthAt(tail)
       const to = lengthAt(head) - HEAD_GAP
       if (to <= from) return
-      for (let at = Math.ceil(from / PK_PITCH) * PK_PITCH; at <= to; at += PK_PITCH) {
-        const f = (at - from) / (to - from)
-        const t = tAt(at)
-        const p = point(t)
-        const n = normal(t)
-        const reach = ((LANES - 1) / 2) * Math.sqrt(f) + .5
-        for (let lane = 0; lane < LANES; lane++) {
-          const offset = lane - (LANES - 1) / 2
-          if (Math.abs(offset) > reach) continue
-          ctx.globalAlpha = Math.pow(f, 1.3)
-          ctx.fillStyle = palette[lane >> 1].base
-          ctx.beginPath()
-          ctx.arc(p.x + n.x * offset * PK_PITCH, p.y + n.y * offset * PK_PITCH, PK_DOT, 0, Math.PI * 2)
-          ctx.fill()
-        }
+      const lit = new Map<string, string>()
+      trail.forEach(({ key, at }, index) => {
+        if (at < from || at > to) return
+        const step = Math.max(1, Math.ceil(((at - from) / (to - from)) * FADE_STEPS))
+        lit.set(key, `${Math.floor(index / STRIPE) % palette.length}:${step}`)
+      })
+      for (const [layer, d] of pixelPaths(lit, PX)) {
+        const [color, step] = layer.split(':').map(Number)
+        ctx.globalAlpha = step / FADE_STEPS
+        ctx.fillStyle = palette[color].base
+        ctx.fill(new Path2D(d))
       }
       ctx.globalAlpha = 1
     }
@@ -296,7 +305,7 @@ function Flight({ onLand, onDone }: { onLand: () => void; onDone: () => void }) 
       ctx.clearRect(0, 0, w, h)
       drawTrail(tail, head)
       const p = point(head)
-      gsap.set(icon, { x: p.x - ICON / 2, y: p.y - ICON / 2, rotation: (1 - head) * -32, force3D: true })
+      gsap.set(icon, { x: p.x - ICON / 2, y: p.y - ICON / 2, force3D: true })
     }
     render()
 
@@ -327,55 +336,52 @@ function Flight({ onLand, onDone }: { onLand: () => void; onDone: () => void }) 
 }
 
 /* Dialog: picks up exactly where the flight left off (the package at the
-   center), firms into a white tile, then slowly widens into one of the
-   landing's index rows (title, muted line, glyph on the right) while the
-   package slides over into the glyph slot and the backdrop blurs in. */
+   center), firms into a white tile as the package fades out, then slowly
+   widens into a gray tray holding a white card — the logo stripes on top,
+   the title and quote, then the CTA. */
 function CarePackage({ onStart, onClosed }: { onStart: () => void; onClosed: (started: boolean) => void }) {
   const backdropRef = useRef<HTMLDivElement>(null)
   const shellRef = useRef<HTMLDivElement>(null)
   const glyphRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const startRef = useRef<HTMLButtonElement>(null)
-  const slotRef = useRef<HTMLSpanElement>(null)
   const intro = useRef<gsap.Context | null>(null)
   const closing = useRef(false)
   const callbacks = useLatest({ onStart, onClosed })
+  // Client-only (portaled after mount), so the viewport is safe to read here.
+  const [dialogW] = useState(() => Math.min(DIALOG_W, window.innerWidth - 32))
 
   useLayoutEffect(() => {
     const backdrop = backdropRef.current
     const shell = shellRef.current
     const glyph = glyphRef.current
     const body = bodyRef.current
-    const slot = slotRef.current
-    if (!backdrop || !shell || !glyph || !body || !slot) return
+    const card = body?.firstElementChild
+    if (!backdrop || !shell || !glyph || !body || !card) return
     const height = body.offsetHeight
-    // The glyph layer stays centered in the shell, so its resting offset is the
-    // slot's center measured from the finished dialog's center.
-    const slotBox = slot.getBoundingClientRect()
-    const bodyBox = body.getBoundingClientRect()
-    const rest = {
-      x: slotBox.left - bodyBox.left + slotBox.width / 2 - DIALOG_W / 2,
-      y: slotBox.top - bodyBox.top + slotBox.height / 2 - height / 2,
-    }
-    const final = { width: DIALOG_W, height, borderRadius: DIALOG_R, backgroundColor: '#fff', boxShadow: SHADOW }
+    const final = { width: dialogW, height, borderRadius: DIALOG_R, backgroundColor: TRAY, boxShadow: SHADOW }
     // Opened by the pointer, so skip the keyboard ring where the browser allows it.
     const focusStart = () => startRef.current?.focus({ preventScroll: true, focusVisible: false } as FocusOptions)
 
     intro.current = gsap.context(() => {
       if (reducedMotion()) {
         gsap.set(shell, final)
-        gsap.set(glyph, rest)
+        gsap.set(glyph, { autoAlpha: 0 })
         gsap.set(body, { opacity: 1 })
         gsap.fromTo([backdrop, shell], { opacity: 0 }, { opacity: 1, duration: .2, onComplete: focusStart })
         return
       }
       gsap.timeline({ onComplete: focusStart })
-        .to(shell, { width: 72, height: 72, borderRadius: 18, backgroundColor: '#fff', boxShadow: SHADOW, duration: .34, ease: 'power4.out' })
-        .addLabel('open', '+=.06')
+        .to(shell, { width: 80, height: 80, borderRadius: 18, backgroundColor: '#fff', boxShadow: SHADOW, duration: .34, ease: 'power4.out' })
+        // The package has done its job once it lands: it fades out of the
+        // tile before the tile widens into the dialog.
+        .to(glyph, { autoAlpha: 0, scale: .9, duration: .22, ease: 'power2.in' }, '-=.1')
+        .addLabel('open', '+=.02')
         .to(backdrop, { opacity: 1, duration: .9, ease: 'power1.out' }, 'open')
         .to(shell, { ...final, duration: .72, ease: 'power4.inOut' }, 'open')
-        .to(glyph, { ...rest, duration: .72, ease: 'power4.inOut' }, 'open')
-        .fromTo(body, { opacity: 0, x: -6 }, { opacity: 1, x: 0, duration: .32, ease: 'power4.out' }, 'open+=.5')
+        .set(body, { opacity: 1 }, 'open+=.42')
+        .fromTo(card, { opacity: 0 }, { opacity: 1, duration: .24, ease: 'power2.out' }, 'open+=.42')
+        .fromTo(card.children, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .32, stagger: .04, ease: 'power4.out' }, 'open+=.5')
     })
 
     return () => {
@@ -416,16 +422,20 @@ function CarePackage({ onStart, onClosed }: { onStart: () => void; onClosed: (st
     <>
       <div ref={backdropRef} className="egg-backdrop" data-egg aria-hidden="true" onClick={() => close(false)} />
       <div className="egg-layer" data-egg>
-        <div ref={shellRef} className="egg-shell" role="dialog" aria-modal="true" aria-labelledby="egg-title">
+        <div ref={shellRef} className="egg-shell" role="dialog" aria-modal="true" aria-labelledby="egg-title" aria-describedby="egg-line">
           <div ref={glyphRef} className="egg-glyph" aria-hidden="true"><PackageGlyph /></div>
-          <div ref={bodyRef} className="egg-body" style={{ width: DIALOG_W }}>
-            <button ref={startRef} type="button" className="egg-row" data-sound="none" onClick={() => close(true)}>
-              <span>
-                <span id="egg-title" className="egg-title">You found the easter egg!</span>
-                <span className="egg-cta">Start the experience<LuArrowRight aria-hidden="true" /></span>
-              </span>
-              <span ref={slotRef} className="egg-slot" aria-hidden="true" />
-            </button>
+          <div ref={bodyRef} className="egg-body" style={{ width: dialogW }}>
+            <div className="egg-card">
+              <div className="egg-head" aria-hidden="true"><BrandStripes /></div>
+              <div className="egg-row">
+                <h2 id="egg-title" className="egg-title">You found something.</h2>
+                <p id="egg-line" className="egg-line">Not all those who wander are lost.</p>
+              </div>
+              <button ref={startRef} type="button" className="egg-cta" style={{ '--tint': amberTint } as CSSProperties} onClick={() => close(true)}>
+                <span>Enter experience</span>
+                <LuArrowUpRight aria-hidden="true" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -758,17 +768,21 @@ function Blueprint({ onExit }: { onExit: () => void }) {
       pointer = { x: event.clientX, y: event.clientY }
       probe()
     }
-    const onLeave = () => {
+    const onLeave = (event: PointerEvent) => {
+      // Touch pointers "leave" right after lifting; keep the tapped element shown.
+      if (event.pointerType !== 'mouse') return
       pointer = null
       last = null
       setHover(null)
     }
     document.addEventListener('pointermove', onMove, { passive: true })
+    document.addEventListener('pointerdown', onMove, { passive: true })
     window.addEventListener('scroll', probe, { passive: true })
     document.documentElement.addEventListener('pointerleave', onLeave)
     return () => {
       cancelAnimationFrame(frame)
       document.removeEventListener('pointermove', onMove)
+      document.removeEventListener('pointerdown', onMove)
       window.removeEventListener('scroll', probe)
       document.documentElement.removeEventListener('pointerleave', onLeave)
     }
