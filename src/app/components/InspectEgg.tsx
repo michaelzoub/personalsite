@@ -633,21 +633,20 @@ const SWEEP = 1.1 // seconds for the demolition to travel down the viewport
 const GHOST = { opacity: .9 }
 // In the egg state the settled facade (text and the dot glyphs) turns light
 // blue, so the warm blueprint reads as the structure and the content as ink
-// on a drawing. The swap lives in CSS (see html[data-egg-blue]); while
-// data-egg-tinting is set the swap runs as a slow, visible fade.
-const TINT_MS = 700
-let tinting = 0
-const tintFacade = (on: boolean) => {
+// on a drawing. html[data-egg-blue] holds the settled colors; the swap itself
+// is a GSAP tween from whatever main shows now (mid-wash included) to them.
+const TINT = ['--ink', '--muted', '--date-ink', '--faint', '--prose-ink']
+let tint: gsap.core.Tween | null = null
+const tintFacade = (on: boolean, duration = 0) => {
   const root = document.documentElement
-  window.clearTimeout(tinting)
-  if (on) {
-    root.dataset.eggTinting = ''
-    root.dataset.eggBlue = ''
-    tinting = window.setTimeout(() => delete root.dataset.eggTinting, TINT_MS)
-  } else {
-    delete root.dataset.eggTinting
-    delete root.dataset.eggBlue
-  }
+  const main = document.querySelector('main')
+  tint?.kill()
+  const from = main && Object.fromEntries(TINT.map((name) => [name, getComputedStyle(main).getPropertyValue(name).trim()]))
+  const clear = () => TINT.forEach((name) => main?.style.removeProperty(name))
+  clear()
+  if (on) root.dataset.eggBlue = ''
+  else delete root.dataset.eggBlue
+  if (main && duration) tint = gsap.from(main, { ...from, duration, ease: 'power1.inOut', onComplete: clear })
 }
 
 function facadePieces(root: Element) {
@@ -718,10 +717,10 @@ function demolish(timeline: gsap.core.Timeline, pieces: Element[], dust: HTMLEle
     }
   })
   // The facade settles back as a ghost so the foundation reads first, still
-  // in its dark ink, then washes over to blue once it's visible again.
+  // in its dark ink, then washes over to blue once it has fully settled.
   timeline.set(pieces, { x: 0, y: 0, rotation: 0 }, SWEEP + .7)
   timeline.to(pieces, { ...GHOST, duration: .5, ease: 'power1.out', stagger: { amount: .25 } }, SWEEP + .7)
-  timeline.call(tintFacade, [true], SWEEP + 1)
+  timeline.call(tintFacade, [true, 1.1], SWEEP + 1.55)
 }
 
 // The blueprint drafts itself in the sweep's wake: outlines trace from their
@@ -918,7 +917,7 @@ function Blueprint({ onExit }: { onExit: () => void }) {
 
   useEffect(() => {
     if (!leaving) return
-    tintFacade(false)
+    tintFacade(false, .2)
     scene.current?.add(() => {
       gsap.to(pieces.current, { x: 0, y: 0, rotation: 0, opacity: 1, duration: .22, ease: 'power2.out', overwrite: true })
     })

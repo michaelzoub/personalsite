@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { --ink:#1a2331; --muted:#5c6774; --paper:#ffffff; --card:#ffffff; --line:#e1e8f2; --accent:#a6ceff; --accent-light:#d9eaff; --accent-strong:#7da9f0; --glow:rgba(148,197,255,.5); --ease-out:cubic-bezier(.23,1,.32,1); --ease-in:cubic-bezier(.4,0,1,1); --ease-move:cubic-bezier(.77,0,.175,1); --r-card:8px; --r-media:4px; --card-gap:12px; --card-pad:10px; --date-ink:#8791a1; --content-max:800px; --font-sans:var(--font-inter),"Inter","Helvetica Neue",Helvetica,Arial,sans-serif; --font-mono:var(--font-roboto-mono),"Roboto Mono","SFMono-Regular",Consolas,monospace; }
+:root { --ink:#1a2331; --muted:#5c6774; --paper:#ffffff; --card:#ffffff; --line:#e1e8f2; --accent:#a6ceff; --accent-light:#d9eaff; --accent-strong:#7da9f0; --glow:rgba(148,197,255,.5); --ease-out:cubic-bezier(.23,1,.32,1); --ease-in:cubic-bezier(.4,0,1,1); --ease-move:cubic-bezier(.77,0,.175,1); --r-card:8px; --r-media:4px; --card-gap:12px; --card-pad:10px; --date-ink:#8791a1; --faint:#8a95a5; --prose-ink:#3a4450; --content-max:800px; --font-sans:var(--font-inter),"Inter","Helvetica Neue",Helvetica,Arial,sans-serif; --font-mono:var(--font-roboto-mono),"Roboto Mono","SFMono-Regular",Consolas,monospace; }
 /* One date system: mono, 11px, muted grey, tabular, right-aligned in its row */
 .masonry-card header time,.focus-feed .masonry-card header time,.now-panel-head time,.overview-card time,.overview-focus-card header time,.artifact-card time,.work-card time { font:11px var(--font-mono),monospace; color:var(--date-ink); font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; letter-spacing:0; }
 * { box-sizing:border-box; }
@@ -340,7 +340,7 @@ button { font:inherit; }
 .lede p a { color:var(--ink); text-decoration:underline; text-decoration-color:rgba(32,32,31,.26); text-underline-offset:2px; text-decoration-thickness:1px; transition:text-decoration-color 150ms ease,color 150ms ease; }
 .lede p a:hover { text-decoration-color:var(--ink); }
 .lede p .inline-text-link { color:var(--ink); }
-.lede-links { display:flex; align-items:center; gap:7px; color:#8a95a5; }
+.lede-links { display:flex; align-items:center; gap:7px; color:var(--faint); }
 .lede-links a { position:relative; display:grid; place-items:center; width:18px; height:18px; border-radius:5px; color:inherit; transition:color 150ms ease,transform 150ms var(--ease-out); }
 .lede-links a::after { content:""; position:absolute; inset:-11px; border-radius:12px; }
 .lede-links svg { width:13px; height:13px; transition:transform 150ms var(--ease-out); }
@@ -511,14 +511,14 @@ button { font:inherit; }
 .article-home::after { content:""; position:absolute; inset:-10px -12px; }
 .article-home:active { transform:scale(.96); }
 /* Hangs in the margin so the name keeps the column's left edge. */
-.article-home svg { position:absolute; top:50%; right:calc(100% + 8px); width:14px; height:14px; color:#8a95a5; stroke-width:1.5; translate:0 -50%; transition:color 150ms ease,transform 200ms var(--ease-out); }
+.article-home svg { position:absolute; top:50%; right:calc(100% + 8px); width:14px; height:14px; color:var(--faint); stroke-width:1.5; translate:0 -50%; transition:color 150ms ease,transform 200ms var(--ease-out); }
 .article-home:focus-visible { outline:0; border-radius:4px; box-shadow:0 0 0 2px var(--paper),0 0 0 4px rgba(26,35,49,.2); }
 
 .article-layout { display:grid; grid-template-columns:minmax(0,150px) minmax(0,1fr); gap:24px; margin-top:clamp(64px,9vh,96px); padding-bottom:clamp(88px,14vh,160px); }
 
 .article-toc { position:sticky; top:48px; align-self:start; }
 .article-toc ol { display:grid; gap:10px; margin:0; padding:0; list-style:none; }
-.article-toc a { display:block; color:#8a95a5; font-size:14px; line-height:1.45; letter-spacing:-.006em; transition:color 150ms ease; }
+.article-toc a { display:block; color:var(--faint); font-size:14px; line-height:1.45; letter-spacing:-.006em; transition:color 150ms ease; }
 .article-toc a[aria-current] { color:var(--ink); }
 .article-toc a:focus-visible { outline:0; border-radius:4px; box-shadow:0 0 0 2px var(--paper),0 0 0 4px rgba(26,35,49,.2); }
 
@@ -528,7 +528,7 @@ button { font:inherit; }
 .article-body .article-head p { margin:8px 0 0; color:var(--muted); font-size:15px; line-height:1.55; letter-spacing:-.006em; }
 .article-body .article-deck { margin:40px 0 28px; color:var(--muted); }
 
-.article-body { min-width:0; color:#3a4450; font-size:15px; line-height:1.7; letter-spacing:-.006em; }
+.article-body { min-width:0; color:var(--prose-ink); font-size:15px; line-height:1.7; letter-spacing:-.006em; }
 .article-body p { margin:0 0 20px; }
 .article-body a { color:var(--ink); text-decoration:underline; text-decoration-color:rgba(26,35,49,.26); text-underline-offset:2px; text-decoration-thickness:1px; transition:text-decoration-color 150ms ease; }
 .article-body strong { font-weight:600; color:var(--ink); }
@@ -684,22 +684,10 @@ button { font:inherit; }
   .egg-cta { width:calc(100% - 12px); margin:6px 6px 6px; }
 }
 
-/* Egg state only: the settled facade turns light blue. Registering the color
-   tokens lets them interpolate, so text and glyphs fade between ink and blue. */
-@property --ink { syntax:"<color>"; inherits:true; initial-value:#1a2331; }
-@property --muted { syntax:"<color>"; inherits:true; initial-value:#5c6774; }
-@property --date-ink { syntax:"<color>"; inherits:true; initial-value:#8791a1; }
-main { transition:--ink 360ms var(--ease-out),--muted 360ms var(--ease-out),--date-ink 360ms var(--ease-out); }
-main .lede-links,main .article-body { transition:color 360ms var(--ease-out); }
-html[data-egg-blue] main { --ink:#6f9de6; --muted:#97bbef; --date-ink:#97bbef; }
-html[data-egg-blue] main .lede-links { color:#97bbef; }
-/* Essay text and the inactive section links carry their own grays, so tint them too. */
-html[data-egg-blue] main .article-body { color:#6f9de6; }
-html[data-egg-blue] main .article-toc a:not([aria-current]):not(:hover),html[data-egg-blue] main .article-home svg { color:#97bbef; }
-/* Entering, the facade is back on screen in its dark ink, so the wash to blue
-   runs slow enough to watch (TINT_MS in InspectEgg.tsx). Leaving stays quick. */
-html[data-egg-tinting] main { transition-duration:700ms; transition-timing-function:ease-in-out; }
-html[data-egg-tinting] main .lede-links,html[data-egg-tinting] main .article-body,html[data-egg-tinting] main .article-toc a,html[data-egg-tinting] main .article-home svg { transition:color 700ms ease-in-out; }
+/* Egg state only: the settled facade turns light blue. Every tinted color is
+   a token here, so the entrance wash is one GSAP tween over these on main
+   (tintFacade in InspectEgg.tsx); this rule holds the settled state. */
+html[data-egg-blue] main { --ink:#6f9de6; --muted:#97bbef; --date-ink:#97bbef; --faint:#97bbef; --prose-ink:#6f9de6; }
 html[data-inspect] body { background-image:linear-gradient(rgba(15,28,48,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(15,28,48,.035) 1px,transparent 1px); background-size:8px 8px; }
 .bp-grain { position:fixed; inset:0; z-index:39; pointer-events:none; mix-blend-mode:multiply; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .06 0 0 0 0 .11 0 0 0 0 .19 0 0 0 .55 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); transition:opacity 220ms var(--ease-out); }
 .bp-grain[data-leaving] { opacity:0; }
