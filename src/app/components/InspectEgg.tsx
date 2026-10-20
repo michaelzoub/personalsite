@@ -31,7 +31,6 @@ const CORNER = 72
 const TAP_SLOP = 10
 const FLIGHT_MS = 820
 const TRAIL_LAG_MS = 170
-const ICON = 48
 const DIALOG_W = 440
 // The gray tray around the white card: card radius 10 + tray padding 8.
 const DIALOG_R = 18
@@ -302,13 +301,14 @@ function Flight({ onLand, onDone }: { onLand: () => void; onDone: () => void }) 
       ctx.globalAlpha = 1
     }
 
+    let handoff = 0
     const progress = { head: 0, tail: 0 }
     const render = () => {
       const { head, tail } = progress
       ctx.clearRect(0, 0, w, h)
       drawTrail(tail, head)
       const p = point(head)
-      gsap.set(icon, { x: p.x - ICON / 2, y: p.y - ICON / 2, force3D: true })
+      gsap.set(icon, { x: p.x - PK_W / 2, y: p.y - PK_H / 2, force3D: true })
     }
     render()
 
@@ -320,12 +320,19 @@ function Flight({ onLand, onDone }: { onLand: () => void; onDone: () => void }) 
         duration,
         ease: 'power3.out',
         onComplete: () => {
-          gsap.set(icon, { opacity: 0 })
           callbacks.current.onLand()
+          // Hand off to the dialog's identical glyph only once it has painted,
+          // so no frame shows neither.
+          handoff = requestAnimationFrame(() => {
+            handoff = requestAnimationFrame(() => gsap.set(icon, { opacity: 0 }))
+          })
         },
       }, 0)
       .to(progress, { tail: 1, duration, ease: 'power3.out' }, TRAIL_LAG_MS / 1000)
-    return () => { timeline.kill() }
+    return () => {
+      timeline.kill()
+      cancelAnimationFrame(handoff)
+    }
   }, [callbacks])
 
   return (
@@ -339,8 +346,8 @@ function Flight({ onLand, onDone }: { onLand: () => void; onDone: () => void }) 
 }
 
 /* Dialog: picks up exactly where the flight left off (the package at the
-   center), firms into a white tile as the package fades out, then slowly
-   widens into a gray tray holding a white card — the logo stripes on top,
+   center); the package fades out as a gray tray grows from under it into
+   the dialog, holding a white card — the logo stripes on top,
    the title and quote, then the CTA. */
 function CarePackage({ onStart, onClosed }: { onStart: () => void; onClosed: (started: boolean) => void }) {
   const backdropRef = useRef<HTMLDivElement>(null)
@@ -370,21 +377,21 @@ function CarePackage({ onStart, onClosed }: { onStart: () => void; onClosed: (st
       if (reducedMotion()) {
         gsap.set(shell, final)
         gsap.set(glyph, { autoAlpha: 0 })
-        gsap.set(body, { opacity: 1 })
+        gsap.set(body, { autoAlpha: 1 })
         gsap.fromTo([backdrop, shell], { opacity: 0 }, { opacity: 1, duration: .2, onComplete: focusStart })
         return
       }
+      // The package has done its job once it lands: it fades out in place
+      // while the tray grows straight out from under it into the dialog.
       gsap.timeline({ onComplete: focusStart })
-        .to(shell, { width: 80, height: 80, borderRadius: 18, backgroundColor: '#fff', boxShadow: SHADOW, duration: .34, ease: 'power4.out' })
-        // The package has done its job once it lands: it fades out of the
-        // tile before the tile widens into the dialog.
-        .to(glyph, { autoAlpha: 0, scale: .9, duration: .22, ease: 'power2.in' }, '-=.1')
-        .addLabel('open', '+=.02')
-        .to(backdrop, { opacity: 1, duration: .9, ease: 'power1.out' }, 'open')
-        .to(shell, { ...final, duration: .72, ease: 'power4.inOut' }, 'open')
-        .set(body, { opacity: 1 }, 'open+=.42')
-        .fromTo(card, { opacity: 0 }, { opacity: 1, duration: .24, ease: 'power2.out' }, 'open+=.42')
-        .fromTo(card.children, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .32, stagger: .04, ease: 'power4.out' }, 'open+=.5')
+        .to(glyph, { autoAlpha: 0, scale: .92, duration: .16, ease: 'power2.in' }, 0)
+        .to(backdrop, { opacity: 1, duration: .4, ease: 'power2.out' }, 0)
+        .to(shell, { ...final, duration: .42, ease: 'power3.out' }, 0)
+        // The shell doesn't clip: the card only shows once the tray is within
+        // its 8px padding of full size, so it always sits inside the tray.
+        .set(body, { autoAlpha: 1 }, .3)
+        .fromTo(card, { opacity: 0, scale: .98 }, { opacity: 1, scale: 1, duration: .24, ease: 'power2.out' }, .3)
+        .fromTo(card.children, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .28, stagger: .035, ease: 'power3.out' }, .32)
     })
 
     return () => {
@@ -402,6 +409,8 @@ function CarePackage({ onStart, onClosed }: { onStart: () => void; onClosed: (st
     const backdrop = backdropRef.current
     if (!shell || !backdrop) return callbacks.current.onClosed(started)
     const reduced = reducedMotion()
+    // The CSS press transition would smear GSAP's per-frame transform.
+    shell.style.transition = 'none'
     gsap.to(backdrop, { opacity: 0, duration: reduced ? .01 : .28, ease: 'power2.in' })
     gsap.to(shell, {
       opacity: 0,
@@ -426,7 +435,6 @@ function CarePackage({ onStart, onClosed }: { onStart: () => void; onClosed: (st
       <div ref={backdropRef} className="egg-backdrop" data-egg aria-hidden="true" onClick={() => close(false)} />
       <div className="egg-layer" data-egg>
         <div ref={shellRef} className="egg-shell" role="dialog" aria-modal="true" aria-labelledby="egg-title" aria-describedby="egg-line">
-          <div ref={glyphRef} className="egg-glyph" aria-hidden="true"><PackageGlyph /></div>
           <div ref={bodyRef} className="egg-body" style={{ width: dialogW }}>
             <div className="egg-card">
               <div className="egg-head" aria-hidden="true"><BrandStripes /></div>
@@ -441,6 +449,7 @@ function CarePackage({ onStart, onClosed }: { onStart: () => void; onClosed: (st
             </div>
           </div>
         </div>
+        <div ref={glyphRef} className="egg-glyph" aria-hidden="true"><PackageGlyph /></div>
       </div>
     </>
   )
@@ -624,10 +633,21 @@ const SWEEP = 1.1 // seconds for the demolition to travel down the viewport
 const GHOST = { opacity: .9 }
 // In the egg state the settled facade (text and the dot glyphs) turns light
 // blue, so the warm blueprint reads as the structure and the content as ink
-// on a drawing. The swap lives in CSS (see html[data-egg-blue]).
+// on a drawing. The swap lives in CSS (see html[data-egg-blue]); while
+// data-egg-tinting is set the swap runs as a slow, visible fade.
+const TINT_MS = 700
+let tinting = 0
 const tintFacade = (on: boolean) => {
-  if (on) document.documentElement.dataset.eggBlue = ''
-  else delete document.documentElement.dataset.eggBlue
+  const root = document.documentElement
+  window.clearTimeout(tinting)
+  if (on) {
+    root.dataset.eggTinting = ''
+    root.dataset.eggBlue = ''
+    tinting = window.setTimeout(() => delete root.dataset.eggTinting, TINT_MS)
+  } else {
+    delete root.dataset.eggTinting
+    delete root.dataset.eggBlue
+  }
 }
 
 function facadePieces(root: Element) {
@@ -697,10 +717,11 @@ function demolish(timeline: gsap.core.Timeline, pieces: Element[], dust: HTMLEle
       }, at + .12 + Math.random() * .12)
     }
   })
-  // The facade settles back as a ghost so the foundation reads first.
+  // The facade settles back as a ghost so the foundation reads first, still
+  // in its dark ink, then washes over to blue once it's visible again.
   timeline.set(pieces, { x: 0, y: 0, rotation: 0 }, SWEEP + .7)
-  timeline.call(tintFacade, [true], SWEEP + .7)
   timeline.to(pieces, { ...GHOST, duration: .5, ease: 'power1.out', stagger: { amount: .25 } }, SWEEP + .7)
+  timeline.call(tintFacade, [true], SWEEP + 1)
 }
 
 // The blueprint drafts itself in the sweep's wake: outlines trace from their

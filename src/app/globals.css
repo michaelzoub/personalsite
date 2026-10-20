@@ -653,16 +653,18 @@ button { font:inherit; }
 }
 .egg-flight { position:fixed; inset:0; z-index:110; pointer-events:none; }
 .egg-flight canvas { position:absolute; inset:0; width:100%; height:100%; }
-.egg-flight-icon { position:absolute; top:0; left:0; display:grid; place-items:center; width:48px; height:48px; color:var(--ink); will-change:transform; }
+/* Sized by the crate itself, so it lands on exactly the dialog glyph's pixels. */
+.egg-flight-icon { position:absolute; top:0; left:0; color:var(--ink); will-change:transform; }
 .egg-package { display:block; overflow:visible; }
 .egg-backdrop { position:fixed; inset:0; z-index:100; opacity:0; background:rgba(250,252,255,.3); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
 .egg-layer { position:fixed; inset:0; z-index:101; display:grid; place-items:center; pointer-events:none; }
-.egg-shell { position:relative; width:64px; height:64px; overflow:hidden; border-radius:8px; background-color:rgba(255,255,255,0); box-shadow:0 8px 24px rgba(15,28,48,0),0 1px 3px rgba(15,28,48,0); pointer-events:auto; transition:transform 160ms var(--ease-out); }
+.egg-shell { position:relative; grid-area:1/1; width:48px; height:48px; border-radius:12px; background-color:rgba(255,255,255,0); box-shadow:0 8px 24px rgba(15,28,48,0),0 1px 3px rgba(15,28,48,0); pointer-events:auto; transition:transform 160ms var(--ease-out); }
 .egg-shell:has(.egg-cta:active) { transform:scale(.98); }
-.egg-glyph { position:absolute; inset:0; z-index:1; display:grid; place-items:center; color:var(--ink); pointer-events:none; }
+/* A sibling of the shell, not a child, so the shell's clip never crops the crate. */
+.egg-glyph { grid-area:1/1; display:grid; place-items:center; color:var(--ink); pointer-events:none; }
 /* The dialog borrows the landing: a gray tray around a white card, the logo
    stripes up top, title and quote, then the CTA. */
-.egg-body { position:absolute; top:0; left:0; box-sizing:border-box; padding:8px; opacity:0; }
+.egg-body { position:absolute; top:50%; left:50%; box-sizing:border-box; padding:8px; opacity:0; visibility:hidden; transform:translate(-50%,-50%); }
 .egg-card { overflow:hidden; border-radius:10px; background:#fff; box-shadow:0 0 0 1px rgba(15,28,48,.06),0 1px 2px rgba(15,28,48,.04); }
 .egg-head { padding:22px 24px 0; line-height:0; }
 .egg-head svg { display:block; }
@@ -688,11 +690,16 @@ button { font:inherit; }
 @property --muted { syntax:"<color>"; inherits:true; initial-value:#5c6774; }
 @property --date-ink { syntax:"<color>"; inherits:true; initial-value:#8791a1; }
 main { transition:--ink 360ms var(--ease-out),--muted 360ms var(--ease-out),--date-ink 360ms var(--ease-out); }
+main .lede-links,main .article-body { transition:color 360ms var(--ease-out); }
 html[data-egg-blue] main { --ink:#6f9de6; --muted:#97bbef; --date-ink:#97bbef; }
 html[data-egg-blue] main .lede-links { color:#97bbef; }
 /* Essay text and the inactive section links carry their own grays, so tint them too. */
-html[data-egg-blue] main .article-body { color:var(--ink); }
-html[data-egg-blue] main .article-toc a:not([aria-current]):not(:hover),html[data-egg-blue] main .article-home svg { color:var(--muted); }
+html[data-egg-blue] main .article-body { color:#6f9de6; }
+html[data-egg-blue] main .article-toc a:not([aria-current]):not(:hover),html[data-egg-blue] main .article-home svg { color:#97bbef; }
+/* Entering, the facade is back on screen in its dark ink, so the wash to blue
+   runs slow enough to watch (TINT_MS in InspectEgg.tsx). Leaving stays quick. */
+html[data-egg-tinting] main { transition-duration:700ms; transition-timing-function:ease-in-out; }
+html[data-egg-tinting] main .lede-links,html[data-egg-tinting] main .article-body,html[data-egg-tinting] main .article-toc a,html[data-egg-tinting] main .article-home svg { transition:color 700ms ease-in-out; }
 html[data-inspect] body { background-image:linear-gradient(rgba(15,28,48,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(15,28,48,.035) 1px,transparent 1px); background-size:8px 8px; }
 .bp-grain { position:fixed; inset:0; z-index:39; pointer-events:none; mix-blend-mode:multiply; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .06 0 0 0 0 .11 0 0 0 0 .19 0 0 0 .55 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); transition:opacity 220ms var(--ease-out); }
 .bp-grain[data-leaving] { opacity:0; }
