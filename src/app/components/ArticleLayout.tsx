@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import { LuArrowUpRight } from 'react-icons/lu'
+import { LuArrowLeft, LuArrowUpRight } from 'react-icons/lu'
 import { BrandMark } from './BrandMark'
 import ArticleSectionNav, { type ArticleSection } from './ArticleSectionNav'
 import { ProjectGlyph } from './ProjectGlyph'
@@ -23,7 +23,10 @@ export default function ArticleLayout({ glyph, title, date, deck, sections, sour
     <main className="editorial article">
       <header className="lede article-lede">
         <BrandMark />
-        <Link href="/" className="article-home" aria-label="Michael Zoubkoff, back home">Michael Zoubkoff</Link>
+        <Link href="/" className="article-home" aria-label="Michael Zoubkoff, back home">
+          <LuArrowLeft aria-hidden />
+          Michael Zoubkoff
+        </Link>
       </header>
 
       <div className="article-layout">
