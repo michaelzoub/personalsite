@@ -16,9 +16,12 @@ import { BrandStripes } from './BrandMark'
 type Stage = 'idle' | 'flight' | 'dialog' | 'inspect'
 type Edges = [number, number, number, number]
 type Rect = { x: number; y: number; w: number; h: number }
-type Box = Rect & { depth: number; margin: Edges; padding: Edges; border: Edges; tag?: string; tagShift?: number }
-type Gap = Rect & { value: number }
-type Layout = { boxes: Box[]; gaps: Gap[] }
+// pin: index of the sticky/fixed ancestor the box rides along with, or -1.
+type Box = Rect & { depth: number; pin: number; margin: Edges; padding: Edges; border: Edges; tag?: string; tagShift?: number }
+type Gap = Rect & { value: number; pin: number }
+// A sticky or fixed element and where it sat in the document when measured.
+type Pin = { el: Element; x: number; y: number }
+type Layout = { boxes: Box[]; gaps: Gap[]; pins: Pin[] }
 type Hover = Rect & { name: string; className: string; margin: Edges; padding: Edges; border: Edges }
 
 const TRACK = { src: '/audio/texture-401.mp3', title: 'Texture 401', artist: 'Joachim Spieth' }
@@ -448,7 +451,7 @@ const readEdges = (style: CSSStyleDeclaration, prop: 'margin' | 'padding' | 'bor
     parseFloat(style.getPropertyValue(prop === 'border' ? `border-${side}-width` : `${prop}-${side}`)) || 0,
   ) as Edges
 
-function gapsOf(el: Element, rect: DOMRect, style: CSSStyleDeclaration): Gap[] {
+function gapsOf(el: Element, rect: DOMRect, style: CSSStyleDeclaration, pin: number): Gap[] {
   const sx = window.scrollX
   const sy = window.scrollY
   const padding = readEdges(style, 'padding')
@@ -468,11 +471,11 @@ function gapsOf(el: Element, rect: DOMRect, style: CSSStyleDeclaration): Gap[] {
     const a = kids[i - 1]
     const b = kids[i]
     if (b.top - a.bottom >= 1) {
-      gaps.push({ x: left + sx, y: a.bottom + sy, w: right - left, h: b.top - a.bottom, value: b.top - a.bottom })
+      gaps.push({ x: left + sx, y: a.bottom + sy, w: right - left, h: b.top - a.bottom, value: b.top - a.bottom, pin })
     } else if (b.left - a.right >= 1) {
       const top = Math.min(a.top, b.top)
       const bottom = Math.max(a.bottom, b.bottom)
-      gaps.push({ x: a.right + sx, y: top + sy, w: b.left - a.right, h: bottom - top, value: b.left - a.right })
+      gaps.push({ x: a.right + sx, y: top + sy, w: b.left - a.right, h: bottom - top, value: b.left - a.right, pin })
     }
   }
   return gaps
@@ -484,14 +487,20 @@ function measure(): Layout {
   const sy = window.scrollY
   const boxes: Box[] = []
   const gaps: Gap[] = []
+  const pins: Pin[] = []
 
-  const walk = (el: Element, depth: number) => {
+  const walk = (el: Element, depth: number, pin: number) => {
     if (boxes.length >= MAX_BOXES) return
     const tag = el.tagName.toUpperCase()
     if (SKIP.has(tag) || el.hasAttribute('data-egg')) return
     const style = getComputedStyle(el)
     if (style.display === 'none') return
     const rect = el.getBoundingClientRect()
+    // Sticky and fixed boxes move against the document as the page scrolls, so
+    // they and everything inside them are drawn on a sheet that follows them.
+    if (style.position === 'sticky' || style.position === 'fixed') {
+      pin = pins.push({ el, x: rect.left + sx, y: rect.top + sy }) - 1
+    }
     const shown = style.display !== 'contents' && style.visibility !== 'hidden' && rect.width >= 1 && rect.height >= 1
     if (shown) {
       boxes.push({
@@ -500,20 +509,21 @@ function measure(): Layout {
         w: rect.width,
         h: rect.height,
         depth,
+        pin,
         margin: readEdges(style, 'margin').map((v) => Math.max(0, v)) as Edges,
         padding: readEdges(style, 'padding'),
         border: readEdges(style, 'border'),
         tag: LANDMARKS.has(tag) ? `${tag.toLowerCase()} ${fmt(rect.width)}×${fmt(rect.height)}` : undefined,
       })
       if (/flex|grid/.test(style.display) && (parseFloat(style.rowGap) > 0 || parseFloat(style.columnGap) > 0)) {
-        gaps.push(...gapsOf(el, rect, style))
+        gaps.push(...gapsOf(el, rect, style, pin))
       }
     }
     if (LEAVES.has(tag)) return
-    Array.from(el.children).forEach((child) => walk(child, shown ? depth + 1 : depth))
+    Array.from(el.children).forEach((child) => walk(child, shown ? depth + 1 : depth, pin))
   }
 
-  walk(root, 0)
+  walk(root, 0, -1)
 
   // Nested landmarks often share a corner (section > h2); line their tags up
   // left to right instead of stacking them.
@@ -525,7 +535,7 @@ function measure(): Layout {
     box.tagShift = shift
     corners.set(corner, shift + box.tag.length * TAG_CHAR + 8)
   })
-  return { boxes, gaps }
+  return { boxes, gaps, pins }
 }
 
 function describe(el: Element): Hover {
@@ -573,6 +583,34 @@ function Bands({ box, prefix }: { box: Rect & { margin: Edges; padding: Edges; b
       {p.some(Boolean) && (
         <div className={`${prefix}-padding`} style={{ left: inner.x, top: inner.y, width: inner.w, height: inner.h, borderWidth: px(p) }} />
       )}
+    </>
+  )
+}
+
+function Sheet({ boxes, gaps }: { boxes: Box[]; gaps: Gap[] }) {
+  return (
+    <>
+      {boxes.map((box, i) => <Bands key={`b${i}`} box={box} prefix="bp" />)}
+      {boxes.map((box, i) => (
+        <div key={`o${i}`} className="bp-box" data-depth={box.depth} style={{ left: box.x, top: box.y, width: box.w, height: box.h, '--c': palette[box.depth % palette.length].base } as CSSProperties} />
+      ))}
+      {gaps.map((gap, i) => <div key={`g${i}`} className="bp-gap" style={{ left: gap.x, top: gap.y, width: gap.w, height: gap.h }} />)}
+      {boxes.map((box, i) => (
+        <Fragment key={`l${i}`}>
+          {bandLabels(box, box.margin, true).map((spot, j) => (
+            <span key={`m${j}`} className="bp-num" style={{ left: spot.x, top: spot.y, '--c': 'var(--margin)' } as CSSProperties}>{fmt(spot.value)}</span>
+          ))}
+          {bandLabels(innerRect(box, box.border), box.padding, false).map((spot, j) => (
+            <span key={`p${j}`} className="bp-num" style={{ left: spot.x, top: spot.y, '--c': 'var(--padding)' } as CSSProperties}>{fmt(spot.value)}</span>
+          ))}
+        </Fragment>
+      ))}
+      {gaps.filter((gap) => gap.value >= 8).map((gap, i) => (
+        <span key={`gl${i}`} className="bp-num" style={{ left: gap.x + gap.w / 2, top: gap.y + gap.h / 2, '--c': 'var(--gap)' } as CSSProperties}>{fmt(gap.value)}</span>
+      ))}
+      {boxes.filter((box) => box.tag).map((box, i) => (
+        <span key={`t${i}`} className="bp-tag" style={{ left: box.x + (box.tagShift ?? 0), top: box.y, '--c': palette[box.depth % palette.length].base } as CSSProperties}>{box.tag}</span>
+      ))}
     </>
   )
 }
@@ -713,6 +751,7 @@ function Blueprint({ onExit }: { onExit: () => void }) {
   // blueprint where they tumbled to. Defer until the facade has settled.
   const demolishing = useRef(false)
   const remeasure = useRef<(() => void) | null>(null)
+  const pinRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => {
     let frame = 0
@@ -777,16 +816,39 @@ function Blueprint({ onExit }: { onExit: () => void }) {
     }
     document.addEventListener('pointermove', onMove, { passive: true })
     document.addEventListener('pointerdown', onMove, { passive: true })
-    window.addEventListener('scroll', probe, { passive: true })
+    // Re-describe on scroll even if the target hasn't changed: a sticky
+    // element moves against the document while the pointer stays on it.
+    const onScroll = () => {
+      last = null
+      probe()
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
     document.documentElement.addEventListener('pointerleave', onLeave)
     return () => {
       cancelAnimationFrame(frame)
       document.removeEventListener('pointermove', onMove)
       document.removeEventListener('pointerdown', onMove)
-      window.removeEventListener('scroll', probe)
+      window.removeEventListener('scroll', onScroll)
       document.documentElement.removeEventListener('pointerleave', onLeave)
     }
   }, [])
+
+  // Sticky sheets follow their element: shift each by how far it has moved
+  // from where it was measured. Synced in the scroll event so it lands in the
+  // same frame as the scroll.
+  useLayoutEffect(() => {
+    const pins = layout?.pins ?? []
+    if (!pins.length) return
+    const sync = () => pins.forEach((pin, i) => {
+      const sheet = pinRefs.current[i]
+      if (!sheet) return
+      const rect = pin.el.getBoundingClientRect()
+      sheet.style.transform = `translate(${rect.left + window.scrollX - pin.x}px, ${rect.top + window.scrollY - pin.y}px)`
+    })
+    sync()
+    window.addEventListener('scroll', sync, { passive: true })
+    return () => window.removeEventListener('scroll', sync)
+  }, [layout])
 
   // Runs once, on the first measurement, before that frame paints.
   const measured = layout !== null
@@ -853,6 +915,7 @@ function Blueprint({ onExit }: { onExit: () => void }) {
 
   const boxes = layout?.boxes ?? []
   const gaps = layout?.gaps ?? []
+  const pins = layout?.pins ?? []
   const tipBelow = hover ? hover.y + hover.h + 40 < window.scrollY + window.innerHeight : true
 
   return (
@@ -860,26 +923,11 @@ function Blueprint({ onExit }: { onExit: () => void }) {
       <div ref={grainRef} className="bp-grain" data-egg data-leaving={leaving || undefined} aria-hidden="true" />
       <div ref={dustRef} className="bp-dust" data-egg aria-hidden="true" />
       <div ref={layerRef} className="bp" data-egg data-leaving={leaving || undefined} aria-hidden="true" style={colorVars}>
-        {boxes.map((box, i) => <Bands key={`b${i}`} box={box} prefix="bp" />)}
-        {boxes.map((box, i) => (
-          <div key={`o${i}`} className="bp-box" data-depth={box.depth} style={{ left: box.x, top: box.y, width: box.w, height: box.h, '--c': palette[box.depth % palette.length].base } as CSSProperties} />
-        ))}
-        {gaps.map((gap, i) => <div key={`g${i}`} className="bp-gap" style={{ left: gap.x, top: gap.y, width: gap.w, height: gap.h }} />)}
-        {boxes.map((box, i) => (
-          <Fragment key={`l${i}`}>
-            {bandLabels(box, box.margin, true).map((spot, j) => (
-              <span key={`m${j}`} className="bp-num" style={{ left: spot.x, top: spot.y, '--c': 'var(--margin)' } as CSSProperties}>{fmt(spot.value)}</span>
-            ))}
-            {bandLabels(innerRect(box, box.border), box.padding, false).map((spot, j) => (
-              <span key={`p${j}`} className="bp-num" style={{ left: spot.x, top: spot.y, '--c': 'var(--padding)' } as CSSProperties}>{fmt(spot.value)}</span>
-            ))}
-          </Fragment>
-        ))}
-        {gaps.filter((gap) => gap.value >= 8).map((gap, i) => (
-          <span key={`gl${i}`} className="bp-num" style={{ left: gap.x + gap.w / 2, top: gap.y + gap.h / 2, '--c': 'var(--gap)' } as CSSProperties}>{fmt(gap.value)}</span>
-        ))}
-        {boxes.filter((box) => box.tag).map((box, i) => (
-          <span key={`t${i}`} className="bp-tag" style={{ left: box.x + (box.tagShift ?? 0), top: box.y, '--c': palette[box.depth % palette.length].base } as CSSProperties}>{box.tag}</span>
+        <Sheet boxes={boxes.filter((box) => box.pin < 0)} gaps={gaps.filter((gap) => gap.pin < 0)} />
+        {pins.map((_, i) => (
+          <div key={`pin${i}`} ref={(el) => { pinRefs.current[i] = el }} className="bp-pin">
+            <Sheet boxes={boxes.filter((box) => box.pin === i)} gaps={gaps.filter((gap) => gap.pin === i)} />
+          </div>
         ))}
         {hover && (
           <>
