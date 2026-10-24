@@ -1,6 +1,6 @@
 'use client'
 
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
 
@@ -22,8 +22,11 @@ const EASE = { out: 'power2.out', inOut: 'power2.inOut', draw: 'power1.inOut' }
 
 if (typeof window !== 'undefined') gsap.registerPlugin(DrawSVGPlugin)
 
-export default function MapBenchPreview() {
+export default function MapBenchPreview({ playing = true }: { playing?: boolean }) {
   const figureRef = useRef<HTMLElement>(null)
+  const timelineRef = useRef<gsap.core.Timeline | null>(null)
+  const playingRef = useRef(playing)
+  playingRef.current = playing
 
   useLayoutEffect(() => {
     const root = figureRef.current
@@ -124,8 +127,9 @@ export default function MapBenchPreview() {
           .to(check, { drawSVG: '100%', duration: DUR.base, ease: EASE.draw }, 'graded')
         fade(CAPTIONS[3], CAPTION_Y.workspace, 'graded')
 
+        timelineRef.current = timeline
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) timeline.progress(1).pause()
-        else timeline.play()
+        else if (playingRef.current) timeline.play()
       }, root)
     }
 
@@ -145,6 +149,13 @@ export default function MapBenchPreview() {
       context?.revert()
     }
   }, [])
+
+  useEffect(() => {
+    const timeline = timelineRef.current
+    if (!timeline || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (playing) timeline.restart()
+    else timeline.pause(0)
+  }, [playing])
 
   return (
     <div className="mapbench-card-preview" aria-hidden="true">
