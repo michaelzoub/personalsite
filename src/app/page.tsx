@@ -1,6 +1,6 @@
 'use client'
 
-import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import gsap from 'gsap'
@@ -10,6 +10,7 @@ import { DotmCircular3 } from '@/components/ui/dotm-circular-3'
 import { BrandMark } from './components/BrandMark'
 import FarmInstrument from './components/FarmInstrument'
 import { ProjectGlyph } from './components/ProjectGlyph'
+// import { ProjectPreview } from './components/ProjectPreview'
 import { useMagneticHighlight } from './components/useMagneticHighlight'
 import { assignTints } from './data/palette'
 import { projects } from './data/projects'
@@ -48,6 +49,7 @@ const writing = [{
   description: 'Why open-ended exploration and uncertainty over objectives matter more than optimizing harder against fixed targets.',
   url: '/writing/the-biggest-hurdle-to-achieving-agi',
   screenshotUrl: '/writing/agi/cover.jpg' as string | undefined,
+  excerpt: 'Most people would be quick to jump in and claim that energy production, compute, or even algorithmic optimization is the bottleneck to truly intelligent systems. I believe it\'s something much more abstract, yet foundational. Current systems often treat the user prompt as a complete target, then optimize towards an inferred interpretation. But real human tasks are underspecified.',
 }, {
   id: 'decentralizing-ai',
   name: 'The war against frontier labs: decentralizing AI',
@@ -56,6 +58,7 @@ const writing = [{
   description: 'Why access to intelligence should remain contestable, and why decentralized training and open weights matter.',
   url: '/writing/decentralizing-ai',
   screenshotUrl: '/writing/decentralizing-ai/cover.jpg',
+  excerpt: 'If you follow frontier AI, the Fable 5 episode should bother you. Anthropic released one of the most capable models available to the public. Within days, access was restricted after the U.S. government intervened over national-security and export-control concerns. Access to intelligence is becoming dependent on a few labs, a few clouds, a few distribution platforms, and a few governments.',
 }].sort((a, b) => b.year.localeCompare(a.year))
 
 // Lead with the current work, then keep the remaining artifacts on the same baseline.
@@ -69,6 +72,7 @@ const tints = assignTints([...selectedWork, ...writing].map((item) => item.id))
 
 export default function Home() {
   const [filter, setFilter] = useState<Filter>('All')
+  const [hovered, setHovered] = useState<string | null>(null)
   const filterRef = useRef<HTMLDivElement>(null)
   const pillRef = useRef<HTMLSpanElement>(null)
   const portfolioRef = useRef<HTMLDivElement>(null)
@@ -167,8 +171,8 @@ export default function Home() {
       <header className="lede">
         <BrandMark />
         <div className="lede-head">
-          <h1 data-enter style={{ '--i': 1 } as CSSProperties}>Michael Zoubkoff</h1>
-          <nav data-enter style={{ '--i': 2 } as CSSProperties} className="lede-links" aria-label="Social links">
+          <h1>Michael Zoubkoff</h1>
+          <nav className="lede-links" aria-label="Social links">
             {socials.map((item) => {
               const Icon = item.icon
               return (
@@ -179,13 +183,13 @@ export default function Home() {
             })}
           </nav>
         </div>
-        <p data-enter style={{ '--i': 3 } as CSSProperties}>I research and build agents.</p>
-        <p data-enter style={{ '--i': 4 } as CSSProperties}>I&apos;m currently conducting independent research and experimenting with new ways of building software.</p>
+        <p>I research and build agents.</p>
+        <p>I&apos;m currently conducting independent research and experimenting with new ways of building software.</p>
       </header>
 
       {/* Segmented control hidden for the index layout — uncomment to bring back Music / Future.
       <div className="editorial-filter-row">
-        <div ref={filterRef} data-enter className="reference-filter unified-filter" role="group" aria-label="Browse work and personal interests">
+        <div ref={filterRef} className="reference-filter unified-filter" role="group" aria-label="Browse work and personal interests">
           <span ref={pillRef} className="reference-pill filter-pill-gsap" aria-hidden="true" />
           <div className="filter-segment-group" aria-label="Work">
             {workFilters.map((item) => (
@@ -231,7 +235,12 @@ export default function Home() {
                     {selectedWork.map((item, index) => {
                       const external = item.url.startsWith('http')
                       return (
-                        <li key={item.id} className="index-entry" style={{ '--i': index } as CSSProperties}>
+                        <li
+                          key={item.id}
+                          className="index-entry"
+                          onPointerEnter={(event) => event.pointerType === 'mouse' && setHovered(item.id)}
+                          onPointerLeave={() => setHovered((current) => (current === item.id ? null : current))}
+                        >
                           <a
                             href={item.url}
                             target={external ? '_blank' : undefined}
@@ -245,6 +254,7 @@ export default function Home() {
                             </div>
                             <ProjectGlyph id={item.id} />
                           </a>
+                          {/* <ProjectPreview id={item.id} active={hovered === item.id} /> */}
                         </li>
                       )
                     })}
@@ -257,7 +267,12 @@ export default function Home() {
                   <span className="magnetic-frame" aria-hidden="true"><span className="magnetic-fill" /></span>
                   <ul className="index-list">
                     {writing.map((item, index) => (
-                      <li key={item.id} className="index-entry" style={{ '--i': selectedWork.length + index } as CSSProperties}>
+                      <li
+                        key={item.id}
+                        className="index-entry"
+                        onPointerEnter={(event) => event.pointerType === 'mouse' && setHovered(item.id)}
+                        onPointerLeave={() => setHovered((current) => (current === item.id ? null : current))}
+                      >
                         <Link href={item.url} className="index-row" data-tint={tints[item.id]}>
                           <div>
                             <h3>{item.name}</h3>
@@ -265,6 +280,7 @@ export default function Home() {
                           </div>
                           <ProjectGlyph id={item.id} />
                         </Link>
+                        {/* <ProjectPreview id={item.id} active={hovered === item.id} excerpt={item.excerpt} /> */}
                       </li>
                     ))}
                   </ul>

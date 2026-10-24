@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "./components/navbar";
 import { RouteTransition } from "./components/RouteTransition";
 import { InspectEgg } from "./components/InspectEgg";
+import { SelectionTint } from "./components/SelectionTint";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -48,6 +49,7 @@ export default function RootLayout({
 
     <html lang="en" className={`${inter.variable} ${robotoMono.variable}`}>
       <body>
+        <SelectionTint />
         <Navbar />
         <InspectEgg />
         <RouteTransition>{children}</RouteTransition>

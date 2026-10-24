@@ -17,7 +17,7 @@ export function BrandStripes() {
 
 export function BrandMark() {
   return (
-    <Link href="/" className="brand-mark" aria-label="Michael Zoubkoff, home" data-enter>
+    <Link href="/" className="brand-mark" aria-label="Michael Zoubkoff, home">
       <BrandStripes />
     </Link>
   )
