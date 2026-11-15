@@ -44,6 +44,25 @@ export const projects: Project[] = [
     status: 'published',
   },
   {
+    id: 'magic',
+    name: 'Magic',
+    iconType: 'text',
+    iconText: 'M',
+    iconClassName: 'bg-[#24292f] text-white',
+    description:
+      'An intent-driven browser where the agent manages your browsing environment, rather than just interacting with webpages.',
+    hoverDetail:
+      "A lightweight, workspace-first, intent-driven browser that adapts to what you're working on. An optional background agent helps you stay focused and on track.",
+    url: 'https://github.com/michaelzoub/magic',
+    buttonText: 'View repo',
+    buttonWidth: 'w-[100px]',
+    arrowPosition: 'pl-[70px]',
+    screenshotUrl: '/magic-hover.png',
+    category: 'Engineering',
+    year: '2026-11-15',
+    status: 'active',
+  },
+  {
     id: 'rubicon',
     name: 'Rubicon',
     iconType: 'text',

@@ -16,7 +16,7 @@ const CELL = 8
 // a hole (an eye closing); `spark` half-fills a hole and lets it fade.
 type Kind = 'on' | 'ping' | 'blink' | 'spark'
 type Legend = Record<string, { kind: Kind; delay?: number }>
-type Glyph = { art: string[]; legend: Legend } | { spread: true }
+type Glyph = { art: string[]; legend: Legend } | { spread: true } | { star: true }
 
 const on = { '#': { kind: 'on' } } satisfies Legend
 
@@ -45,6 +45,9 @@ const glyphs: Record<string, Glyph> = {
     ],
     legend: { ...on, e: { kind: 'blink' } },
   },
+  // Magic — the six-armed star mark, held still, now and then spinning one
+  // full turn and settling.
+  magic: { star: true },
   // Decentralizing AI — one solid block breaks apart into a mesh of peers,
   // then signals hop between them.
   'decentralizing-ai': { spread: true },
@@ -116,6 +119,25 @@ function spread() {
   return [...links, ...peers, <path key="block" className="g-dot g-fuse" d={pixelPath(block, CELL)} />]
 }
 
+// The star: three equal bars crossing at the center, at 60° to each other,
+// squared off with softened corners like the logo's sculpted arms.
+const ARM = 10
+function star() {
+  const c = (COLS * CELL) / 2
+  return (
+    <g className="g-spin">
+      {[0, 60, 120].map((angle) => (
+        <rect
+          key={angle}
+          className="g-dot"
+          transform={`rotate(${angle} ${c} ${c})`}
+          x={c - ARM / 2} y={1} width={ARM} height={COLS * CELL - 2} rx={2.5}
+        />
+      ))}
+    </g>
+  )
+}
+
 function Svg({ children }: { children: ReactNode }) {
   return (
     <svg className="glyph" viewBox={`0 0 ${COLS * CELL} ${ROWS * CELL}`} aria-hidden="true">
@@ -128,6 +150,8 @@ export function ProjectGlyph({ id }: { id: string }) {
   const glyph = glyphs[id]
   if (!glyph) return null
   if ('spread' in glyph) return <Svg>{spread()}</Svg>
+
+  if ('star' in glyph) return <Svg>{star()}</Svg>
 
   return <Svg>{legendGlyph(glyph.art, glyph.legend)}</Svg>
 }

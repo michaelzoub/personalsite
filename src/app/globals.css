@@ -595,10 +595,12 @@ button { font:inherit; }
 .glyph .g-fuse { opacity:0; }
 .glyph .g-link { opacity:.28; }
 .glyph .g-blink,.glyph .g-spark { opacity:0; }
+.glyph .g-spin { transform-origin:28px 28px; }
 
 @media (prefers-reduced-motion:no-preference) {
   .glyph .g-ping { animation:g-ping 2.4s cubic-bezier(.2,.8,.2,1) var(--d,0ms) infinite both; }
   .glyph .g-blink { animation:g-blink 4.4s linear infinite; }
+  .glyph .g-spin { animation:g-spin 6s cubic-bezier(.65,0,.35,1) infinite; }
   .glyph .g-spark { animation:g-spark 3.2s ease-in-out var(--d,0ms) infinite both; }
   /* The spread plays once, shortly after the row appears (sections toggled
      back in via the segment selector replay it); the mesh then keeps talking. */
@@ -607,6 +609,8 @@ button { font:inherit; }
   .glyph .g-link { animation:g-link .6s ease-out 1.9s both,g-talk 6s ease-in-out calc(2.5s + var(--d,0ms)) infinite; }
 }
 
+/* Rests most of the cycle, then one full turn. */
+@keyframes g-spin { 0%,70% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
 @keyframes g-ping { 0% { opacity:0; } 12% { opacity:1; } 55%,100% { opacity:0; } }
 /* A double blink: two quick closes near the end of each cycle. */
 @keyframes g-blink { 0%,86%,89%,93%,96%,100% { opacity:0; } 87%,88%,94%,95% { opacity:1; } }
@@ -734,4 +738,16 @@ html[data-inspect] body { background-image:linear-gradient(rgba(15,28,48,.035) 1
   .index-preview[data-kind="text"]::after { background:rgba(255,255,255,.35); }
   .index-preview[data-kind="text"] { transition:opacity 140ms ease-out; transform:none; }
 }
+/* Tilted screenshot that floats above the cursor while it's inside a project row, at a random lean. */
+.hover-shot-anchor { display:none; }
+@media (hover:hover) and (pointer:fine) {
+  .hover-shot-anchor { display:block; position:absolute; top:0; left:0; z-index:2; width:0; height:0; pointer-events:none; }
+  .hover-shot { display:block; position:absolute; bottom:18px; left:0; translate:-50% 0; width:280px; aspect-ratio:16/10; overflow:hidden; border-radius:14px; background:#fff; box-shadow:0 24px 48px -20px rgba(15,28,48,.35),0 4px 12px rgba(15,28,48,.08),inset 0 0 0 1px rgba(0,0,0,.1); opacity:0; transform:rotate(var(--tilt,0deg)) scale(.96); transform-origin:50% 100%; pointer-events:none; transition:opacity 140ms cubic-bezier(.55,.085,.68,.53),transform 140ms cubic-bezier(.55,.085,.68,.53); }
+  .hover-shot img { object-fit:cover; object-position:top; }
+  .hover-shot[data-kind="mapbench"] { width:340px; }
+  .hover-shot::after { content:""; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 0 1px rgba(0,0,0,.1); }
+  .hover-shot[data-active="true"] { opacity:1; transform:rotate(var(--tilt,0deg)) scale(1); transition-duration:420ms; transition-timing-function:cubic-bezier(.23,1,.32,1); }
+  /* Eases in slowly (420ms, power4.out) and leaves fast like the row highlight (140ms, power2.in). */
+}
+@media (prefers-reduced-motion:reduce) { .hover-shot { transition:opacity 120ms linear!important; transform:rotate(var(--tilt,0deg))!important; } }
 @media (prefers-reduced-motion:reduce) { .index-preview { transition-duration:.01ms!important; transform:none!important; } }
