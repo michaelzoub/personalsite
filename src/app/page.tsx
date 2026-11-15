@@ -1,7 +1,8 @@
 'use client'
 
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import dynamic from 'next/dynamic'
+import Image from 'next/image'
 import Link from 'next/link'
 import gsap from 'gsap'
 import { FaGithub } from 'react-icons/fa'
@@ -9,6 +10,7 @@ import { FaXTwitter } from 'react-icons/fa6'
 import { DotmCircular3 } from '@/components/ui/dotm-circular-3'
 import { BrandMark } from './components/BrandMark'
 import FarmInstrument from './components/FarmInstrument'
+import MapBenchPreview from './components/MapBenchPreview'
 import { ProjectGlyph } from './components/ProjectGlyph'
 // import { ProjectPreview } from './components/ProjectPreview'
 import { useMagneticHighlight } from './components/useMagneticHighlight'
@@ -68,6 +70,94 @@ const selectedWork = [
 ]
 
 // One pass over both lists in reading order, so neighbors across the section break differ too.
+// Screenshots that lift out above the hovered project row. Writing never previews.
+// MapBench plays its live pipeline; the rest are stills.
+const previews: Record<string, string> = {
+  rubicon: '/rubicon-hover.png',
+  magic: '/magic-hover.png',
+}
+
+// A random lean, kept off near-level so it always reads as tilted.
+const randomTilt = () => (Math.random() < .5 ? -1 : 1) * (3 + Math.random() * 6)
+// Each card keeps the lean it first opened with until the page reloads.
+const tilts: Record<string, number> = {}
+// Slightly underdamped: the card catches up with a small overshoot, then the swing wobbles out.
+const FOLLOW = { stiffness: 420, damping: 32 }
+const SWING = { gain: .012, max: 10, stiffness: 260, damping: 11 }
+
+function HoverShot({ id, active }: { id: string; active: boolean }) {
+  const anchorRef = useRef<HTMLSpanElement>(null)
+  const [tilt, setTilt] = useState(0)
+  useLayoutEffect(() => {
+    if (active) setTilt((tilts[id] ??= randomTilt()))
+  }, [active, id])
+
+  // Follow the cursor while it is inside this row, like a stiff card with mass:
+  // a spring drags it after the pointer with a little overshoot, and its own
+  // inertia swings it about the grab point (the cursor) before it settles.
+  useLayoutEffect(() => {
+    const anchor = anchorRef.current
+    const row = anchor?.parentElement
+    if (!anchor || !row) return
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const target = { x: 0, y: 0 }
+    const pos = { x: 0, y: 0 }
+    const vel = { x: 0, y: 0 }
+    let angle = 0
+    let spin = 0
+    let resting = true
+
+    const step = (_time: number, deltaMs: number) => {
+      if (resting) return
+      const dt = Math.min(deltaMs, 32) / 1000
+      for (const axis of ['x', 'y'] as const) {
+        vel[axis] += (FOLLOW.stiffness * (target[axis] - pos[axis]) - FOLLOW.damping * vel[axis]) * dt
+        pos[axis] += vel[axis] * dt
+      }
+      // Moving right leaves the card's weight behind, so it leans left, and vice versa.
+      const lean = Math.max(-SWING.max, Math.min(SWING.max, -vel.x * SWING.gain))
+      spin += (SWING.stiffness * (lean - angle) - SWING.damping * spin) * dt
+      angle += spin * dt
+      gsap.set(anchor, { x: pos.x, y: pos.y, rotation: angle })
+      resting = Math.abs(target.x - pos.x) + Math.abs(target.y - pos.y) < .1
+        && Math.abs(vel.x) + Math.abs(vel.y) < 1 && Math.abs(angle) + Math.abs(spin) < .05
+    }
+
+    const place = (event: PointerEvent, instant: boolean) => {
+      const box = row.getBoundingClientRect()
+      target.x = event.clientX - box.left
+      target.y = event.clientY - box.top
+      if (instant || reduced) {
+        Object.assign(pos, target)
+        vel.x = vel.y = angle = spin = 0
+        gsap.set(anchor, { x: pos.x, y: pos.y, rotation: 0 })
+        return
+      }
+      resting = false
+    }
+    const onEnter = (event: PointerEvent) => place(event, true)
+    const onMove = (event: PointerEvent) => place(event, false)
+    row.addEventListener('pointerenter', onEnter)
+    row.addEventListener('pointermove', onMove)
+    gsap.ticker.add(step)
+    return () => {
+      row.removeEventListener('pointerenter', onEnter)
+      row.removeEventListener('pointermove', onMove)
+      gsap.ticker.remove(step)
+    }
+  }, [])
+
+  const src = previews[id]
+  if (!src && id !== 'mapbench') return null
+  return (
+    <span ref={anchorRef} className="hover-shot-anchor" aria-hidden="true">
+      <span className="hover-shot" data-kind={id} data-active={active} style={{ '--tilt': `${tilt.toFixed(1)}deg` } as CSSProperties}>
+        {src ? <Image src={src} alt="" fill sizes="340px" /> : <MapBenchPreview playing={active} />}
+      </span>
+    </span>
+  )
+}
+
 const tints = assignTints([...selectedWork, ...writing].map((item) => item.id))
 
 export default function Home() {
@@ -183,8 +273,7 @@ export default function Home() {
             })}
           </nav>
         </div>
-        <p>I research and build agents.</p>
-        <p>I&apos;m currently conducting independent research and experimenting with new ways of building software.</p>
+        <p>Currently conducting independent research and experimenting with new ways of building software.</p>
       </header>
 
       {/* Segmented control hidden for the index layout — uncomment to bring back Music / Future.
@@ -254,7 +343,7 @@ export default function Home() {
                             </div>
                             <ProjectGlyph id={item.id} />
                           </a>
-                          {/* <ProjectPreview id={item.id} active={hovered === item.id} /> */}
+                          <HoverShot id={item.id} active={hovered === item.id} />
                         </li>
                       )
                     })}
@@ -280,7 +369,6 @@ export default function Home() {
                           </div>
                           <ProjectGlyph id={item.id} />
                         </Link>
-                        {/* <ProjectPreview id={item.id} active={hovered === item.id} excerpt={item.excerpt} /> */}
                       </li>
                     ))}
                   </ul>

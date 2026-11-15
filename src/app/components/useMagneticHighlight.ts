@@ -1,29 +1,14 @@
 import { useLayoutEffect, type RefObject } from 'react'
 import gsap from 'gsap'
 
-// One highlight per list that snaps between rows and leans toward the cursor.
-// The frame owns position, size, scale and opacity; the fill inside it owns
-// the magnetic pull and the clamp squash, so the two never fight over a transform.
-//
-// The fill may never expose the row's text: the pull is rubber-banded so it can
-// only approach MAX (always less than BLEED), and when it gets close to that
-// wall it clamps: the leading edge pins against the wall and the trailing edge
-// snaps in behind it. The trailing side only has BLEED - MAX of room, so the
-// squash is sized to stop SQUASH_FLOOR short of the text.
+// One highlight per list that snaps between rows and sits fixed on the active
+// one. The frame owns position, size, scale and opacity; the fill inside it
+// carries the row's tint.
 const BLEED_X = 16
 const BLEED_Y = 14
-const MAX_X = 8
-const MAX_Y = 6
-const CUSHION = 4
-const STIFFNESS = 1.6
-const CLAMP_AT = .9
-const RELEASE_AT = .7
-const SQUASH_FLOOR = 2
-const SQUASH = { x: BLEED_X - MAX_X - SQUASH_FLOOR, y: BLEED_Y - MAX_Y - SQUASH_FLOOR }
-const BULGE = 2
-const REACH = 1.4
-
-const band = (raw: number) => Math.tanh(Math.max(-REACH, Math.min(REACH, raw)) * STIFFNESS)
+// Bleed the frame grows in from, so it starts hugging the text.
+const START_X = 12
+const START_Y = 10
 
 export function useMagneticHighlight(scope: RefObject<HTMLElement | null>) {
   useLayoutEffect(() => {
@@ -39,21 +24,14 @@ export function useMagneticHighlight(scope: RefObject<HTMLElement | null>) {
       if (!frame || !fill) return
 
       let active: HTMLElement | null = null
-      let clampedX = 0
-      let clampedY = 0
-      // Scale at which the frame keeps MAX + CUSHION of bleed, so even a fully
-      // pulled fill still clears the text while it grows in or shrinks out.
       let safe = { scaleX: 1, scaleY: 1 }
-      let squeeze: gsap.core.Timeline | null = null
-      const pullX = gsap.quickTo(fill, 'x', { duration: .18, ease: 'power4.out' })
-      const pullY = gsap.quickTo(fill, 'y', { duration: .18, ease: 'power4.out' })
 
       const boxFor = (row: HTMLElement) => {
         const t = track.getBoundingClientRect()
         const r = row.getBoundingClientRect()
         safe = {
-          scaleX: (r.width + (MAX_X + CUSHION) * 2) / (r.width + BLEED_X * 2),
-          scaleY: (r.height + (MAX_Y + CUSHION) * 2) / (r.height + BLEED_Y * 2),
+          scaleX: (r.width + START_X * 2) / (r.width + BLEED_X * 2),
+          scaleY: (r.height + START_Y * 2) / (r.height + BLEED_Y * 2),
         }
         return {
           x: r.left - t.left - BLEED_X,
@@ -61,33 +39,6 @@ export function useMagneticHighlight(scope: RefObject<HTMLElement | null>) {
           width: r.width + BLEED_X * 2,
           height: r.height + BLEED_Y * 2,
         }
-      }
-
-      const clamp = (axis: 'x' | 'y', side: number) => {
-        const along = axis === 'x' ? fill.offsetWidth : fill.offsetHeight
-        const across = axis === 'x' ? fill.offsetHeight : fill.offsetWidth
-        const [main, cross] = axis === 'x' ? ['scaleX', 'scaleY'] : ['scaleY', 'scaleX']
-        const edge = side > 0 ? '100%' : '0%'
-        squeeze?.kill()
-        squeeze = gsap.timeline()
-          .set(fill, { transformOrigin: axis === 'x' ? `${edge} 50%` : `50% ${edge}` })
-          .to(fill, { [main]: 1 - SQUASH[axis] / along, [cross]: 1 + BULGE / across, duration: .05, ease: 'power2.in' })
-          .to(fill, { scaleX: 1, scaleY: 1, duration: .16, ease: 'expo.out' })
-      }
-
-      const pull = (row: HTMLElement, clientX: number, clientY: number, settle = true) => {
-        if (reduced) return
-        const r = row.getBoundingClientRect()
-        const bx = band((clientX - (r.left + r.width / 2)) / (r.width / 2))
-        const by = band((clientY - (r.top + r.height / 2)) / (r.height / 2))
-        pullX(bx * MAX_X)
-        pullY(by * MAX_Y)
-        if (!settle) return
-        // Clamp once per approach; re-arm only after backing well off the wall.
-        if (Math.abs(bx) < RELEASE_AT) clampedX = 0
-        if (Math.abs(by) < RELEASE_AT) clampedY = 0
-        if (!clampedX && Math.abs(bx) >= CLAMP_AT) clamp('x', (clampedX = Math.sign(bx)))
-        if (!clampedY && Math.abs(by) >= CLAMP_AT) clamp('y', (clampedY = Math.sign(by)))
       }
 
       // Each row carries its own tint; the fill eases between them via CSS.
@@ -103,7 +54,6 @@ export function useMagneticHighlight(scope: RefObject<HTMLElement | null>) {
 
       const enter = (row: HTMLElement) => {
         const box = boxFor(row)
-        clampedX = clampedY = 0
         tint(row, !active)
         if (active) {
           // Already lit: jump to the new row with a hard snap.
@@ -121,22 +71,15 @@ export function useMagneticHighlight(scope: RefObject<HTMLElement | null>) {
         active = row
       }
 
-      const leave = (clientX?: number, clientY?: number) => {
+      const leave = () => {
         if (!active) return
-        if (clientX !== undefined && clientY !== undefined) pull(active, clientX, clientY, false)
         active = null
-        squeeze?.kill()
-        gsap.to(fill, { scaleX: 1, scaleY: 1, duration: .12, ease: 'power2.out', overwrite: 'auto' })
         gsap.to(frame, {
           autoAlpha: 0,
           ...(reduced ? {} : safe),
           duration: reduced ? .1 : .14,
           ease: 'power2.in',
           overwrite: 'auto',
-          onComplete: () => {
-            pullX(0, 0)
-            pullY(0, 0)
-          },
         })
       }
 
@@ -155,14 +98,13 @@ export function useMagneticHighlight(scope: RefObject<HTMLElement | null>) {
       const onPointerMove = (event: PointerEvent) => {
         const row = (event.target as Element).closest<HTMLElement>('.index-row') ?? nearest(event.clientY)
         if (row && row !== active) enter(row)
-        if (active) pull(active, event.clientX, event.clientY)
       }
       // A click in the margin or a gap opens whichever row is lit.
       const onClick = (event: MouseEvent) => {
         if (!active || (event.target as Element).closest('.index-row')) return
         active.dispatchEvent(new MouseEvent('click', event))
       }
-      const onPointerLeave = (event: PointerEvent) => leave(event.clientX, event.clientY)
+      const onPointerLeave = () => leave()
       const onFocusIn = (event: FocusEvent) => {
         const row = (event.target as Element).closest<HTMLElement>('.index-row')
         if (row?.matches(':focus-visible')) enter(row)
@@ -182,7 +124,6 @@ export function useMagneticHighlight(scope: RefObject<HTMLElement | null>) {
         track.removeEventListener('focusin', onFocusIn)
         track.removeEventListener('focusout', onFocusOut)
         track.removeEventListener('click', onClick)
-        squeeze?.kill()
         gsap.killTweensOf([frame, fill])
         gsap.set([frame, fill], { clearProps: 'all' })
       })
