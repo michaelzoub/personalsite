@@ -198,11 +198,192 @@ export function InspectEgg() {
           onPointerLeave={() => window.clearTimeout(dwell.current)}
         />
       )}
+      {stage === 'idle' && <PullEgg onTrigger={launch} />}
       {trail && <Flight onLand={() => setStage('dialog')} onDone={() => setTrail(false)} />}
       {stage === 'dialog' && <CarePackage onStart={play} onClosed={(started) => setStage(started ? 'inspect' : 'idle')} />}
       {stage === 'inspect' && <Blueprint onExit={() => { stop(); setStage('idle') }} />}
     </>,
     document.body,
+  )
+}
+
+/* PullEgg: a second way in. Keep scrolling past the bottom of the page: after
+   ~1000px of pulling (any upward scroll resets it) the page grows a runway and
+   the logo's five stripes rise across the full width, middle first, then its
+   neighbors, then the outer pair. At the end of the runway the stripes warp
+   into a sliver and the care package launches. */
+const PULL_ARM = 2200
+const RUNWAY_VH = 12
+// Seconds the stripes take to catch up with the scroll, so one big flick
+// plays out as a glide instead of a jump.
+const CATCH_UP = 1.4
+// Reveal: where each stripe starts rising, as a fraction of the runway (middle, neighbors, edges).
+const STRIPE_START = [.3, .15, 0, .15, .3]
+const STRIPE_SPAN = .15
+// Squeeze: after the reveal the band narrows to the flight trail's width (one PX per color),
+// eased so every scrolled pixel moves it a little less than the last.
+const SQUEEZE_FROM = .5
+const SQUEEZE_TO = .97
+// The trail's head never reaches the bottom: it leads the eye at this fraction
+// of the viewport, so scrolling feels like following it down.
+const HEAD_AT = .62
+
+function PullEgg({ onTrigger }: { onTrigger: () => void }) {
+  const [armed, setArmed] = useState(false)
+  const runway = useRef<HTMLDivElement>(null)
+  const band = useRef<HTMLDivElement>(null)
+  const stripes = useRef<(HTMLSpanElement | null)[]>([])
+  const triggerRef = useLatest(onTrigger)
+
+  // Phase 1: count scroll intent at the very bottom, where the page can't move.
+  useEffect(() => {
+    if (armed) return
+    let pull = 0
+    let touchY: number | null = null
+    const atBottom = () => window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2
+    const add = (delta: number) => {
+      if (delta < 0) return void (pull = 0)
+      if (!atBottom()) return
+      pull += delta
+      if (pull >= PULL_ARM) setArmed(true)
+    }
+    const onWheel = (event: WheelEvent) => add(event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1))
+    const onTouchStart = (event: TouchEvent) => { touchY = event.touches[0]?.clientY ?? null }
+    const onTouchMove = (event: TouchEvent) => {
+      const y = event.touches[0]?.clientY
+      if (touchY === null || y === undefined) return
+      add(touchY - y)
+      touchY = y
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (['ArrowDown', 'PageDown', 'End', ' '].includes(event.key)) add(120)
+      else if (['ArrowUp', 'PageUp', 'Home'].includes(event.key)) add(-1)
+    }
+    window.addEventListener('wheel', onWheel, { passive: true })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [armed])
+
+  // Phase 2: the runway is real scroll space; progress through it raises, then squeezes, the stripes.
+  useEffect(() => {
+    const el = runway.current
+    const strip = band.current
+    if (!armed || !el || !strip) return
+    let leaving = false
+    let lastY = window.scrollY
+    const clamp = (v: number) => Math.min(1, Math.max(0, v))
+    const update = () => {
+      if (leaving) return
+      const top = el.getBoundingClientRect().top + window.scrollY
+      const y = window.scrollY
+      const goingUp = y < lastY - 1
+      lastY = y
+      // Scrolling back above the runway resets the egg.
+      if (goingUp && y + window.innerHeight < top + 40) return setArmed(false)
+      const target = clamp((y + window.innerHeight - top) / el.offsetHeight)
+      render()
+      chase?.kill()
+      chase = gsap.to(state, { progress: target, duration: CATCH_UP, ease: 'power2.out', onUpdate: render })
+    }
+    const state = { progress: 0 }
+    let chase: gsap.core.Tween | null = null
+    const render = () => {
+      if (leaving) return
+      const { progress } = state
+      // Middle stripe runs from the end of the page to the head; the others
+      // catch up behind it, so the head reads as a stepped point.
+      const bandTop = Math.max(0, el.getBoundingClientRect().top)
+      const reach = Math.max(0, window.innerHeight * HEAD_AT - bandTop) / window.innerHeight
+      stripes.current.forEach((stripe, i) => {
+        if (stripe) gsap.set(stripe, { scaleY: reach * gsap.parseEase('power2.out')(clamp((progress - STRIPE_START[i]) / STRIPE_SPAN)) })
+      })
+      const squeeze = gsap.parseEase('power3.out')(clamp((progress - SQUEEZE_FROM) / (SQUEEZE_TO - SQUEEZE_FROM)))
+      const full = el.clientWidth
+      gsap.set(strip, { width: Math.round(full + (PX * palette.length - full) * squeeze) })
+      if (progress >= SQUEEZE_TO) exit()
+    }
+    // The thin band slides off to the right; the page returns to the top and
+    // the package flies back in from the corner, trail first.
+    const exit = () => {
+      leaving = true
+      const done = () => {
+        document.documentElement.style.overflow = ''
+        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
+        setArmed(false)
+        triggerRef.current()
+      }
+      if (reducedMotion()) return done()
+      document.documentElement.style.overflow = 'hidden'
+      // Swap the band for five parallel strokes that run down, bend through a
+      // quarter turn and stream off the right edge, the way the flight's trail
+      // follows its curve. A dash window slides along each path, so the ribbon
+      // flows around the corner instead of moving as a rigid block.
+      const box = strip.getBoundingClientRect()
+      const w = window.innerWidth
+      const h = window.innerHeight
+      const cx = box.left + box.width / 2
+      const R = Math.min(w, h) * .22
+      const bend = h * HEAD_AT
+      const NS = 'http://www.w3.org/2000/svg'
+      const svg = document.createElementNS(NS, 'svg')
+      svg.setAttribute('class', 'pull-exit')
+      svg.setAttribute('viewBox', `0 0 ${w} ${h}`)
+      const paths = palette.map((color, i) => {
+        const o = (i - 2) * PX
+        const r = R - o
+        const path = document.createElementNS(NS, 'path')
+        path.setAttribute('d', `M ${cx + o} ${box.top - 2} V ${bend} A ${r} ${r} 0 0 0 ${cx + R} ${bend + r} H ${w + h}`)
+        path.setAttribute('stroke', color.base)
+        path.setAttribute('stroke-width', String(PX + 1))
+        path.setAttribute('fill', 'none')
+        svg.appendChild(path)
+        return path
+      })
+      document.body.appendChild(svg)
+      const visible = bend - box.top + 2
+      paths.forEach((path) => {
+        const len = path.getTotalLength()
+        path.style.strokeDasharray = `${visible} ${len + visible}`
+        path.style.strokeDashoffset = '0'
+        path.dataset.len = String(len)
+      })
+      gsap.set(strip, { opacity: 0 })
+      gsap.timeline({ onComplete: () => { svg.remove(); done() } })
+        .to(paths, {
+          strokeDashoffset: (_, path: SVGPathElement) => -Number(path.dataset.len),
+          duration: 1.1,
+          ease: 'power2.in',
+        })
+        .to({}, { duration: .1 })
+    }
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    const stopChase = () => chase?.kill()
+    window.addEventListener('resize', update)
+    return () => {
+      stopChase()
+      document.documentElement.style.overflow = ''
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
+  }, [armed, triggerRef])
+
+  if (!armed) return null
+  return (
+    <div ref={runway} className="pull-runway" data-egg aria-hidden="true" style={{ height: `${RUNWAY_VH * 100}vh` }}>
+      <div ref={band} className="pull-stripes">
+        {palette.map((color, i) => (
+          <span key={color.name} ref={(node) => { stripes.current[i] = node }} style={{ background: color.base }} />
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -439,7 +620,7 @@ function CarePackage({ onStart, onClosed }: { onStart: () => void; onClosed: (st
             <div className="egg-card">
               <div className="egg-head" aria-hidden="true"><BrandStripes /></div>
               <div className="egg-row">
-                <h2 id="egg-title" className="egg-title">You found something.</h2>
+                <h2 id="egg-title" className="egg-title">You found something!</h2>
                 <p id="egg-line" className="egg-line">Not all those who wander are lost.</p>
               </div>
               <button ref={startRef} type="button" className="egg-cta" style={{ '--tint': amberTint } as CSSProperties} onClick={() => close(true)}>

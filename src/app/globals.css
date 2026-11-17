@@ -638,6 +638,13 @@ button { font:inherit; }
 @media (hover:hover) and (pointer:fine) {
   .egg-zone { display:block; position:fixed; z-index:70; top:0; right:0; width:64px; height:64px; }
 }
+.pull-runway { position:relative; width:100%; pointer-events:none; }
+/* Sticky, not fixed: the band hangs off the end of the page, never over it. */
+.pull-stripes { position:sticky; top:0; display:flex; width:100%; height:100vh; margin:0 auto; }
+.pull-exit { position:fixed; inset:0; z-index:110; width:100%; height:100%; pointer-events:none; overflow:visible; }
+/* Each stripe bleeds 1px under its neighbor, so subpixel widths never open a seam. */
+.pull-stripes span + span { margin-left:-1px; }
+.pull-stripes span { flex:1; box-sizing:content-box; padding-right:1px; height:100%; transform:scaleY(0); transform-origin:50% 0; will-change:transform; }
 .egg-flight { position:fixed; inset:0; z-index:110; pointer-events:none; }
 .egg-flight canvas { position:absolute; inset:0; width:100%; height:100%; }
 /* Sized by the crate itself, so it lands on exactly the dialog glyph's pixels. */
@@ -652,7 +659,7 @@ button { font:inherit; }
 /* The dialog borrows the landing: a gray tray around a white card, the logo
    stripes up top, title and quote, then the CTA. */
 .egg-body { position:absolute; top:50%; left:50%; box-sizing:border-box; padding:8px; opacity:0; visibility:hidden; transform:translate(-50%,-50%); }
-.egg-card { overflow:hidden; border-radius:10px; background:#fff; box-shadow:0 0 0 1px rgba(15,28,48,.06),0 1px 2px rgba(15,28,48,.04); }
+.egg-card { overflow:hidden; border-radius:10px; background:#fff; }
 .egg-head { padding:22px 24px 0; line-height:0; }
 .egg-head svg { display:block; }
 .egg-row { padding:26px 24px 24px; }
@@ -742,12 +749,23 @@ html[data-inspect] body { background-image:linear-gradient(rgba(15,28,48,.035) 1
 .hover-shot-anchor { display:none; }
 @media (hover:hover) and (pointer:fine) {
   .hover-shot-anchor { display:block; position:absolute; top:0; left:0; z-index:2; width:0; height:0; pointer-events:none; }
-  .hover-shot { display:block; position:absolute; bottom:18px; left:0; translate:-50% 0; width:280px; aspect-ratio:16/10; overflow:hidden; border-radius:14px; background:#fff; box-shadow:0 24px 48px -20px rgba(15,28,48,.35),0 4px 12px rgba(15,28,48,.08),inset 0 0 0 1px rgba(0,0,0,.1); opacity:0; transform:rotate(var(--tilt,0deg)) scale(.96); transform-origin:50% 100%; pointer-events:none; transition:opacity 140ms cubic-bezier(.55,.085,.68,.53),transform 140ms cubic-bezier(.55,.085,.68,.53); }
-  .hover-shot img { object-fit:cover; object-position:top; }
-  .hover-shot[data-kind="mapbench"] { width:340px; }
-  .hover-shot::after { content:""; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 0 1px rgba(0,0,0,.1); }
-  .hover-shot[data-active="true"] { opacity:1; transform:rotate(var(--tilt,0deg)) scale(1); transition-duration:420ms; transition-timing-function:cubic-bezier(.23,1,.32,1); }
-  /* Eases in slowly (420ms, power4.out) and leaves fast like the row highlight (140ms, power2.in). */
+  /* A crisp screenshot lying on the page: near-square corners, layered contact + ambient shadow. */
+  .hover-shot { display:block; position:absolute; bottom:18px; left:0; translate:-50% 0; width:220px; border-radius:2px; background:#fff; box-shadow:0 .5px 1px rgba(15,28,48,.12),0 1px 2px rgba(15,28,48,.07),0 3px 6px -2px rgba(15,28,48,.08),0 10px 18px -8px rgba(15,28,48,.14),0 22px 36px -18px rgba(15,28,48,.16); opacity:0; transform:rotate(var(--tilt,0deg)) scale(.9); transform-origin:50% 100%; pointer-events:none; transition:opacity 140ms cubic-bezier(.55,.085,.68,.53),transform 140ms cubic-bezier(.55,.085,.68,.53); }
+  .hover-shot[data-kind="mapbench"] { width:270px; }
+  .hover-shot-photo { display:block; position:relative; aspect-ratio:16/10; overflow:hidden; border-radius:inherit; background:#f3f5f8; }
+  .hover-shot-photo img { object-fit:cover; object-position:top; }
+  /* Pops in with a small overshoot (~back.out), leaves fast like the row highlight. */
+  .hover-shot[data-active="true"] { opacity:1; transform:rotate(var(--tilt,0deg)) scale(1); transition-duration:300ms; transition-timing-function:cubic-bezier(.34,1.56,.64,1); }
+  /* Egg state: the card joins the blue facade — washed to a pale blue duotone, flat, with a dashed blueprint outline. */
+  html[data-egg-blue] .hover-shot { background:#f4f8fe; box-shadow:0 0 0 1px rgba(111,157,230,.35); }
+  html[data-egg-blue] .hover-shot-photo > * { filter:grayscale(1) contrast(.9) brightness(1.08); }
+  html[data-egg-blue] .hover-shot-photo::before { content:""; position:absolute; inset:0; z-index:1; background:#6f9de6; mix-blend-mode:screen; opacity:.55; pointer-events:none; }
+  /* Blueprint box riding on the card: same geometry and tilt, drawn like the inspector's boxes. */
+  .hover-shot-bp { display:none; }
+  html[data-egg-blue] .hover-shot-bp { display:block; position:absolute; bottom:18px; left:0; translate:-50% 0; width:220px; aspect-ratio:16/10; border:1px dashed color-mix(in srgb,#D4842F 70%,transparent); border-radius:2px; background:color-mix(in srgb,#D4842F 6%,transparent); opacity:0; transform:rotate(var(--tilt,0deg)) scale(.9); transform-origin:50% 100%; transition:opacity 140ms cubic-bezier(.55,.085,.68,.53),transform 140ms cubic-bezier(.55,.085,.68,.53); font:9px/1 var(--font-mono),monospace; font-variant-numeric:tabular-nums; }
+  html[data-egg-blue] .hover-shot-bp[data-kind="mapbench"] { width:270px; }
+  html[data-egg-blue] .hover-shot-bp[data-active="true"] { opacity:1; transform:rotate(var(--tilt,0deg)) scale(1); transition-duration:300ms; transition-timing-function:cubic-bezier(.34,1.56,.64,1); }
+  .hover-shot-bp span { position:absolute; top:-1px; left:12px; padding:2px 3px; border-radius:2px 2px 0 0; background:#D4842F; color:#fff; white-space:nowrap; transform:translateY(-100%); }
 }
 @media (prefers-reduced-motion:reduce) { .hover-shot { transition:opacity 120ms linear!important; transform:rotate(var(--tilt,0deg))!important; } }
 @media (prefers-reduced-motion:reduce) { .index-preview { transition-duration:.01ms!important; transform:none!important; } }

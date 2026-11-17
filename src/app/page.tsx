@@ -83,7 +83,7 @@ const randomTilt = () => (Math.random() < .5 ? -1 : 1) * (3 + Math.random() * 6)
 const tilts: Record<string, number> = {}
 // Slightly underdamped: the card catches up with a small overshoot, then the swing wobbles out.
 const FOLLOW = { stiffness: 420, damping: 32 }
-const SWING = { gain: .012, max: 10, stiffness: 260, damping: 11 }
+const SWING = { gain: .012, max: 4, stiffness: 260, damping: 11 }
 
 function HoverShot({ id, active }: { id: string; active: boolean }) {
   const anchorRef = useRef<HTMLSpanElement>(null)
@@ -150,9 +150,16 @@ function HoverShot({ id, active }: { id: string; active: boolean }) {
   const src = previews[id]
   if (!src && id !== 'mapbench') return null
   return (
-    <span ref={anchorRef} className="hover-shot-anchor" aria-hidden="true">
-      <span className="hover-shot" data-kind={id} data-active={active} style={{ '--tilt': `${tilt.toFixed(1)}deg` } as CSSProperties}>
-        {src ? <Image src={src} alt="" fill sizes="340px" /> : <MapBenchPreview playing={active} />}
+    // data-egg keeps the inspector from measuring the card at rest; in the egg
+    // state it carries its own blueprint box instead, so the outline follows it.
+    <span ref={anchorRef} className="hover-shot-anchor" data-egg aria-hidden="true" style={{ '--tilt': `${tilt.toFixed(1)}deg` } as CSSProperties}>
+      <span className="hover-shot" data-kind={id} data-active={active}>
+        <span className="hover-shot-photo">
+          {src ? <Image src={src} alt="" fill sizes="270px" /> : <MapBenchPreview playing={active} />}
+        </span>
+      </span>
+      <span className="hover-shot-bp" data-kind={id} data-active={active}>
+        <span>figure.hover-shot {id === 'mapbench' ? '270×168.75' : '220×137.5'}</span>
       </span>
     </span>
   )
