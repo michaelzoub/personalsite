@@ -6,7 +6,7 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSPropert
 import { createPortal } from 'react-dom'
 import { LuArrowUpRight, LuX } from 'react-icons/lu'
 import { palette } from '../data/palette'
-import { pixelPaths, type Cell } from './pixels'
+import { pixelPaths } from './pixels'
 import { BrandStripes } from './BrandMark'
 
 // Easter egg: dwell in the top-right corner (tap or press it on touch) and a
@@ -164,18 +164,22 @@ export function InspectEgg() {
     const track = audio.current ?? new Audio(TRACK.src)
     audio.current = track
     track.loop = true
-    track.volume = 0
+    // Wire Web Audio here, inside the click, so the context is allowed to run.
+    // Volume lives on a gain node after the analyser, so the EQ always hears
+    // the track at full level.
+    const level = levelFor(track)
+    level.value = 0
     void track.play().catch(() => {})
     fade.current?.kill()
-    fade.current = gsap.to(track, { volume: .6, duration: 1.8, ease: 'power1.out' })
+    fade.current = gsap.to(level, { value: .6, duration: 1.8, ease: 'power1.out' })
   }
 
   const stop = () => {
     const track = audio.current
     if (!track) return
     fade.current?.kill()
-    fade.current = gsap.to(track, {
-      volume: 0,
+    fade.current = gsap.to(levelFor(track), {
+      value: 0,
       duration: .6,
       ease: 'power1.in',
       onComplete: () => {
@@ -201,7 +205,7 @@ export function InspectEgg() {
       {stage === 'idle' && <PullEgg onTrigger={launch} />}
       {trail && <Flight onLand={() => setStage('dialog')} onDone={() => setTrail(false)} />}
       {stage === 'dialog' && <CarePackage onStart={play} onClosed={(started) => setStage(started ? 'inspect' : 'idle')} />}
-      {stage === 'inspect' && <Blueprint onExit={() => { stop(); setStage('idle') }} />}
+      {stage === 'inspect' && <Blueprint audio={audio.current} onExit={() => { stop(); setStage('idle') }} />}
     </>,
     document.body,
   )
@@ -387,20 +391,136 @@ function PullEgg({ onTrigger }: { onTrigger: () => void }) {
   )
 }
 
-/* Flight: the package arcs from the corner to the center, dragging a five-stripe
-   pixel trail in the logo colors. A GSAP timeline drives head and tail along the same
-   curve, the tail starting a beat later, so the trail shortens on its own once
-   the package lands. */
+/* EqMark: the logo as a live level meter. Each stripe follows one slice of
+   the track's spectrum, low on the left to high on the right, so it moves
+   with the music instead of looping. Falls back to the CSS loop if Web Audio
+   isn't available. */
+const EQ_BANDS: [number, number][] = [[40, 120], [120, 400], [400, 1500], [1500, 5000], [5000, 14000]]
+const EQ_FLOOR = .22
+const EQ_ATTACK = .55
+const EQ_RELEASE = .3
+// Each band is mapped through its own recent floor-to-peak range: the low end
+// never drops near zero on this track (pinned bars), and 1.5–5k is ~15x quieter
+// than the bass (a dead bar). Edges snap outward fast and relax inward slowly.
+const EQ_RANGE_MIN = .01 // with the 12%-of-peak floor below, keeps silence from turning into noise
+const EQ_RANGE_RELAX = .012 // per frame (~1.5s), toward the current level
+const EQ_CURVE = 1.6
+// A media element can only be wired into Web Audio once, so the graph lives on
+// the element itself. A module-level cache would be wiped by hot reload while
+// the element survives, and the second wiring would throw.
+// Graph: element -> analyser -> gain -> speakers. The element stays at full
+// volume so the analyser sees the real signal; fades happen on the gain.
+type AudioGraph = { analyser: AnalyserNode; gain: GainNode }
+type WiredAudio = HTMLAudioElement & { __eqGraph?: AudioGraph }
+
+function graphFor(audio: WiredAudio): AudioGraph | null {
+  const cached = audio.__eqGraph
+  if (cached) {
+    void (cached.analyser.context as AudioContext).resume()
+    return cached
+  }
+  const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+  if (!Ctx) return null
+  const context = new Ctx()
+  const analyser = context.createAnalyser()
+  analyser.fftSize = 1024
+  analyser.smoothingTimeConstant = .6
+  const gain = context.createGain()
+  context.createMediaElementSource(audio).connect(analyser)
+  analyser.connect(gain)
+  gain.connect(context.destination)
+  void context.resume()
+  audio.__eqGraph = { analyser, gain }
+  return audio.__eqGraph
+}
+
+// Something GSAP can tween as a plain number: the gain if Web Audio is wired,
+// otherwise the element's own volume.
+function levelFor(audio: HTMLAudioElement) {
+  let graph: AudioGraph | null = null
+  try { graph = graphFor(audio) } catch (error) { console.warn('Audio graph unavailable', error) }
+  if (graph) {
+    audio.volume = 1
+    const gain = graph.gain.gain
+    return { get value() { return gain.value }, set value(v: number) { gain.value = v } }
+  }
+  return { get value() { return audio.volume }, set value(v: number) { audio.volume = v } }
+}
+
+function EqMark({ audio }: { audio: HTMLAudioElement | null }) {
+  const bars = useRef<(HTMLElement | null)[]>([])
+  const [live, setLive] = useState(false)
+
+  useEffect(() => {
+    if (!audio || reducedMotion()) return
+    let analyser: AnalyserNode | null = null
+    try { analyser = graphFor(audio)?.analyser ?? null } catch (error) {
+      console.warn('EqMark: falling back to the CSS loop', error)
+      return
+    }
+    if (!analyser) return
+    setLive(true)
+    const bins = new Uint8Array(analyser.frequencyBinCount)
+    const hz = analyser.context.sampleRate / analyser.fftSize
+    const levels = EQ_BANDS.map(() => EQ_FLOOR)
+    const lows = EQ_BANDS.map(() => 1)
+    const highs = EQ_BANDS.map(() => 0)
+    let frame = 0
+    const tick = () => {
+      analyser!.getByteFrequencyData(bins)
+      EQ_BANDS.forEach(([lo, hi], i) => {
+        const from = Math.max(1, Math.floor(lo / hz))
+        const to = Math.max(from + 1, Math.ceil(hi / hz))
+        let sum = 0
+        for (let b = from; b < to; b++) sum += bins[b]
+        const energy = sum / (to - from) / 255
+        lows[i] = energy < lows[i] ? energy : lows[i] + (energy - lows[i]) * EQ_RANGE_RELAX
+        highs[i] = energy > highs[i] ? energy : highs[i] + (energy - highs[i]) * EQ_RANGE_RELAX
+        // Eased so the bars rest mid-height and kick up on hits instead of hugging the top.
+        const raw = Math.pow(Math.min(1, Math.max(0, (energy - lows[i]) / Math.max(EQ_RANGE_MIN, highs[i] * .12, highs[i] - lows[i]))), EQ_CURVE)
+        const target = EQ_FLOOR + (1 - EQ_FLOOR) * raw
+        levels[i] += (target - levels[i]) * (target > levels[i] ? EQ_ATTACK : EQ_RELEASE)
+        const bar = bars.current[i]
+        if (bar) bar.style.height = `${(levels[i] * 100).toFixed(1)}%`
+      })
+      frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [audio])
+
+  return (
+    <span className="egg-hud-mark" data-live={live || undefined} aria-hidden="true">
+      {palette.map((color, i) => (
+        <i key={color.name} ref={(node) => { bars.current[i] = node }} style={{ '--c': color.base } as CSSProperties} />
+      ))}
+    </span>
+  )
+}
+
+/* Flight: the five-stripe ribbon arcs from the corner down to the center, its
+   leading edge stopping exactly where the package's body ends. Then the
+   package's own lid (the same ink row) swipes in from the side, overshoots a
+   hair and settles, cutting all five bars at once: what's below becomes the
+   box, what's above fades where it is. While the ribbon bends, its ends fan
+   out a little (inner lanes lead), like the pull egg's exit; both ends square
+   off as it lands. The box then fades in place as the dialog grows under it. */
+const LID_W = PK_W
+const lidPaths = Array.from(pixelPaths(
+  new Map([...PACKAGE[0]].flatMap((ch, c) => ch === '#' ? [[`${c},0`, 'currentColor'] as const] : [])),
+  PX,
+))
+
 function Flight({ onLand, onDone }: { onLand: () => void; onDone: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const iconRef = useRef<HTMLDivElement>(null)
+  const lidRef = useRef<HTMLDivElement>(null)
   const callbacks = useLatest({ onLand, onDone })
 
   useEffect(() => {
     const canvas = canvasRef.current
-    const icon = iconRef.current
+    const lid = lidRef.current
     const ctx = canvas?.getContext('2d')
-    if (!canvas || !icon || !ctx) {
+    if (!canvas || !lid || !ctx) {
       callbacks.current.onLand()
       callbacks.current.onDone()
       return
@@ -412,18 +532,39 @@ function Flight({ onLand, onDone }: { onLand: () => void; onDone: () => void }) 
     canvas.height = h * dpr
     ctx.scale(dpr, dpr)
 
+    // The package as the dialog will draw it: centered in the viewport.
+    const boxTop = Math.round(h / 2 - PK_H / 2)
+    const boxLeft = Math.round(w / 2 - PK_W / 2)
+    const cutY = boxTop + PX // bottom of the lid row
+
+    // The curve ends at the bottom of the box, arriving straight down so the
+    // five lanes line up with the body's five columns.
+    // A quadratic arc from the corner to a point above the box, then a true
+    // straight drop, so the bars are perfectly vertical where the lid cuts.
+    const DROP = Math.min(160, (boxTop + PK_H - 30) * .45)
     const a = { x: w - 30, y: 30 }
-    const b = { x: w / 2, y: h / 2 }
-    const c = { x: b.x + (a.x - b.x) * .15, y: a.y + (b.y - a.y) * .05 }
+    const b = { x: boxLeft + PK_W / 2, y: boxTop + PK_H - DROP }
+    const end = { x: b.x, y: boxTop + PK_H }
+    const c = { x: b.x, y: a.y + (b.y - a.y) * .05 }
+    const SPLIT = .82 // share of t spent on the arc; the arc-length table evens it out
+    const arc = (t: number) => {
+      const s = t / SPLIT
+      const u = 1 - s
+      return {
+        p: { x: u * u * a.x + 2 * u * s * c.x + s * s * b.x, y: u * u * a.y + 2 * u * s * c.y + s * s * b.y },
+        d: { x: 2 * u * (c.x - a.x) + 2 * s * (b.x - c.x), y: 2 * u * (c.y - a.y) + 2 * s * (b.y - c.y) },
+      }
+    }
     const point = (t: number) => {
-      const u = 1 - t
-      return { x: u * u * a.x + 2 * u * t * c.x + t * t * b.x, y: u * u * a.y + 2 * u * t * c.y + t * t * b.y }
+      if (t <= SPLIT) return arc(t).p
+      const s = (t - SPLIT) / (1 - SPLIT)
+      return { x: b.x, y: b.y + (end.y - b.y) * s }
     }
     const normal = (t: number) => {
-      const dx = 2 * (1 - t) * (c.x - a.x) + 2 * t * (b.x - c.x)
-      const dy = 2 * (1 - t) * (c.y - a.y) + 2 * t * (b.y - c.y)
-      const length = Math.hypot(dx, dy) || 1
-      return { x: -dy / length, y: dx / length }
+      if (t > SPLIT) return { x: -1, y: 0 }
+      const { d } = arc(t)
+      const length = Math.hypot(d.x, d.y) || 1
+      return { x: -d.y / length, y: d.x / length }
     }
     // Arc-length table, so the trail can be measured along the curve.
     const TABLE = 240
@@ -433,94 +574,147 @@ function Flight({ onLand, onDone }: { onLand: () => void; onDone: () => void }) 
       lengths.push(lengths[i - 1] + Math.hypot(next.x - prev.x, next.y - prev.y))
       prev = next
     }
+    const total = lengths[TABLE]
+    // Signed curvature, normalized, so lane ends can stagger on the bends.
+    const curvature = (t: number) => {
+      if (t > SPLIT) return 0
+      const { d } = arc(t)
+      const ddx = 2 * (b.x - 2 * c.x + a.x)
+      const ddy = 2 * (b.y - 2 * c.y + a.y)
+      return (d.x * ddy - d.y * ddx) / Math.pow(Math.hypot(d.x, d.y) || 1, 3)
+    }
+    let maxCurve = 1e-6
+    for (let i = 0; i <= TABLE; i++) maxCurve = Math.max(maxCurve, Math.abs(curvature(i / TABLE)))
+    const FAN = 1.4 // px of lead per px of lane offset at the tightest bend
+    const FAN_EASE = 160 // px before the box over which the fan fades out
     const lengthAt = (t: number) => {
       const f = t * TABLE
       const i = Math.min(TABLE - 1, Math.floor(f))
       return lengths[i] + (lengths[i + 1] - lengths[i]) * (f - i)
     }
-
-    // The trail is a pixel line printed on a fixed grid behind the package:
-    // the cells the curve passes through, stepping only to side neighbors so
-    // it stays one connected mass, striped along its length in the logo's colors.
-    const trail: { key: string; at: number }[] = []
-    for (let i = 0, last: Cell | null = null; i <= TABLE; i++) {
-      const p = point(i / TABLE)
-      const cell: Cell = [Math.floor(p.x / PX), Math.floor(p.y / PX)]
-      if (last && cell[0] === last[0] && cell[1] === last[1]) continue
-      if (last && cell[0] !== last[0] && cell[1] !== last[1]) {
-        // A diagonal step turns the corner through whichever side cell the curve hugs.
-        const via: Cell[] = [[cell[0], last[1]], [last[0], cell[1]]]
-        const off = ([col, row]: Cell) => Math.hypot((col + .5) * PX - p.x, (row + .5) * PX - p.y)
-        const [col, row] = off(via[0]) <= off(via[1]) ? via[0] : via[1]
-        trail.push({ key: `${col},${row}`, at: lengths[i] })
+    const tAt = (len: number) => {
+      let lo = 0
+      let hi = TABLE
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1
+        if (lengths[mid] < len) lo = mid + 1
+        else hi = mid
       }
-      trail.push({ key: `${cell[0]},${cell[1]}`, at: lengths[i] })
-      last = cell
+      return lo / TABLE
     }
 
-    // Each color holds for three cells; toward the tail the line fades in flat
-    // steps rather than a gradient, so it stays pixel-crisp.
-    const STRIPE = 3
-    const FADE_STEPS = 3
-    const HEAD_GAP = PX
-    const drawTrail = (tail: number, head: number) => {
+    // Five parallel strokes in the logo's colors, each riding the curve at its
+    // own offset, so the band bends with the flight. Lane 0 ends up leftmost.
+    const SAMPLES = 80
+    const drawTrail = (tail: number, head: number, fan = true) => {
       const from = lengthAt(tail)
-      const to = lengthAt(head) - HEAD_GAP
+      const to = lengthAt(head)
       if (to <= from) return
-      const lit = new Map<string, string>()
-      trail.forEach(({ key, at }, index) => {
-        if (at < from || at > to) return
-        const step = Math.max(1, Math.ceil(((at - from) / (to - from)) * FADE_STEPS))
-        lit.set(key, `${Math.floor(index / STRIPE) % palette.length}:${step}`)
+      ctx.lineWidth = PX + 1
+      ctx.lineCap = 'butt'
+      ctx.lineJoin = 'round'
+      palette.forEach((color, lane) => {
+        const o = (2 - lane) * PX
+        // Inner lanes lead around a bend, outer ones trail.
+        // The fan eases out over the final straight drop, so the ends are
+        // square by the time they reach the box.
+        const lead = (t: number, len: number) =>
+          fan ? o * FAN * state.fan * (curvature(t) / maxCurve) * Math.min(1, Math.max(0, (total - len) / FAN_EASE)) : 0
+        const t0 = tAt(Math.min(total, Math.max(0, from + lead(tail, from))))
+        const t1 = tAt(Math.min(total, Math.max(0, to + lead(head, to))))
+        if (t1 <= t0) return
+        ctx.beginPath()
+        for (let i = 0; i <= SAMPLES; i++) {
+          const t = t0 + (t1 - t0) * (i / SAMPLES)
+          const p = point(t)
+          const n = normal(t)
+          if (i === 0) ctx.moveTo(p.x + n.x * o, p.y + n.y * o)
+          else ctx.lineTo(p.x + n.x * o, p.y + n.y * o)
+        }
+        ctx.strokeStyle = color.base
+        ctx.stroke()
       })
-      for (const [layer, d] of pixelPaths(lit, PX)) {
-        const [color, step] = layer.split(':').map(Number)
-        ctx.globalAlpha = step / FADE_STEPS
-        ctx.fillStyle = palette[color].base
-        ctx.fill(new Path2D(d))
-      }
-      ctx.globalAlpha = 1
     }
 
-    let handoff = 0
-    const progress = { head: 0, tail: 0 }
+    // Where the tail rests while the ribbon waits for the lid.
+    // Inside the straight drop, so the top edge is level, not cut at an angle.
+    const tailRest = tAt(total - DROP + 2)
+
+    // The lid whips in from the left edge.
+    const lidFrom = -LID_W - 40
+    // fan: how much the ends stagger; it settles to 0 as the ribbon lands so
+    // both ends are square before the lid arrives.
+    const state = { head: 0, tail: 0, lidX: lidFrom, alpha: 1, cut: 0, fan: 1 }
+    const clipRect = (x: number, y: number, rw: number, rh: number) => {
+      ctx.beginPath()
+      ctx.rect(x, y, rw, rh)
+      ctx.clip()
+    }
     const render = () => {
-      const { head, tail } = progress
       ctx.clearRect(0, 0, w, h)
-      drawTrail(tail, head)
-      const p = point(head)
-      gsap.set(icon, { x: p.x - PK_W / 2, y: p.y - PK_H / 2, force3D: true })
+      gsap.set(lid, { x: state.lidX, force3D: true })
+      // The whole ribbon stays intact until the lid arrives, then it is cut
+      // across all five bars at once.
+      const blade = state.cut ? w : 0
+      const above = cutY
+      ctx.save()
+      clipRect(blade, 0, w - blade, h)
+      drawTrail(state.tail, state.head)
+      ctx.restore()
+      if (blade <= 0) return
+      // Below the lid, left of the blade: the box body, solid.
+      ctx.save()
+      clipRect(0, cutY, blade, h - cutY)
+      drawTrail(0, state.head, false)
+      ctx.restore()
+      // Above it: the severed ribbon stays put and fades.
+      ctx.save()
+      clipRect(0, 0, blade, above)
+      ctx.globalAlpha = state.alpha
+      drawTrail(state.tail, state.head)
+      ctx.restore()
     }
     render()
 
+    gsap.set(lid, { x: lidFrom, y: boxTop, transformOrigin: '50% 100%', autoAlpha: 1 })
+
     const duration = FLIGHT_MS / 1000
+    const swipe = duration - .04
+    const swept = swipe + .18
     const timeline = gsap.timeline({ onUpdate: render, onComplete: () => callbacks.current.onDone() })
     timeline
-      .to(progress, {
-        head: 1,
-        duration,
-        ease: 'power3.out',
-        onComplete: () => {
-          callbacks.current.onLand()
-          // Hand off to the dialog's identical glyph only once it has painted,
-          // so no frame shows neither.
-          handoff = requestAnimationFrame(() => {
-            handoff = requestAnimationFrame(() => gsap.set(icon, { opacity: 0 }))
-          })
-        },
-      }, 0)
-      .to(progress, { tail: 1, duration, ease: 'power3.out' }, TRAIL_LAG_MS / 1000)
+      .to(state, { head: 1, duration, ease: 'power3.out' }, 0)
+      .to(state, { tail: tailRest, duration, ease: 'power3.out' }, TRAIL_LAG_MS / 1000)
+      .to(state, { fan: 0, duration: .3, ease: 'power2.out' }, duration - .3)
+      // Fast in, rigid while it cuts so the blade edge and the cut always
+      // match. Once seated, one small vertical squash is the only bounce.
+      // It overshoots a few px to the right, then springs back to sit flush.
+      .to(state, { lidX: boxLeft + 10, duration: .18, ease: 'power3.out' }, swipe)
+      .set(state, { cut: 1 }, swipe + .1)
+      .to(state, { lidX: boxLeft, duration: .45, ease: 'elastic.out(1, .45)' }, swipe + .18)
+      // The severed top just fades where it is: no retracting, no resizing.
+      .to(state, { alpha: 0, duration: .25, ease: 'power1.in' }, swept + .05)
+      .call(() => {
+        callbacks.current.onLand()
+        // The box fades out right where it is as the dialog grows from under
+        // it. No swap to the dialog's own glyph: that one is drawn slightly
+        // differently, and the swap read as a resize.
+        gsap.to([lid, canvas], { autoAlpha: 0, duration: .18, ease: 'power1.in' })
+      }, [], swept + .45)
+      .to({}, { duration: .22 }) // let the fade finish before unmounting
     return () => {
       timeline.kill()
-      cancelAnimationFrame(handoff)
+      gsap.killTweensOf([lid, canvas])
     }
   }, [callbacks])
 
   return (
     <div className="egg-flight" data-egg aria-hidden="true">
       <canvas ref={canvasRef} />
-      <div ref={iconRef} className="egg-flight-icon">
-        <PackageGlyph />
+      <div ref={lidRef} className="egg-flight-icon">
+        <svg className="egg-package" width={LID_W} height={PX} viewBox={`0 0 ${LID_W} ${PX}`} aria-hidden="true">
+          {lidPaths.map(([fill, d]) => <path key={fill} fill={fill} d={d} />)}
+        </svg>
       </div>
     </div>
   )
@@ -562,10 +756,10 @@ function CarePackage({ onStart, onClosed }: { onStart: () => void; onClosed: (st
         gsap.fromTo([backdrop, shell], { opacity: 0 }, { opacity: 1, duration: .2, onComplete: focusStart })
         return
       }
-      // The package has done its job once it lands: it fades out in place
-      // while the tray grows straight out from under it into the dialog.
+      // The flight's own box fades out in place; the tray grows straight out
+      // from under it into the dialog.
       gsap.timeline({ onComplete: focusStart })
-        .to(glyph, { autoAlpha: 0, scale: .92, duration: .16, ease: 'power2.in' }, 0)
+        .set(glyph, { autoAlpha: 0 }, 0)
         .to(backdrop, { opacity: 1, duration: .4, ease: 'power2.out' }, 0)
         .to(shell, { ...final, duration: .42, ease: 'power3.out' }, 0)
         // The shell doesn't clip: the card only shows once the tray is within
@@ -933,7 +1127,7 @@ function draft(timeline: gsap.core.Timeline, layer: HTMLElement) {
 /* Blueprint: Chrome's inspect overlay for the whole page at once. Bands and
    chips are positioned in document coordinates, so scrolling is free; we only
    re-measure when layout can change. */
-function Blueprint({ onExit }: { onExit: () => void }) {
+function Blueprint({ audio, onExit }: { audio: HTMLAudioElement | null; onExit: () => void }) {
   const pathname = usePathname()
   const [layout, setLayout] = useState<Layout | null>(null)
   const [hover, setHover] = useState<Hover | null>(null)
@@ -1141,11 +1335,8 @@ function Blueprint({ onExit }: { onExit: () => void }) {
         )}
       </div>
       <div className="egg-hud" data-egg data-leaving={leaving || undefined} role="region" aria-label="Inspect mode">
-        <span className="egg-hud-mark" aria-hidden="true">
-          {palette.map((color) => <i key={color.name} style={{ '--c': color.base } as CSSProperties} />)}
-        </span>
+        <EqMark audio={audio} />
         <span className="egg-hud-track">
-          <span className="egg-hud-eq" aria-hidden="true"><i /><i /><i /></span>
           {TRACK.title}<span>{TRACK.artist}</span>
         </span>
         <button type="button" onClick={() => setLeaving(true)} aria-label="Exit inspect mode">
